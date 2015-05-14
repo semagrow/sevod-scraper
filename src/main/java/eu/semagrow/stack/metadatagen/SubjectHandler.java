@@ -28,10 +28,12 @@ public class SubjectHandler extends HandlerBase {
         }
     }
 
-    public List<String> getPatterns() { return patterns; }
+    public List<String> getPatterns() {
+        patterns = new ArrayList<>(Subjects.getPatterns());
+        return patterns;
+    }
 
     private void printPrefixes() {
-        patterns = new ArrayList<>(Subjects.getPatterns());
         Collections.sort(patterns);
         for (String s : patterns) {
             System.out.println(s);

@@ -11,11 +11,18 @@ import org.openrdf.rio.Rio;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.List;
 
 /**
  * Created by antonis on 14/5/2015.
  */
 public class MetadataGenerator {
+
+    //private
+
+    void handleSubjects() {
+
+    }
 
     // ------------------------------------------------------------
 
@@ -44,7 +51,8 @@ public class MetadataGenerator {
         BNode dataset = vf.createBNode();
         RDFWriter writer = new CompactBNodeTurtleWriter(System.out);
 
-        RDFFormat format = Rio.getParserFormatForFileName(args[1]);
+        //RDFFormat format = Rio.getParserFormatForFileName(args[1]);
+        RDFFormat format = RDFFormat.NQUADS;
         if (format == null) {
             System.err.println("can not identify RDF format for: " + file);
             System.exit(1);
@@ -55,7 +63,9 @@ public class MetadataGenerator {
         parser.setRDFHandler(subjecthandler);
         parser.parse(new FileInputStream(file), "");
 
-        SubjectWriter subjectwriter = new SubjectWriter(subjecthandler.getPatterns());
+        List<String> list = subjecthandler.getPatterns();
+
+        SubjectWriter subjectwriter = new SubjectWriter(list);
         parser.setRDFHandler(subjectwriter);
         parser.parse(new FileInputStream(file), "");
 
