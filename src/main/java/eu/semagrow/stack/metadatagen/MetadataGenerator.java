@@ -21,10 +21,9 @@ public class MetadataGenerator {
     private ValueFactory vf = ValueFactoryImpl.getInstance();
     private BNode dataset = vf.createBNode();
     private RDFWriter writer = new CompactBNodeTurtleWriter(System.out);
+    private RDFFormat format = RDFFormat.NQUADS;
 
     private void handleSubjects(File file) throws RDFParseException, IOException, RDFHandlerException {
-
-        RDFFormat format = RDFFormat.NQUADS;
 
         SubjectHandler subjecthandler = new SubjectHandler();
         RDFParser parser = Rio.createParser(format);
@@ -46,6 +45,10 @@ public class MetadataGenerator {
 
     private void handleProperties(File file) throws RDFParseException, IOException, RDFHandlerException {
         VoidGenerator generator = new VoidGenerator(writer, dataset);
+        RDFParser parser = Rio.createParser(format);
+        parser.setRDFHandler(generator);
+        parser.parse(new FileInputStream(file), "");
+        // TODO distinct objects, subject general etc.
     }
 
     ////////////////////////////
