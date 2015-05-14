@@ -1,6 +1,6 @@
 # !/bin/sh
 
-mainclass=eu.semagrow.stack.metadatagen.MetadataGenerator
+mainclass=eu.semagrow.stack.metadatagen.Main
 
 classpath=target/metadatagen-1.0-SNAPSHOT.jar
 

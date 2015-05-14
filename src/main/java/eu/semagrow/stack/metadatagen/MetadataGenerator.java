@@ -1,16 +1,16 @@
 package eu.semagrow.stack.metadatagen;
 
 import eu.semagrow.stack.metadatagen.util.CompactBNodeTurtleWriter;
+import eu.semagrow.stack.metadatagen.vocabulary.VOID;
 import org.openrdf.model.BNode;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.ValueFactoryImpl;
-import org.openrdf.rio.RDFFormat;
-import org.openrdf.rio.RDFParser;
-import org.openrdf.rio.RDFWriter;
-import org.openrdf.rio.Rio;
+import org.openrdf.model.vocabulary.RDF;
+import org.openrdf.rio.*;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -18,45 +18,13 @@ import java.util.List;
  */
 public class MetadataGenerator {
 
-    //private
+    private ValueFactory vf = ValueFactoryImpl.getInstance();
+    private BNode dataset = vf.createBNode();
+    private RDFWriter writer = new CompactBNodeTurtleWriter(System.out);
 
-    void handleSubjects() {
+    private void handleSubjects(File file) throws RDFParseException, IOException, RDFHandlerException {
 
-    }
-
-    // ------------------------------------------------------------
-
-    public static void main(String[] args) throws Exception {
-
-        // check for file parameter
-        if (args.length < 2) {
-            String className = VoidGenerator.class.getName();
-            System.err.println("USAGE: java " + className + " endpoint RDF.nt{.zip}");
-            System.exit(1);
-        }
-
-        File file = new File(args[1]);
-        if (!file.exists()) {
-            System.err.println("file not found: " + file);
-            System.exit(1);
-        }
-
-        // check if file is not a directory
-        if (!file.isFile()) {
-            System.err.println("not a normal file: " + file);
-            System.exit(1);
-        }
-
-        ValueFactory vf = ValueFactoryImpl.getInstance();
-        BNode dataset = vf.createBNode();
-        RDFWriter writer = new CompactBNodeTurtleWriter(System.out);
-
-        //RDFFormat format = Rio.getParserFormatForFileName(args[1]);
         RDFFormat format = RDFFormat.NQUADS;
-        if (format == null) {
-            System.err.println("can not identify RDF format for: " + file);
-            System.exit(1);
-        }
 
         SubjectHandler subjecthandler = new SubjectHandler();
         RDFParser parser = Rio.createParser(format);
@@ -69,8 +37,32 @@ public class MetadataGenerator {
         parser.setRDFHandler(subjectwriter);
         parser.parse(new FileInputStream(file), "");
 
-        writer.startRDF();
         subjectwriter.writeSevodStats(writer, dataset);
+    }
+
+    private void handleObjects(File file) throws RDFParseException, IOException, RDFHandlerException {
+        // TODO
+    }
+
+    private void handleProperties(File file) throws RDFParseException, IOException, RDFHandlerException {
+        VoidGenerator generator = new VoidGenerator(writer, dataset);
+    }
+
+    ////////////////////////////
+
+    public void writeMetadata(File file) throws RDFParseException, IOException, RDFHandlerException {
+
+        writer.startRDF();
+
+        writer.handleNamespace("void", "http://rdfs.org/ns/void#");
+        writer.handleNamespace("svd", "http://rdf.iit.demokritos.gr/2013/sevod#");
+
+        writer.handleStatement(vf.createStatement(dataset, RDF.TYPE, vf.createURI(VOID.Dataset.toString())));
+
+        handleSubjects(file);
+        handleObjects(file);
+        handleProperties(file);
+
         writer.endRDF();
     }
 }

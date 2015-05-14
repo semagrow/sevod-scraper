@@ -21,11 +21,21 @@ public class SubjectHandler extends HandlerBase {
     private List<String> patterns = new ArrayList<>();
 
     @Override
+    public void startRDF() throws RDFHandlerException {
+        super.startRDF();
+    }
+
+    @Override
     public void handleStatement(Statement st) throws RDFHandlerException {
         if (st.getSubject() instanceof URI) {
             String str = ((URI) st.getSubject()).toString();
             Subjects.addString(str);
         }
+    }
+
+    @Override
+    public void endRDF() throws RDFHandlerException {
+        super.endRDF();
     }
 
     public List<String> getPatterns() {

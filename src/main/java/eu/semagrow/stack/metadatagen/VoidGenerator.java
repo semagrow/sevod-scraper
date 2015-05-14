@@ -38,21 +38,15 @@ public class VoidGenerator extends RDFHandlerBase {
     private final Set<Resource> distSubject = new HashSet<Resource>();
     private final Set<Value> distObject = new HashSet<Value>();
 
-    private PathTrie SubjectTrie;
-    private PathTrie ObjectTrie;
-
     private URI lastPredicate = null;
     private long predCount;
     private long tripleCount;
     private long entityCount;
 
-    private String endpoint;
-    private int count = 0;
-
     private ValueFactory vf = ValueFactoryImpl.getInstance();
-    private BNode dataset = vf.createBNode();
 
-    private final RDFWriter writer = new CompactBNodeTurtleWriter(System.out);
+    private Resource dataset;
+    private final RDFWriter writer;
 
     private final Comparator<Value> VAL_COMP = new Comparator<Value>() {
         @Override
@@ -94,16 +88,6 @@ public class VoidGenerator extends RDFHandlerBase {
         distObject.add(st.getObject());
 
         lastPredicate = predicate;
-
-        if (st.getSubject() instanceof  URI) {
-            String str = ((URI) st.getSubject()).toString();
-            SubjectTrie.addPath(str);
-	    }
-
-        if (st.getObject() instanceof  URI) {
-            String str = ((URI) st.getObject()).toString();
-            ObjectTrie.addPath(str);
-        }
     }
 
     /**
@@ -117,7 +101,7 @@ public class VoidGenerator extends RDFHandlerBase {
         predicates.add(lastPredicate);
 
         // TODO: write predicate statistics
-//		System.out.println(lastPredicate + " [" + predCount + "], distS: " + distSubject.size() + ", distObj: " + distObject.size());
+        //System.out.println(lastPredicate + " [" + predCount + "], distS: " + distSubject.size() + ", distObj: " + distObject.size());
         writePredicateStatToVoid(lastPredicate, predCount, distSubject.size(), distObject.size());
 
         // clear stored values;
@@ -168,40 +152,16 @@ public class VoidGenerator extends RDFHandlerBase {
 
     // ------------------------------------------------------------------------
 
-    /*
-    public VoidGenerator(String e) {
-        this.endpoint = e;
-        SubjectTrie = new PathTrie(15);
-        ObjectTrie = new PathTrie(350);
+    public VoidGenerator(RDFWriter w, Resource d) {
+        this.writer = w;
+        this.dataset = d;
+        //ObjectTrie = new PathTrie(350);
     }
-    */
+
 
     @Override
     public void startRDF() throws RDFHandlerException {
-
-        /*Map<String, String> namespaces = new HashMap<String, String>();
-
-        namespaces.put("xsd", "http://www.w3.org/2001/XMLSchema#");
-        namespaces.put("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
-        namespaces.put("rdfs", "http://www.w3.org/2000/01/rdf-schema#");
-        namespaces.put("dc", "http://purl.org/dc/elements/1.1/");
-        namespaces.put("bio", "http://bio2rdf.org/ns/bio2rdf#");
-        namespaces.put("chebi", "http://bio2rdf.org/ns/chebi#");*/
-
         super.startRDF();
-
-        writer.startRDF();
-
-        // following namespaces which will be shortened automatically
-        writer.handleNamespace("void", "http://rdfs.org/ns/void#");
-        writer.handleNamespace("svd", "http://rdf.iit.demokritos.gr/2013/sevod#");
-
-        /*for (String ns : namespaces.keySet())
-            writer.handleNamespace(ns, namespaces.get(ns));*/
-
-        // general void information
-        writer.handleStatement(vf.createStatement(dataset, RDF.TYPE, vf.createURI(VOID.Dataset.toString())));
-
     }
 
 
@@ -233,8 +193,6 @@ public class VoidGenerator extends RDFHandlerBase {
 
         // TODO: write general statistics
         writeGeneralStats();
-
-        writer.endRDF();
     }
 
 }

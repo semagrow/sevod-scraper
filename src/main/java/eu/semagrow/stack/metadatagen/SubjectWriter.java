@@ -28,6 +28,11 @@ public class SubjectWriter extends HandlerBase {
     }
 
     @Override
+    public void startRDF() throws RDFHandlerException {
+        super.startRDF();
+    }
+
+    @Override
     public void handleStatement(Statement st) throws RDFHandlerException {
         if (st.getSubject() instanceof URI) {
             String str = ((URI) st.getSubject()).toString();
@@ -41,6 +46,12 @@ public class SubjectWriter extends HandlerBase {
             }
         }
     }
+
+    @Override
+    public void endRDF() throws RDFHandlerException {
+        super.endRDF();
+    }
+
 
     public void writeSevodStats(RDFWriter writer, Resource dataset) {
         for (String pattern : subjectStats.keySet()) {
