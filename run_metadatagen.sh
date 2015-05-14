@@ -1,8 +1,8 @@
 # !/bin/sh
 
-mainclass=eu.semagrow.stack.metadatagen.VoidGenerator
+mainclass=eu.semagrow.stack.metadatagen.MetadataGenerator
 
-classpath=target/semagrow-stack-voidgenerator-1.0-SNAPSHOT.jar
+classpath=target/metadatagen-1.0-SNAPSHOT.jar
 
 for jar in lib/*.jar; do classpath=$classpath:$jar; done
 

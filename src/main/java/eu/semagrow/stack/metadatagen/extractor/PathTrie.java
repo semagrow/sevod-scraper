@@ -1,4 +1,4 @@
-package eu.semagrow.stack.metadatagen;
+package eu.semagrow.stack.metadatagen.extractor;
 
 /**
  * Created by antru on 29/4/2015.
@@ -231,7 +231,11 @@ public class PathTrie {
 
     public Set<String> getPatterns() {
         this.rootNode.pruneNode(bound);
-        return this.rootNode.getPatterns();
+        Set<String> set = new HashSet<>();
+        for (String s : this.rootNode.getPatterns()) {
+            set.add(s.substring(0,s.length()-1));
+        }
+        return set;
     }
 
 }

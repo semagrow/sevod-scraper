@@ -1,4 +1,4 @@
-package eu.semagrow.stack.metadatagen;
+package eu.semagrow.stack.metadatagen.vocabulary;
 
 /**
  * Created by antonis on 21/4/2015.

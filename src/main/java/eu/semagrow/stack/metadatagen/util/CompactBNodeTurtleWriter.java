@@ -1,4 +1,4 @@
-package eu.semagrow.stack.metadatagen;
+package eu.semagrow.stack.metadatagen.util;
 
 /*
  * This file is part of RDF Federator.

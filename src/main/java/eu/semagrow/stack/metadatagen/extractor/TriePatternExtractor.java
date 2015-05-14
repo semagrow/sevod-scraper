@@ -1,4 +1,6 @@
-package eu.semagrow.stack.metadatagen;
+package eu.semagrow.stack.metadatagen.extractor;
+
+import eu.semagrow.stack.metadatagen.api.PatternExtractor;
 
 import java.util.Set;
 
@@ -9,8 +11,13 @@ public class TriePatternExtractor implements PatternExtractor {
 
     PathTrie trie;
 
-    TriePatternExtractor(int bound) {
+    public TriePatternExtractor(int bound) {
         trie = new PathTrie(bound);
+    }
+
+    @Override
+    public void addString(String string) {
+        trie.addPath(string);
     }
 
     @Override

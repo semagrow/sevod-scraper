@@ -3,9 +3,9 @@ package eu.semagrow.stack.metadatagen;
 import junit.framework.TestCase;
 
 /**
- * Created by antonis on 28/4/2015.
+ * Created by antonis on 14/5/2015.
  */
-public class VoidGeneratorTests extends TestCase {
+public class MetadataGeneratorTests extends TestCase {
 
     /*public void testTrie() throws Exception {
         PathTrie trie = new PathTrie(10);
@@ -28,6 +28,6 @@ public class VoidGeneratorTests extends TestCase {
 
     public void testSevod() throws Exception {
         String[] args = {"http://10.0.100.57:8894/sparql", "/home/antonis/datasets/jamendo/output000001.nq"};
-        VoidGenerator.main(args);
+        MetadataGenerator.main(args);
     }
 }

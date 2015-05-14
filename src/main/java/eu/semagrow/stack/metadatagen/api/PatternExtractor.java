@@ -1,4 +1,4 @@
-package eu.semagrow.stack.metadatagen;
+package eu.semagrow.stack.metadatagen.api;
 
 import java.util.Set;
 
@@ -8,5 +8,8 @@ import java.util.Set;
 
 public interface PatternExtractor {
 
+    void addString(String string);
+
     Set<String> getPatterns();
+
 }
