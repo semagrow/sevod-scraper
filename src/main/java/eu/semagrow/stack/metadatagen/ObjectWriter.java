@@ -64,7 +64,7 @@ public class ObjectWriter extends RDFHandlerBase {
 
             try {
                 writer.handleStatement(vf.createStatement(dataset, vf.createURI(VOID.subset.toString()), propPartition));
-                writer.handleStatement(vf.createStatement(propPartition, vf.createURI(SEVOD.subjectRegexPattern.toString()), vf.createLiteral(pattern)));
+                writer.handleStatement(vf.createStatement(propPartition, vf.createURI(SEVOD.objectRegexPattern.toString()), vf.createLiteral(pattern)));
                 writer.handleStatement(vf.createStatement(propPartition, vf.createURI(VOID.triples.toString()), tripleCount));
                 writer.handleStatement(vf.createStatement(propPartition, vf.createURI(VOID.distinctSubjects.toString()), nDistSubjects));
                 writer.handleStatement(vf.createStatement(propPartition, vf.createURI(VOID.properties.toString()), nProperties));
