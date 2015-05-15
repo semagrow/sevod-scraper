@@ -6,12 +6,9 @@ package eu.semagrow.stack.metadatagen.extractor;
 
 import java.util.*;
 
-//import org.apache.log4j.Logger;
-
 
 public class PathTrie {
 
-    //private static final Logger LOG = Logger.getLogger(PathTrie.class);
     private final TrieNode rootNode ;
     public int bound;
     static final String kleeneStar = "*";
@@ -172,7 +169,6 @@ public class PathTrie {
         public Set<String> getPatterns() {
             Set<String> patterns = new HashSet<>();
             synchronized (children) {
-                //System.out.println(children.keySet());
                 for (String str : children.keySet()) {
                     if (children.get(str).getPatterns().isEmpty()) {
                         patterns.add(str);

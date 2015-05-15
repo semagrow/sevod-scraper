@@ -9,7 +9,7 @@ import java.util.Set;
  */
 public class TriePatternExtractor implements PatternExtractor {
 
-    PathTrie trie;
+    PathTrie trie = null;
 
     public TriePatternExtractor(int bound) {
         trie = new PathTrie(bound);

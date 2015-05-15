@@ -41,7 +41,7 @@ public class VoidGenerator extends RDFHandlerBase {
     private final Set<Resource> distSubjectTotal = new HashSet<Resource>();
     private final Set<Value> distObjectTotal = new HashSet<Value>();
 
-    private String endpoint = "http://localhost/";
+    private String endpoint;
 
     private URI lastPredicate = null;
     private long predCount;
@@ -119,9 +119,9 @@ public class VoidGenerator extends RDFHandlerBase {
 
     private void writePredicateStatToVoid(URI predicate, long pCount, int distS, int distO) {
         BNode propPartition = vf.createBNode();
-        Literal count = vf.createLiteral(String.valueOf(pCount));
-        Literal distinctS = vf.createLiteral(String.valueOf(distS));
-        Literal distinctO = vf.createLiteral(String.valueOf(distO));
+        Literal count = vf.createLiteral(pCount);
+        Literal distinctS = vf.createLiteral(distS);
+        Literal distinctO = vf.createLiteral(distO);
         try {
             writer.handleStatement(vf.createStatement(dataset, vf.createURI(VOID.propertyPartition.toString()), propPartition));
             writer.handleStatement(vf.createStatement(propPartition, vf.createURI(VOID.property.toString()), predicate));
@@ -135,7 +135,7 @@ public class VoidGenerator extends RDFHandlerBase {
 
     private void writeTypeStatToVoid(Value type, long tCount) {
         BNode classPartition = vf.createBNode();
-        Literal count = vf.createLiteral(String.valueOf(tCount));
+        Literal count = vf.createLiteral(tCount);
         try {
             writer.handleStatement(vf.createStatement(dataset, vf.createURI(VOID.classPartition.toString()), classPartition));
             writer.handleStatement(vf.createStatement(classPartition, vf.createURI(VOID.clazz.toString()), type));
@@ -149,12 +149,12 @@ public class VoidGenerator extends RDFHandlerBase {
 
         try {
             writer.handleStatement(vf.createStatement(dataset, vf.createURI(VOID.sparqlEndpoint.toString()), vf.createURI(endpoint)));
-            writer.handleStatement(vf.createStatement(dataset, vf.createURI(VOID.triples.toString()), vf.createLiteral(String.valueOf(tripleCount))));
-            writer.handleStatement(vf.createStatement(dataset, vf.createURI(VOID.properties.toString()), vf.createLiteral(String.valueOf(predicates.size()))));
-            writer.handleStatement(vf.createStatement(dataset, vf.createURI(VOID.classes.toString()), vf.createLiteral(String.valueOf(typeCountMap.size()))));
-            writer.handleStatement(vf.createStatement(dataset, vf.createURI(VOID.entities.toString()), vf.createLiteral(String.valueOf(entityCount))));
-            writer.handleStatement(vf.createStatement(dataset, vf.createURI(VOID.distinctSubjects.toString()), vf.createLiteral(String.valueOf(distSubjectTotal.size()))));
-            writer.handleStatement(vf.createStatement(dataset, vf.createURI(VOID.distinctObjects.toString()), vf.createLiteral(String.valueOf(distObjectTotal.size()))));
+            writer.handleStatement(vf.createStatement(dataset, vf.createURI(VOID.triples.toString()), vf.createLiteral(tripleCount)));
+            writer.handleStatement(vf.createStatement(dataset, vf.createURI(VOID.properties.toString()), vf.createLiteral(predicates.size())));
+            writer.handleStatement(vf.createStatement(dataset, vf.createURI(VOID.classes.toString()), vf.createLiteral(typeCountMap.size())));
+            writer.handleStatement(vf.createStatement(dataset, vf.createURI(VOID.entities.toString()), vf.createLiteral(entityCount)));
+            writer.handleStatement(vf.createStatement(dataset, vf.createURI(VOID.distinctSubjects.toString()), vf.createLiteral(distSubjectTotal.size())));
+            writer.handleStatement(vf.createStatement(dataset, vf.createURI(VOID.distinctObjects.toString()), vf.createLiteral(distObjectTotal.size())));
         } catch (RDFHandlerException e) {
             e.printStackTrace();
         }
@@ -162,9 +162,10 @@ public class VoidGenerator extends RDFHandlerBase {
 
     // ------------------------------------------------------------------------
 
-    public VoidGenerator(RDFWriter w, Resource d) {
-        this.writer = w;
-        this.dataset = d;
+    public VoidGenerator(RDFWriter w, Resource d, String e) {
+        writer = w;
+        dataset = d;
+        endpoint = e;
         //ObjectTrie = new PathTrie(350);
     }
 

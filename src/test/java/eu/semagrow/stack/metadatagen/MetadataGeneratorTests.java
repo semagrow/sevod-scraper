@@ -12,8 +12,7 @@ public class MetadataGeneratorTests extends TestCase {
 
 
     public void testSevod() throws Exception {
-        String[] args = {"http://10.0.100.57:8894/sparql", "/home/antonis/datasets/jamendo/output000001.nq"};
-        MetadataGenerator gen = new MetadataGenerator();
-        gen.writeMetadata(new File("/home/antonis/datasets/jamendo/output000001.nq"));
+        MetadataGenerator gen = new MetadataGenerator(15, 350, "http://10.0.100.57:8894/sparql");
+        gen.writeMetadata(new File("/home/antonis/datasets/jamendo/output000001.nq"), new File("out.n3"));
     }
 }

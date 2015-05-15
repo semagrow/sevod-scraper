@@ -12,10 +12,10 @@ import java.util.Set;
  */
 public class Statistics {
 
-    private int count = 0;
+    private long count = 0;
     private Set<Resource> distSubj = new HashSet<>();
     private Set<URI> prop = new HashSet<>();
-    private  Set<Value> distObj = new HashSet<>();
+    private Set<Value> distObj = new HashSet<>();
 
 
 
@@ -35,19 +35,19 @@ public class Statistics {
         count++;
     }
 
-    public int getCount() {
+    public long getCount() {
         return count;
     }
 
-    public int getDistinctObjects() {
+    public long getDistinctObjects() {
         return distObj.size();
     }
 
-    public int getDistinctSubjects() {
+    public long getDistinctSubjects() {
         return distSubj.size();
     }
 
-    public int getProperties() {
+    public long getProperties() {
         return prop.size();
     }
 }

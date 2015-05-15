@@ -9,21 +9,23 @@ import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFWriter;
 import org.openrdf.rio.helpers.RDFHandlerBase;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
- * Created by antonis on 14/5/2015.
+ * Created by antonis on 15/5/2015.
  */
-public class SubjectWriter extends RDFHandlerBase {
+public class ObjectWriter extends RDFHandlerBase {
 
     ValueFactory vf = ValueFactoryImpl.getInstance();
 
-    Map<String, Statistics> subjectStats = new HashMap<>();
+    Map<String, Statistics> objectStats = new HashMap<>();
 
-    public SubjectWriter(List<String> patterns) {
+    public ObjectWriter(List<String> patterns) {
         for (String p : patterns) {
             Statistics stats = new Statistics();
-            subjectStats.put(p, stats);
+            objectStats.put(p, stats);
         }
     }
 
@@ -34,13 +36,13 @@ public class SubjectWriter extends RDFHandlerBase {
 
     @Override
     public void handleStatement(Statement st) throws RDFHandlerException {
-        if (st.getSubject() instanceof URI) {
-            String str = ((URI) st.getSubject()).toString();
-            for (String prefix: subjectStats.keySet()) {
+        if (st.getObject() instanceof URI) {
+            String str = ((URI) st.getObject()).toString();
+            for (String prefix: objectStats.keySet()) {
                 if (str.startsWith(prefix)) {
-                    Statistics stats = subjectStats.get(prefix);
+                    Statistics stats = objectStats.get(prefix);
                     stats.addCount();
-                    stats.addObject(st.getObject());
+                    stats.addSubject(st.getSubject());
                     stats.addProperty(st.getPredicate());
                 }
             }
@@ -53,18 +55,18 @@ public class SubjectWriter extends RDFHandlerBase {
     }
 
     public void writeSevodStats(RDFWriter writer, Resource dataset) {
-        for (String pattern : subjectStats.keySet()) {
+        for (String pattern : objectStats.keySet()) {
 
             BNode propPartition = vf.createBNode();
-            Literal tripleCount = vf.createLiteral(subjectStats.get(pattern).getCount());
-            Literal nDistObjects = vf.createLiteral(subjectStats.get(pattern).getDistinctObjects());
-            Literal nProperties = vf.createLiteral(subjectStats.get(pattern).getProperties());
+            Literal tripleCount = vf.createLiteral(objectStats.get(pattern).getCount());
+            Literal nDistSubjects = vf.createLiteral(objectStats.get(pattern).getDistinctSubjects());
+            Literal nProperties = vf.createLiteral(objectStats.get(pattern).getProperties());
 
             try {
                 writer.handleStatement(vf.createStatement(dataset, vf.createURI(VOID.subset.toString()), propPartition));
                 writer.handleStatement(vf.createStatement(propPartition, vf.createURI(SEVOD.subjectRegexPattern.toString()), vf.createLiteral(pattern)));
                 writer.handleStatement(vf.createStatement(propPartition, vf.createURI(VOID.triples.toString()), tripleCount));
-                writer.handleStatement(vf.createStatement(propPartition, vf.createURI(VOID.distinctObjects.toString()), nDistObjects));
+                writer.handleStatement(vf.createStatement(propPartition, vf.createURI(VOID.distinctSubjects.toString()), nDistSubjects));
                 writer.handleStatement(vf.createStatement(propPartition, vf.createURI(VOID.properties.toString()), nProperties));
 
             } catch (RDFHandlerException e) {
@@ -73,3 +75,4 @@ public class SubjectWriter extends RDFHandlerBase {
         }
     }
 }
+
