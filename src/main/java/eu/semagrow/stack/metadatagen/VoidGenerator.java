@@ -38,6 +38,11 @@ public class VoidGenerator extends RDFHandlerBase {
     private final Set<Resource> distSubject = new HashSet<Resource>();
     private final Set<Value> distObject = new HashSet<Value>();
 
+    private final Set<Resource> distSubjectTotal = new HashSet<Resource>();
+    private final Set<Value> distObjectTotal = new HashSet<Value>();
+
+    private String endpoint = "http://localhost/";
+
     private URI lastPredicate = null;
     private long predCount;
     private long tripleCount;
@@ -87,6 +92,9 @@ public class VoidGenerator extends RDFHandlerBase {
         distSubject.add(st.getSubject());
         distObject.add(st.getObject());
 
+        distSubjectTotal.add(st.getSubject());
+        distObjectTotal.add(st.getObject());
+
         lastPredicate = predicate;
     }
 
@@ -101,7 +109,6 @@ public class VoidGenerator extends RDFHandlerBase {
         predicates.add(lastPredicate);
 
         // TODO: write predicate statistics
-        //System.out.println(lastPredicate + " [" + predCount + "], distS: " + distSubject.size() + ", distObj: " + distObject.size());
         writePredicateStatToVoid(lastPredicate, predCount, distSubject.size(), distObject.size());
 
         // clear stored values;
@@ -141,10 +148,13 @@ public class VoidGenerator extends RDFHandlerBase {
     private void writeGeneralStats() {
 
         try {
+            writer.handleStatement(vf.createStatement(dataset, vf.createURI(VOID.sparqlEndpoint.toString()), vf.createURI(endpoint)));
             writer.handleStatement(vf.createStatement(dataset, vf.createURI(VOID.triples.toString()), vf.createLiteral(String.valueOf(tripleCount))));
             writer.handleStatement(vf.createStatement(dataset, vf.createURI(VOID.properties.toString()), vf.createLiteral(String.valueOf(predicates.size()))));
             writer.handleStatement(vf.createStatement(dataset, vf.createURI(VOID.classes.toString()), vf.createLiteral(String.valueOf(typeCountMap.size()))));
             writer.handleStatement(vf.createStatement(dataset, vf.createURI(VOID.entities.toString()), vf.createLiteral(String.valueOf(entityCount))));
+            writer.handleStatement(vf.createStatement(dataset, vf.createURI(VOID.distinctSubjects.toString()), vf.createLiteral(String.valueOf(distSubjectTotal.size()))));
+            writer.handleStatement(vf.createStatement(dataset, vf.createURI(VOID.distinctObjects.toString()), vf.createLiteral(String.valueOf(distObjectTotal.size()))));
         } catch (RDFHandlerException e) {
             e.printStackTrace();
         }

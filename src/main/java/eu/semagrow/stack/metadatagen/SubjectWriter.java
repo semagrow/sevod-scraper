@@ -52,7 +52,6 @@ public class SubjectWriter extends HandlerBase {
         super.endRDF();
     }
 
-
     public void writeSevodStats(RDFWriter writer, Resource dataset) {
         for (String pattern : subjectStats.keySet()) {
 
@@ -63,7 +62,7 @@ public class SubjectWriter extends HandlerBase {
 
             try {
                 writer.handleStatement(vf.createStatement(dataset, vf.createURI(VOID.subset.toString()), propPartition));
-                writer.handleStatement(vf.createStatement(propPartition, vf.createURI(SEVOD.subjectRegexPattern.toString()), vf.createURI(pattern)));
+                writer.handleStatement(vf.createStatement(propPartition, vf.createURI(SEVOD.subjectRegexPattern.toString()), vf.createLiteral(pattern)));
                 writer.handleStatement(vf.createStatement(propPartition, vf.createURI(VOID.triples.toString()), tripleCount));
                 writer.handleStatement(vf.createStatement(propPartition, vf.createURI(VOID.distinctObjects.toString()), nDistObjects));
                 writer.handleStatement(vf.createStatement(propPartition, vf.createURI(VOID.properties.toString()), nProperties));

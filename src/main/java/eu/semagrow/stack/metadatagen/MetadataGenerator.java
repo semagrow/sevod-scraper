@@ -23,16 +23,28 @@ public class MetadataGenerator {
     private RDFWriter writer = new CompactBNodeTurtleWriter(System.out);
     private RDFFormat format = RDFFormat.NQUADS;
 
+    SubjectHandler subjecthandler = null;
+    SubjectWriter subjectwriter = null;
+    VoidGenerator voidGenerator = null;
+
+    SubjectHandler getSubjecthandler() { return subjecthandler; }
+
+    SubjectWriter getSubjectwriter() { return subjectwriter; }
+
+    VoidGenerator getVoidGenerator() { return voidGenerator; }
+
+    ///////////////////////////////////////////////////////////////////////////
+
     private void handleSubjects(File file) throws RDFParseException, IOException, RDFHandlerException {
 
-        SubjectHandler subjecthandler = new SubjectHandler();
+        subjecthandler = new SubjectHandler();
         RDFParser parser = Rio.createParser(format);
         parser.setRDFHandler(subjecthandler);
         parser.parse(new FileInputStream(file), "");
 
         List<String> list = subjecthandler.getPatterns();
 
-        SubjectWriter subjectwriter = new SubjectWriter(list);
+        subjectwriter = new SubjectWriter(list);
         parser.setRDFHandler(subjectwriter);
         parser.parse(new FileInputStream(file), "");
 
@@ -44,14 +56,13 @@ public class MetadataGenerator {
     }
 
     private void handleProperties(File file) throws RDFParseException, IOException, RDFHandlerException {
-        VoidGenerator generator = new VoidGenerator(writer, dataset);
+        voidGenerator = new VoidGenerator(writer, dataset);
         RDFParser parser = Rio.createParser(format);
-        parser.setRDFHandler(generator);
+        parser.setRDFHandler(voidGenerator);
         parser.parse(new FileInputStream(file), "");
-        // TODO distinct objects, subject general etc.
     }
 
-    ////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////
 
     public void writeMetadata(File file) throws RDFParseException, IOException, RDFHandlerException {
 
