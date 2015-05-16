@@ -8,6 +8,7 @@ import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.rio.*;
+import org.openrdf.rio.helpers.BasicParserSettings;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -61,9 +62,9 @@ public class MetadataGenerator {
         log.debug("Discovering Subject Patterns...");
         subjecthandler = new SubjectHandler(subjectBound);
         RDFParser parser = Rio.createParser(format);
+        parser.getParserConfig().set(BasicParserSettings.VERIFY_DATATYPE_VALUES, false);
         parser.setRDFHandler(subjecthandler);
         parser.parse(new FileInputStream(file), "");
-
         List<String> patterns = subjecthandler.getPatterns();
         log.debug("Found " + patterns.size() + " Subject Patterns.");
         //log.debug(patterns);
@@ -81,6 +82,7 @@ public class MetadataGenerator {
         log.debug("Discovering Object Patterns...");
         objecthandler = new ObjectHandler(objectBound);
         RDFParser parser = Rio.createParser(format);
+        parser.getParserConfig().set(BasicParserSettings.VERIFY_DATATYPE_VALUES, false);
         parser.setRDFHandler(objecthandler);
         parser.parse(new FileInputStream(file), "");
 
@@ -100,6 +102,7 @@ public class MetadataGenerator {
         log.debug("Generating VoID Metadata...");
         voidGenerator = new VoidGenerator(writer, dataset, endpoint);
         RDFParser parser = Rio.createParser(format);
+        parser.getParserConfig().set(BasicParserSettings.VERIFY_DATATYPE_VALUES, false);
         parser.setRDFHandler(voidGenerator);
         parser.parse(new FileInputStream(file), "");
     }
