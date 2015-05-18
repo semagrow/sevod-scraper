@@ -1,4 +1,4 @@
-package eu.semagrow.stack.metadatagen;
+package eu.semagrow.stack.metadatagen.writer;
 
 import eu.semagrow.stack.metadatagen.util.Statistics;
 import eu.semagrow.stack.metadatagen.vocabulary.SEVOD;
@@ -9,6 +9,7 @@ import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFWriter;
 import org.openrdf.rio.helpers.RDFHandlerBase;
 
+import java.io.IOException;
 import java.util.*;
 
 /**

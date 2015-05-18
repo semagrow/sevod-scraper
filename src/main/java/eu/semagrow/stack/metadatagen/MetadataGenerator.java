@@ -1,7 +1,12 @@
 package eu.semagrow.stack.metadatagen;
 
+import eu.semagrow.stack.metadatagen.handler.ObjectHandler;
+import eu.semagrow.stack.metadatagen.handler.SubjectHandler;
 import eu.semagrow.stack.metadatagen.util.CompactBNodeTurtleWriter;
+import eu.semagrow.stack.metadatagen.util.DistinctCounter;
 import eu.semagrow.stack.metadatagen.vocabulary.VOID;
+import eu.semagrow.stack.metadatagen.writer.ObjectWriter;
+import eu.semagrow.stack.metadatagen.writer.SubjectWriter;
 import org.apache.log4j.Logger;
 import org.openrdf.model.BNode;
 import org.openrdf.model.ValueFactory;
@@ -128,5 +133,7 @@ public class MetadataGenerator {
         handleProperties(infile);
 
         writer.endRDF();
+
+        new DistinctCounter().clearAll();
     }
 }

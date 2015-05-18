@@ -11,6 +11,7 @@ import java.util.Set;
 
 import eu.semagrow.stack.metadatagen.extractor.PathTrie;
 import eu.semagrow.stack.metadatagen.util.CompactBNodeTurtleWriter;
+import eu.semagrow.stack.metadatagen.util.DistinctCounter;
 import eu.semagrow.stack.metadatagen.vocabulary.VOID;
 import org.openrdf.model.BNode;
 import org.openrdf.model.Literal;
@@ -35,11 +36,12 @@ public class VoidGenerator extends RDFHandlerBase {
 
     private final Map<URI, Integer> typeCountMap = new HashMap<URI, Integer>();
     private final Set<URI> predicates = new HashSet<URI>();
-    private final Set<Resource> distSubject = new HashSet<Resource>();
-    private final Set<Value> distObject = new HashSet<Value>();
 
-    private final Set<Resource> distSubjectTotal = new HashSet<Resource>();
-    private final Set<Value> distObjectTotal = new HashSet<Value>();
+    private final DistinctCounter distSubject = new DistinctCounter();
+    private final DistinctCounter distObject = new DistinctCounter();
+
+    private final DistinctCounter distSubjectTotal = new DistinctCounter();
+    private final DistinctCounter distObjectTotal = new DistinctCounter();
 
     private String endpoint;
 
@@ -89,11 +91,11 @@ public class VoidGenerator extends RDFHandlerBase {
         }
 
         // store subject and object
-        distSubject.add(st.getSubject());
-        distObject.add(st.getObject());
+        distSubject.add(st.getSubject().toString());
+        distObject.add(st.getObject().toString());
 
-        distSubjectTotal.add(st.getSubject());
-        distObjectTotal.add(st.getObject());
+        distSubjectTotal.add(st.getSubject().toString());
+        distObjectTotal.add(st.getObject().toString());
 
         lastPredicate = predicate;
     }
@@ -109,7 +111,7 @@ public class VoidGenerator extends RDFHandlerBase {
         predicates.add(lastPredicate);
 
         // TODO: write predicate statistics
-        writePredicateStatToVoid(lastPredicate, predCount, distSubject.size(), distObject.size());
+        writePredicateStatToVoid(lastPredicate, predCount, distSubject.getDistinctCount(), distObject.getDistinctCount());
 
         // clear stored values;
         distSubject.clear();
@@ -153,8 +155,8 @@ public class VoidGenerator extends RDFHandlerBase {
             writer.handleStatement(vf.createStatement(dataset, vf.createURI(VOID.properties.toString()), vf.createLiteral(predicates.size())));
             writer.handleStatement(vf.createStatement(dataset, vf.createURI(VOID.classes.toString()), vf.createLiteral(typeCountMap.size())));
             writer.handleStatement(vf.createStatement(dataset, vf.createURI(VOID.entities.toString()), vf.createLiteral(entityCount)));
-            writer.handleStatement(vf.createStatement(dataset, vf.createURI(VOID.distinctSubjects.toString()), vf.createLiteral(distSubjectTotal.size())));
-            writer.handleStatement(vf.createStatement(dataset, vf.createURI(VOID.distinctObjects.toString()), vf.createLiteral(distObjectTotal.size())));
+            writer.handleStatement(vf.createStatement(dataset, vf.createURI(VOID.distinctSubjects.toString()), vf.createLiteral(distSubjectTotal.getDistinctCount())));
+            writer.handleStatement(vf.createStatement(dataset, vf.createURI(VOID.distinctObjects.toString()), vf.createLiteral(distObjectTotal.getDistinctCount())));
         } catch (RDFHandlerException e) {
             e.printStackTrace();
         }
@@ -166,7 +168,6 @@ public class VoidGenerator extends RDFHandlerBase {
         writer = w;
         dataset = d;
         endpoint = e;
-        //ObjectTrie = new PathTrie(350);
     }
 
 

@@ -1,4 +1,4 @@
-package eu.semagrow.stack.metadatagen;
+package eu.semagrow.stack.metadatagen.handler;
 
 import eu.semagrow.stack.metadatagen.api.PatternExtractor;
 import eu.semagrow.stack.metadatagen.extractor.TriePatternExtractor;

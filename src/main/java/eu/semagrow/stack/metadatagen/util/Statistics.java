@@ -4,6 +4,7 @@ import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -13,22 +14,20 @@ import java.util.Set;
 public class Statistics {
 
     private long count = 0;
-    private Set<Resource> distSubj = new HashSet<>();
-    private Set<URI> prop = new HashSet<>();
-    private Set<Value> distObj = new HashSet<>();
-
-
+    private DistinctCounter distSubj = new DistinctCounter();
+    private DistinctCounter prop = new DistinctCounter();
+    private DistinctCounter distObj = new DistinctCounter();
 
     public void addSubject(Resource s) {
-        distSubj.add(s);
+        distSubj.add(s.toString());
     }
 
     public void addProperty(URI p) {
-        prop.add(p);
+        prop.add(p.toString());
     }
 
     public void addObject(Value o) {
-        distObj.add(o);
+        distObj.add(o.toString());
     }
 
     public void addCount() {
@@ -40,14 +39,14 @@ public class Statistics {
     }
 
     public long getDistinctObjects() {
-        return distObj.size();
+        return distObj.getDistinctCount();
     }
 
     public long getDistinctSubjects() {
-        return distSubj.size();
+        return distSubj.getDistinctCount();
     }
 
     public long getProperties() {
-        return prop.size();
+        return prop.getDistinctCount();
     }
 }
