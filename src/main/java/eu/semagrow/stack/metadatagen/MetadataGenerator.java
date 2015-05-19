@@ -40,27 +40,32 @@ public class MetadataGenerator {
 
     VoidGenerator voidGenerator = null;
 
-    boolean generateSubjects = true;
-    boolean generateObjects = true;
+    boolean genSubjects = false;
+    boolean genObjects = false;
+    boolean genProperties = false;
 
     int subjectBound = 15;
     int objectBound = 350;
-    String endpoint = "http://localhost/";
+    String endpoint;
 
     ///////////////////////////////////////////////////////////////////////////
 
-    public MetadataGenerator(int sb, int ob, String e) {
-        if (sb == -1)
-            generateSubjects = false;
-        if (ob == -1)
-            generateObjects = false;
+    public MetadataGenerator(String endpointStr) {
+        endpoint = endpointStr;
+    }
+
+    public void setBounds(int sb, int ob) {
         if (sb > 0)
             subjectBound = sb;
         if (ob > 0)
             objectBound = ob;
-        if (e != "")
-            endpoint = e;
     }
+
+    public void generateSubjects() { genSubjects = true; }
+
+    public void generateObjects() { genObjects = true; }
+
+    public void generateProperties() { genProperties = true; }
 
     private void handleSubjects(File file) throws RDFParseException, IOException, RDFHandlerException {
 
@@ -126,17 +131,18 @@ public class MetadataGenerator {
 
         writer.handleStatement(vf.createStatement(dataset, RDF.TYPE, vf.createURI(VOID.Dataset.toString())));
 
-        if (generateSubjects)
+        if (genSubjects)
             handleSubjects(infile);
 
         new DistinctCounter().clearAll();
 
-        if (generateObjects)
+        if (genObjects)
             handleObjects(infile);
 
         new DistinctCounter().clearAll();
 
-        handleProperties(infile);
+        if (genProperties)
+            handleProperties(infile);
 
         writer.endRDF();
 

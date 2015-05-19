@@ -12,10 +12,9 @@ public class Main {
 
         MetadataGenerator generator = null;
 
-        // check for file parameter
-        if (args.length < 5) {
+        if (args.length != 6 || (args.length == 6 && !args[2].startsWith("-"))) {
             String className = MetadataGenerator.class.getName();
-            System.err.println("USAGE: java " + className + " [input file] [subjectBound] [objectBound] [endpoint url] [output file]");
+            System.err.println("USAGE: java " + className + " [input_file.nq] [endpoint_url] [-s|p|o] [subjectBound] [objectBound] [output_file.n3]");
             System.exit(1);
         }
 
@@ -24,27 +23,39 @@ public class Main {
             System.err.println("file not found: " + infile);
             System.exit(1);
         }
-
-        // check if file is not a directory
         if (!infile.isFile()) {
             System.err.println("not a normal file: " + infile);
             System.exit(1);
         }
 
-        File outfile = new File(args[4]);
+        String endpoint = args[1];
 
-        // check if file is not a directory
-        if (!outfile.isFile()) {
-            System.err.println("not a normal file: " + outfile);
+        String whatToGenerate = args[2];
+
+        int subjectBound = Integer.valueOf(args[3]);
+        int objectBound = Integer.valueOf(args[4]);
+
+        File outfile = new File(args[5]);
+        if (outfile.exists() && !outfile.isFile()) {
+            System.err.println("file not found: " + infile);
             System.exit(1);
         }
 
-        int subjectBound = Integer.valueOf(args[1]);
-        int objectBound = Integer.valueOf(args[2]);
-        String endpoint = args[3];
+        ///////////////////////////////////////////////////////////////////////
 
+        generator = new MetadataGenerator(endpoint);
 
-        generator = new MetadataGenerator(subjectBound, objectBound, endpoint);
+        if (whatToGenerate.contains("s"))
+            generator.generateSubjects();
+
+        if (whatToGenerate.contains("p"))
+            generator.generateProperties();
+
+        if (whatToGenerate.contains("o"))
+            generator.generateObjects();
+
+        generator.setBounds(subjectBound, objectBound);
+
         generator.writeMetadata(infile,outfile);
     }
 }
