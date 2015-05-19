@@ -71,8 +71,8 @@ public class MetadataGenerator {
         parser.setRDFHandler(subjecthandler);
         parser.parse(new FileInputStream(file), "");
         List<String> patterns = subjecthandler.getPatterns();
+        log.debug(patterns);
         log.debug("Found " + patterns.size() + " Subject Patterns.");
-        //log.debug(patterns);
 
         log.debug("Generating Subject Metadata...");
         subjectwriter = new SubjectWriter(patterns);
@@ -92,8 +92,8 @@ public class MetadataGenerator {
         parser.parse(new FileInputStream(file), "");
 
         List<String> patterns = objecthandler.getPatterns();
+        log.debug(patterns);
         log.debug("Found " + patterns.size() + " Object Patterns.");
-        //log.debug(patterns);
 
         log.debug("Generating Object Metadata...");
         objectwriter = new ObjectWriter(patterns);
@@ -128,8 +128,14 @@ public class MetadataGenerator {
 
         if (generateSubjects)
             handleSubjects(infile);
+
+        new DistinctCounter().clearAll();
+
         if (generateObjects)
             handleObjects(infile);
+
+        new DistinctCounter().clearAll();
+
         handleProperties(infile);
 
         writer.endRDF();

@@ -32,10 +32,6 @@ public class Main {
         }
 
         File outfile = new File(args[4]);
-        if (!outfile.exists()) {
-            System.err.println("file not found: " + outfile);
-            System.exit(1);
-        }
 
         // check if file is not a directory
         if (!outfile.isFile()) {
