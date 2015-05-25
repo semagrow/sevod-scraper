@@ -1,5 +1,6 @@
 package eu.semagrow.stack.metadatagen.writer;
 
+import eu.semagrow.stack.metadatagen.util.MyStringUtils;
 import eu.semagrow.stack.metadatagen.util.Statistics;
 import eu.semagrow.stack.metadatagen.vocabulary.SEVOD;
 import eu.semagrow.stack.metadatagen.vocabulary.VOID;
@@ -61,9 +62,11 @@ public class SubjectWriter extends RDFHandlerBase {
             Literal nDistObjects = vf.createLiteral(subjectStats.get(pattern).getDistinctObjects());
             Literal nProperties = vf.createLiteral(subjectStats.get(pattern).getProperties());
 
+            String patternEsc = MyStringUtils.forRegex(pattern);
+
             try {
                 writer.handleStatement(vf.createStatement(dataset, vf.createURI(VOID.subset.toString()), propPartition));
-                writer.handleStatement(vf.createStatement(propPartition, vf.createURI(SEVOD.subjectRegexPattern.toString()), vf.createLiteral(pattern)));
+                writer.handleStatement(vf.createStatement(propPartition, vf.createURI(SEVOD.subjectRegexPattern.toString()), vf.createLiteral(patternEsc)));
                 writer.handleStatement(vf.createStatement(propPartition, vf.createURI(VOID.triples.toString()), tripleCount));
                 writer.handleStatement(vf.createStatement(propPartition, vf.createURI(VOID.distinctObjects.toString()), nDistObjects));
                 writer.handleStatement(vf.createStatement(propPartition, vf.createURI(VOID.properties.toString()), nProperties));
