@@ -20,11 +20,13 @@ public class DistinctCounter {
     }
 
     public void add(String str) {
+        openFile();
         try {
             writer.write(str + "\n");
         } catch (IOException e) {
             e.printStackTrace();
         }
+        closeFile();
     }
 
     public void clear() {
@@ -34,11 +36,7 @@ public class DistinctCounter {
 
     public int getDistinctCount() {
         int count;
-        try {
-            writer.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        
         String result = executeCommand("sort -u " + fileName + " | wc -l");
 
         if (result == "")
@@ -89,9 +87,26 @@ public class DistinctCounter {
             if (!file.exists()) {
                 file.createNewFile();
             }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void openFile() {
+        try {
             is = new FileOutputStream(file);
             osw = new OutputStreamWriter(is);
             writer = new BufferedWriter(osw);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void closeFile() {
+        try {
+            writer.close();
+            osw.close();
+            is.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
