@@ -55,7 +55,7 @@ public class PathTrie {
                 if (children.containsKey(childName)) {
                     return;
                 }
-                children.put(childName, node);
+                children.put(new String(childName), node);
             }
         }
 
