@@ -36,7 +36,7 @@ public class DistinctCounter {
 
     public int getDistinctCount() {
         int count;
-        
+
         String result = executeCommand("sort -u " + fileName + " | wc -l");
 
         if (result == "")

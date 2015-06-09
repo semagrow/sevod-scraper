@@ -31,7 +31,7 @@ public class MetadataGenerator {
     private ValueFactory vf = ValueFactoryImpl.getInstance();
     private BNode dataset = vf.createBNode();
     private RDFWriter writer = null;
-    private RDFFormat format = RDFFormat.NQUADS;
+    private RDFFormat format;
 
     SubjectHandler subjecthandler = null;
     SubjectWriter subjectwriter = null;
@@ -59,6 +59,10 @@ public class MetadataGenerator {
             subjectBound = sb;
         if (ob > 0)
             objectBound = ob;
+    }
+
+    public void setFormat(RDFFormat f) {
+        format = f;
     }
 
     public void generateSubjects() { genSubjects = true; }

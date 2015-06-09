@@ -1,5 +1,8 @@
 package eu.semagrow.stack.metadatagen;
 
+import org.openrdf.rio.RDFFormat;
+import org.openrdf.rio.Rio;
+
 import java.io.File;
 import java.io.FileInputStream;
 
@@ -27,6 +30,11 @@ public class Main {
             System.err.println("not a normal file: " + infile);
             System.exit(1);
         }
+        RDFFormat format = Rio.getParserFormatForFileName(args[0]);
+        if (format == null) {
+            System.err.println("can not identify RDF format for: " + args[0]);
+            System.exit(1);
+        }
 
         String endpoint = args[1];
 
@@ -44,6 +52,8 @@ public class Main {
         ///////////////////////////////////////////////////////////////////////
 
         generator = new MetadataGenerator(endpoint);
+
+        generator.setFormat(format);
 
         if (whatToGenerate.contains("s"))
             generator.generateSubjects();
