@@ -135,21 +135,18 @@ public class MetadataGenerator {
 
         writer.handleStatement(vf.createStatement(dataset, RDF.TYPE, vf.createURI(VOID.Dataset.toString())));
 
-        if (genSubjects)
+        if (genSubjects) {
             handleSubjects(infile);
+        }
 
-        new DistinctCounter().clearAll();
-
-        if (genObjects)
+        if (genObjects) {
             handleObjects(infile);
+        }
 
-        new DistinctCounter().clearAll();
-
-        if (genProperties)
+        if (genProperties) {
             handleProperties(infile);
+        }
 
         writer.endRDF();
-
-        new DistinctCounter().clearAll();
     }
 }

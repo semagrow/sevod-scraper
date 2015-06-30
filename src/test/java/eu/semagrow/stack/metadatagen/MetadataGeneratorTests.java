@@ -11,7 +11,7 @@ import java.io.FileInputStream;
 public class MetadataGeneratorTests extends TestCase {
 
     public void testSevod() throws Exception {
-        String array[] = {"/home/antonis/datasets/GeoNames.nq", "http://10.0.100.57:8893/sparql/", "-o", "0", "0",  "bla.svd.n3"};
+        String array[] = {"/home/antonis/datasets/NYT.nq", "http://10.0.100.57:8893/sparql/", "-p", "0", "0",  "bla.n3"};
         Main.main(array);
     }
 }

@@ -14,9 +14,9 @@ import java.util.Set;
 public class Statistics {
 
     private long count = 0;
-    private DistinctCounter distSubj = new DistinctCounter();
-    private DistinctCounter prop = new DistinctCounter();
-    private DistinctCounter distObj = new DistinctCounter();
+    private DistinctCounter distSubj = new DistinctCounter(null);
+    private DistinctCounter prop = new DistinctCounter(null);
+    private DistinctCounter distObj = new DistinctCounter(null);
 
     public void addSubject(Resource s) {
         distSubj.add(s.toString());

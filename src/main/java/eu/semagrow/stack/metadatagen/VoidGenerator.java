@@ -37,15 +37,15 @@ public class VoidGenerator extends RDFHandlerBase {
     private final Map<URI, Integer> typeCountMap = new HashMap<URI, Integer>();
     private final Set<URI> predicates = new HashSet<URI>();
 
-    private final DistinctCounter distSubject = new DistinctCounter();
-    private final DistinctCounter distObject = new DistinctCounter();
+    private DistinctCounter distSubject;
+    private DistinctCounter distObject;
 
-    private final DistinctCounter distSubjectTotal = new DistinctCounter();
-    private final DistinctCounter distObjectTotal = new DistinctCounter();
+    private final DistinctCounter distSubjectTotal = new DistinctCounter(null);
+    private final DistinctCounter distObjectTotal = new DistinctCounter(null);
 
     private String endpoint;
 
-    private URI lastPredicate = null;
+    private URI lastPredicate = null, curPredicate = null;
     private long predCount;
     private long tripleCount;
     private long entityCount;
@@ -98,6 +98,7 @@ public class VoidGenerator extends RDFHandlerBase {
         distObjectTotal.add(st.getObject().toString());
 
         lastPredicate = predicate;
+        curPredicate = st.getPredicate();
     }
 
     /**
@@ -114,8 +115,11 @@ public class VoidGenerator extends RDFHandlerBase {
         writePredicateStatToVoid(lastPredicate, predCount, distSubject.getDistinctCount(), distObject.getDistinctCount());
 
         // clear stored values;
-        distSubject.clear();
-        distObject.clear();
+        distSubject.close();
+        distObject.close();
+        distSubject = new DistinctCounter(null);
+        distObject = new DistinctCounter(null);
+
         predCount = 0;
     }
 
@@ -174,6 +178,8 @@ public class VoidGenerator extends RDFHandlerBase {
     @Override
     public void startRDF() throws RDFHandlerException {
         super.startRDF();
+        distSubject = new DistinctCounter(null);
+        distObject = new DistinctCounter(null);
     }
 
 
@@ -181,6 +187,8 @@ public class VoidGenerator extends RDFHandlerBase {
     public void handleStatement(Statement st) throws RDFHandlerException {
 
         tripleCount++;
+
+        curPredicate = st.getPredicate();
 
         // check if current triple has different predicate than the last triple
         if (!st.getPredicate().equals(lastPredicate)) {
@@ -193,6 +201,9 @@ public class VoidGenerator extends RDFHandlerBase {
     @Override
     public void endRDF() throws RDFHandlerException {
         super.endRDF();
+
+        distObject.close();
+        distSubject.close();
 
         processStoredStatements();
 

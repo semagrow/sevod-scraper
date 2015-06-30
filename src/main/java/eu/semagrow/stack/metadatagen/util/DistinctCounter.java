@@ -8,15 +8,21 @@ import java.util.UUID;
  */
 public class DistinctCounter {
 
-    String fileName;
     File file;
-    FileOutputStream is;
-    OutputStreamWriter osw;
-    Writer writer;
+    FileWriter writer;
 
-    public DistinctCounter() {
-        fileName = "/tmp/metadatagen-" + UUID.randomUUID().toString() + ".tmp";
-        createFile(fileName);
+    public DistinctCounter(String prefix) {
+        try {
+            if (prefix == null) {
+                file = File.createTempFile("metadatagen-", ".tmp");
+            }
+            else {
+                file = File.createTempFile(prefix, ".tmp");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            file = null;
+        }
     }
 
     public void add(String str) {
@@ -29,28 +35,27 @@ public class DistinctCounter {
         closeFile();
     }
 
-    public void clear() {
-        deleteFile(fileName);
-        createFile(fileName);
-    }
-
     public int getDistinctCount() {
         int count;
 
-        String result = executeCommand("sort -u " + fileName + " | wc -l");
+        String result = executeCommand("sort -u " + file.getAbsolutePath() + " 2>/dev/null | wc -l");
 
-        if (result == "")
+        if (result == "") {
             count = 0;
-        else
-            count = Integer.valueOf(result.substring(0,result.indexOf('\n')));
-
-        deleteFile(fileName);
+        }
+        else {
+            try {
+                count = Integer.parseInt(result.substring(0,result.lastIndexOf('\n')));
+            } catch (NumberFormatException e) {
+                count = -1;
+            }
+        }
 
         return count;
     }
 
-    public void clearAll() {
-        deleteAllFiles();
+    public void close() {
+        file.delete();
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -94,9 +99,7 @@ public class DistinctCounter {
 
     private void openFile() {
         try {
-            is = new FileOutputStream(file);
-            osw = new OutputStreamWriter(is);
-            writer = new BufferedWriter(osw);
+            writer = new FileWriter(file, true);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -105,18 +108,8 @@ public class DistinctCounter {
     private void closeFile() {
         try {
             writer.close();
-            osw.close();
-            is.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    private void deleteFile(String path) {
-        executeCommand("rm -f " + path);
-    }
-
-    private void deleteAllFiles() {
-        executeCommand("rm -f /tmp/metadatagen-*");
     }
 }
