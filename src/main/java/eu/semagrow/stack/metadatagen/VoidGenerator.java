@@ -202,10 +202,10 @@ public class VoidGenerator extends RDFHandlerBase {
     public void endRDF() throws RDFHandlerException {
         super.endRDF();
 
+        processStoredStatements();
+
         distObject.close();
         distSubject.close();
-
-        processStoredStatements();
 
         // write type statistics
         List<URI> types = new ArrayList<URI>(typeCountMap.keySet());
