@@ -1,14 +1,14 @@
-## metadatagen ##
+# metadatagen #
 
 a tool to create void/sevod metadata for SemaGrow.
 
-# how to install #
+## how to install ##
 
 Build with maven using the following command:
 
 mvn clean install
 
-# usage # 
+## usage ##
 
 Usage: ./run_metadatagen.sh  [dump_file] [endpoint_url] [-s|p|o] [subjectTrieParameter] [objectTrieParameter] [output_file]
 
