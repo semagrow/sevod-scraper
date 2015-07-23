@@ -19,7 +19,8 @@ Usage: **./run_metadatagen.sh  [dump_file] [endpoint_url] [-s|p|o] [subjectTrieP
 * **[subjectTrieParameter]**, **[objectTrieParameter]** are parameters for the subject and object path tries. Use 0 for the default values.
 * **[output_file]** - output file path. Metadata are exported in n3 format.
 
-Sample uses:
+
+## Examples: ##
 
 Generates metadata for properties (VoID metadata):
 ```
