@@ -34,7 +34,7 @@ Generates metadata for subject prefixes and properties:
 ```
 ./run_metadatagen.sh [path-to-dump-file] [endpoint-url] -sp 0 0 output.svd.n3
 ```
-Generates metadata for subject and object prefixes and properties:
+Generates metadata for subject and object prefixes and properties (with subj.obj. vocabularies):
 ```
-./run_metadatagen.sh [path-to-dump-file] [endpoint-url] -spo 0 0 output.svd.n3
+./run_metadatagen.sh [path-to-dump-file] [endpoint-url] -spov 0 0 output.svd.n3
 ```
