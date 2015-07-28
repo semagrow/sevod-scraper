@@ -2,6 +2,7 @@ package eu.semagrow.stack.metadatagen.handler;
 
 import eu.semagrow.stack.metadatagen.api.PatternExtractor;
 import eu.semagrow.stack.metadatagen.extractor.TriePatternExtractor;
+import org.apache.log4j.Logger;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
@@ -17,6 +18,8 @@ import java.util.List;
  */
 public class ObjectHandler extends RDFHandlerBase {
 
+    final private Logger log = Logger.getLogger(ObjectHandler.class);
+
     private PatternExtractor Objects = null;
     private List<String> patterns = new ArrayList<>();
 
@@ -31,6 +34,7 @@ public class ObjectHandler extends RDFHandlerBase {
 
     @Override
     public void handleStatement(Statement st) throws RDFHandlerException {
+        log.debug("Handling statement " + st.toString());
         if (st.getObject() instanceof URI) {
             String str = ((URI) st.getObject()).toString();
             Objects.addString(str);
@@ -40,6 +44,7 @@ public class ObjectHandler extends RDFHandlerBase {
     @Override
     public void endRDF() throws RDFHandlerException {
         patterns = new ArrayList<>(Objects.getPatterns());
+        log.debug("Found " + patterns.size() + " object patterns " + patterns);
         super.endRDF();
     }
 

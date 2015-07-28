@@ -8,6 +8,8 @@ public enum SEVOD {
 
     subjectRegexPattern,
     objectRegexPattern,
+    subjectVocabulary,
+    objectVocabulary,
     objectClass,
     subjectClass,
     intInterval,

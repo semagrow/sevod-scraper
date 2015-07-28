@@ -64,6 +64,9 @@ public class Main {
         if (whatToGenerate.contains("o"))
             generator.generateObjects();
 
+        if (whatToGenerate.contains("v"))
+            generator.generateVocabulary();
+
         generator.setBounds(subjectBound, objectBound);
 
         generator.writeMetadata(infile,outfile);

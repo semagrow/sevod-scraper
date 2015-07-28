@@ -4,6 +4,7 @@ import eu.semagrow.stack.metadatagen.util.MyStringUtils;
 import eu.semagrow.stack.metadatagen.util.Statistics;
 import eu.semagrow.stack.metadatagen.vocabulary.SEVOD;
 import eu.semagrow.stack.metadatagen.vocabulary.VOID;
+import org.apache.log4j.Logger;
 import org.openrdf.model.*;
 import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.rio.RDFHandlerException;
@@ -17,6 +18,8 @@ import java.util.*;
  * Created by antonis on 14/5/2015.
  */
 public class SubjectWriter extends RDFHandlerBase {
+
+    final private Logger log = Logger.getLogger(SubjectWriter.class);
 
     ValueFactory vf = ValueFactoryImpl.getInstance();
 
@@ -36,6 +39,7 @@ public class SubjectWriter extends RDFHandlerBase {
 
     @Override
     public void handleStatement(Statement st) throws RDFHandlerException {
+        log.debug("Handling statement " + st.toString());
         if (st.getSubject() instanceof URI) {
             String str = ((URI) st.getSubject()).toString();
             for (String prefix: subjectStats.keySet()) {
@@ -56,6 +60,8 @@ public class SubjectWriter extends RDFHandlerBase {
 
     public void writeSevodStats(RDFWriter writer, Resource dataset) {
         for (String pattern : subjectStats.keySet()) {
+
+            log.debug("Writing SEVOD statistics of subject pattern " + pattern);
 
             BNode propPartition = vf.createBNode();
             Literal tripleCount = vf.createLiteral(subjectStats.get(pattern).getCount());

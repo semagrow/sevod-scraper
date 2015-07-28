@@ -43,6 +43,7 @@ public class MetadataGenerator {
     boolean genSubjects = false;
     boolean genObjects = false;
     boolean genProperties = false;
+    boolean genVocab = false;
 
     int subjectBound = 15;
     int objectBound = 350;
@@ -68,6 +69,8 @@ public class MetadataGenerator {
     public void generateSubjects() { genSubjects = true; }
 
     public void generateObjects() { genObjects = true; }
+
+    public void generateVocabulary() { genVocab = true; }
 
     public void generateProperties() { genProperties = true; }
 
@@ -115,6 +118,9 @@ public class MetadataGenerator {
     private void handleProperties(File file) throws RDFParseException, IOException, RDFHandlerException {
         log.debug("Generating VoID Metadata...");
         voidGenerator = new VoidGenerator(writer, dataset, endpoint);
+        if (genVocab) {
+            voidGenerator.generateVocabulary();
+        }
         RDFParser parser = Rio.createParser(format);
         parser.getParserConfig().set(BasicParserSettings.VERIFY_DATATYPE_VALUES, false);
         parser.setRDFHandler(voidGenerator);

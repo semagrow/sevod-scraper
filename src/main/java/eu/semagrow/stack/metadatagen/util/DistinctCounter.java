@@ -1,15 +1,20 @@
 package eu.semagrow.stack.metadatagen.util;
 
 import java.io.*;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.Callable;
 
 /**
  * Created by antonis on 18/5/2015.
  */
 public class DistinctCounter {
 
-    File file;
-    FileWriter writer;
+    private File file;
+    private FileWriter writer;
+    private Set<String> authorities = new HashSet<>();
 
     public DistinctCounter(String prefix) {
         try {
@@ -29,6 +34,9 @@ public class DistinctCounter {
         openFile();
         try {
             writer.write(str + "\n");
+            if (str.startsWith("http:")) {
+                authorities.add(str.substring(0, str.indexOf("/", 10) + 1));
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -52,6 +60,10 @@ public class DistinctCounter {
         }
 
         return count;
+    }
+
+    public Set<String> getAuthorities() {
+        return authorities;
     }
 
     public void close() {

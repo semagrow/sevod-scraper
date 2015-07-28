@@ -12,7 +12,9 @@ import java.util.Set;
 import eu.semagrow.stack.metadatagen.extractor.PathTrie;
 import eu.semagrow.stack.metadatagen.util.CompactBNodeTurtleWriter;
 import eu.semagrow.stack.metadatagen.util.DistinctCounter;
+import eu.semagrow.stack.metadatagen.vocabulary.SEVOD;
 import eu.semagrow.stack.metadatagen.vocabulary.VOID;
+import org.apache.log4j.Logger;
 import org.openrdf.model.BNode;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Resource;
@@ -34,6 +36,8 @@ import static java.lang.Math.max;
 
 public class VoidGenerator extends RDFHandlerBase {
 
+    final private Logger log = Logger.getLogger(VoidGenerator.class);
+
     private final Map<URI, Integer> typeCountMap = new HashMap<URI, Integer>();
     private final Set<URI> predicates = new HashSet<URI>();
 
@@ -49,6 +53,8 @@ public class VoidGenerator extends RDFHandlerBase {
     private long predCount;
     private long tripleCount;
     private long entityCount;
+
+    private boolean genVocab = false;
 
     private ValueFactory vf = ValueFactoryImpl.getInstance();
 
@@ -111,7 +117,6 @@ public class VoidGenerator extends RDFHandlerBase {
 
         predicates.add(lastPredicate);
 
-        // TODO: write predicate statistics
         writePredicateStatToVoid(lastPredicate, predCount, distSubject.getDistinctCount(), distObject.getDistinctCount());
 
         // clear stored values;
@@ -124,6 +129,7 @@ public class VoidGenerator extends RDFHandlerBase {
     }
 
     private void writePredicateStatToVoid(URI predicate, long pCount, int distS, int distO) {
+        log.debug("Writing VoID statistics of predicate " + predicate.toString());
         BNode propPartition = vf.createBNode();
         Literal count = vf.createLiteral(pCount);
         Literal distinctS = vf.createLiteral(distS);
@@ -134,12 +140,34 @@ public class VoidGenerator extends RDFHandlerBase {
             writer.handleStatement(vf.createStatement(propPartition, vf.createURI(VOID.triples.toString()), count));
             writer.handleStatement(vf.createStatement(propPartition, vf.createURI(VOID.distinctSubjects.toString()), distinctS));
             writer.handleStatement(vf.createStatement(propPartition, vf.createURI(VOID.distinctObjects.toString()), distinctO));
+            if (genVocab) {
+                writeSummaries(propPartition, predicate);
+            }
         } catch (RDFHandlerException e) {
             e.printStackTrace();
         }
     }
 
+    private void writeSummaries(BNode propPartition, URI predicate) {
+        log.debug("Writing SEVOD vocabularies of predicate " + predicate.toString());
+        for (String voc : distSubject.getAuthorities()) {
+            try {
+                writer.handleStatement(vf.createStatement(propPartition, vf.createURI(SEVOD.subjectVocabulary.toString()), vf.createURI(voc)));
+            } catch (RDFHandlerException e) {
+                e.printStackTrace();
+            }
+        }
+        for (String voc : distObject.getAuthorities()) {
+            try {
+                writer.handleStatement(vf.createStatement(propPartition, vf.createURI(SEVOD.objectVocabulary.toString()), vf.createURI(voc)));
+            } catch (RDFHandlerException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     private void writeTypeStatToVoid(Value type, long tCount) {
+        log.debug("Writing VoID statistics of type " + type.toString());
         BNode classPartition = vf.createBNode();
         Literal count = vf.createLiteral(tCount);
         try {
@@ -152,7 +180,7 @@ public class VoidGenerator extends RDFHandlerBase {
     }
 
     private void writeGeneralStats() {
-
+        log.debug("Writing general VoID statistics");
         try {
             writer.handleStatement(vf.createStatement(dataset, vf.createURI(VOID.sparqlEndpoint.toString()), vf.createURI(endpoint)));
             writer.handleStatement(vf.createStatement(dataset, vf.createURI(VOID.triples.toString()), vf.createLiteral(tripleCount)));
@@ -174,6 +202,10 @@ public class VoidGenerator extends RDFHandlerBase {
         endpoint = e;
     }
 
+    public void generateVocabulary() {
+        genVocab = true;
+    }
+
 
     @Override
     public void startRDF() throws RDFHandlerException {
@@ -185,6 +217,7 @@ public class VoidGenerator extends RDFHandlerBase {
 
     @Override
     public void handleStatement(Statement st) throws RDFHandlerException {
+        log.debug("Handling statement " + st.toString());
 
         tripleCount++;
 
