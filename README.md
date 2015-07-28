@@ -2,7 +2,7 @@
 
 a tool to create void/sevod metadata for SemaGrow.
 
-## how to install ##
+## how to build ##
 
 Build with maven using the following command:
 ```
