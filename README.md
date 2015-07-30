@@ -20,7 +20,7 @@ Usage: **./run_metadatagen.sh  [dump_file] [endpoint_url] [-s|p|o] [subjectTrieP
 * **[output_file]** - output file path. Metadata are exported in n3 format.
 
 The dump file should be in NQUADS or NTRIPLES format, and it should be sorted by predicate URI.
-If you want to convert the data dump in one of the two formats you could use a tool such as rdf2rdf (http://www.l3s.de/~minack/rdf2rdf/) or similar.
+If you want to convert the data dump in one of the two formats you could use a tool such as rdf2rdf (http://www.l3s.de/~minack/rdf2rdf/).
 Also, if the dump is not sorted by predicate, you could use the sort command (e.g. sort -k 2 unsorted.nt > sorted.nt)
 
 ## Examples: ##
