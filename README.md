@@ -13,12 +13,15 @@ mvn clean install
 
 Usage: **./run_metadatagen.sh  [dump_file] [endpoint_url] [-s|p|o] [subjectTrieParameter] [objectTrieParameter] [output_file]**
 
-* **[dump_file]** - data-dump file path. The tool automatically recognizes the input RDF format, but it was tested mainly for NQUADS input. 
+* **[dump_file]** - data-dump file path. It was tested mainly for NQUADS and NTriples input. 
 * **[endpoint_url]** - the url endpoint of the dataset. Used for annotation purposes (the tool relies exclusively on the dump file).
 * **[-s|p|o|v]** - s: generate metadata for subject URI prefixes, p: generate metadata for properties and o: generate metadata for object URI prefixes, v: generate subject and object vocabularies for each predicate.
 * **[subjectTrieParameter]**, **[objectTrieParameter]** are parameters for the subject and object path tries. Use 0 for the default values.
 * **[output_file]** - output file path. Metadata are exported in n3 format.
 
+The dump file should be in NQUADS or NTRIPLES format, and it should be sorted by predicate URI.
+If you want to convert the data dump in one of the two formats you could use a tool such as rdf2rdf (http://www.l3s.de/~minack/rdf2rdf/) or similar.
+Also, if the dump is not sorted by predicate, you could use the sort command (e.g. sort -k 2 unsorted.nt > sorted.nt)
 
 ## Examples: ##
 
