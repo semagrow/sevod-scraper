@@ -152,14 +152,18 @@ public class VoidGenerator extends RDFHandlerBase {
         log.debug("Writing SEVOD vocabularies of predicate " + predicate.toString());
         for (String voc : distSubject.getAuthorities()) {
             try {
-                writer.handleStatement(vf.createStatement(propPartition, vf.createURI(SEVOD.subjectVocabulary.toString()), vf.createURI(voc)));
+                if (!voc.isEmpty()) {
+                    writer.handleStatement(vf.createStatement(propPartition, vf.createURI(SEVOD.subjectVocabulary.toString()), vf.createURI(voc)));
+                }
             } catch (RDFHandlerException e) {
                 e.printStackTrace();
             }
         }
         for (String voc : distObject.getAuthorities()) {
             try {
-                writer.handleStatement(vf.createStatement(propPartition, vf.createURI(SEVOD.objectVocabulary.toString()), vf.createURI(voc)));
+                if (!voc.isEmpty()) {
+                    writer.handleStatement(vf.createStatement(propPartition, vf.createURI(SEVOD.objectVocabulary.toString()), vf.createURI(voc)));
+                }
             } catch (RDFHandlerException e) {
                 e.printStackTrace();
             }

@@ -1,6 +1,4 @@
 .idea
 .directory
 target
-txt
-metadata
-
+generateMetadata.sh
