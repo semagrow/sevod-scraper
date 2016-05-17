@@ -15,8 +15,8 @@ public class RdfDumpScraper {
 
         String className = RdfDumpScraper.class.getName();
         String usage = "USAGE:" +
-                "\n\t java " + className + " [input_file.nq] [endpoint_url] [-s|p|o] [output_file.n3]" +
-                "\n\t java " + className + " [input_file.nq] [endpoint_url] [-s|p|o] [subjectBound] [objectBound] [output_file.n3]";
+                "\n\t java " + className + " [input_file.nq] [endpoint_url] [-s|p|o|v] [output_file.n3]" +
+                "\n\t java " + className + " [input_file.nq] [endpoint_url] [-s|p|o|v] [subjectBound] [objectBound] [output_file.n3]";
 
         if (args.length != 6 && args.length != 4) {
             throw new IllegalArgumentException(usage);
