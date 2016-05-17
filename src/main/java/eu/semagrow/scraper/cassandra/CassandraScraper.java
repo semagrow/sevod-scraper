@@ -12,30 +12,30 @@ public class CassandraScraper {
 
     public static void main(String [] args) throws RDFHandlerException, IOException {
 
-        if (args.length != 7) {
-            throw new IllegalArgumentException("Usage: cassandraScraper [address] [port] [keyspace] [base] [endpoint] [cassandra desc output file] [void desc output file]");
+        if (args.length != 5) {
+            throw new IllegalArgumentException("Usage: cassandraScraper [address] [port] [keyspace] [base] [sevod output file]");
         }
 
         String address = args[0];
         int port = Integer.valueOf(args[1]);
         String keyspace = args[2];
         String base = args[3];
-        String endpoint = args[4];
-        String descPath = args[5];
-        String voidPath = args[6];
+        String sevodPath = args[4];
 
-        File descFile = new File(descPath);
-        File voidFile = new File(voidPath);
+        File sevodFile = new File(sevodPath);
+        PrintStream stream = new PrintStream(sevodFile);
 
-        if (!descFile.exists()) {
-            descFile.createNewFile();
-        }
-        if (!voidFile.exists()) {
-            voidFile.createNewFile();
+        if (!sevodFile.exists()) {
+            sevodFile.createNewFile();
         }
 
-        if (!endpoint.contains("cassandra")) {
-            throw new IllegalArgumentException("Endpoint string should contain the substring \"cassandra\"");
+        if (base.endsWith("/")) {
+            base = base.substring(0,base.length()-1);
+        }
+        String base_keyspace = base + "/" + keyspace;
+
+        if (!base_keyspace.contains("cassandra")) {
+            throw new IllegalArgumentException("Base should contain the substring \"cassandra\"");
         }
 
         CassandraClient client = new CassandraClient();
@@ -48,13 +48,13 @@ public class CassandraScraper {
         schemaWriter.setClient(client);
         sevodWriter.setClient(client);
 
-        schemaWriter.setBase(base);
-        schemaWriter.setEndpoint(endpoint);
-        sevodWriter.setBase(base);
-        sevodWriter.setEndpoint(endpoint);
+        schemaWriter.setBase(base_keyspace);
+        schemaWriter.setEndpoint(base_keyspace);
+        sevodWriter.setBase(base_keyspace);
+        sevodWriter.setEndpoint(base_keyspace);
 
-        schemaWriter.writeMetadata(new PrintStream(descFile));
-        sevodWriter.writeMetadata(new PrintStream(voidFile));
+        schemaWriter.writeMetadata(stream);
+        sevodWriter.writeMetadata(stream);
 
         client.close();
 
