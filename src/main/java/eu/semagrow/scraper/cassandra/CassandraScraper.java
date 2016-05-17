@@ -13,7 +13,8 @@ public class CassandraScraper {
     public static void main(String [] args) throws RDFHandlerException, IOException {
 
         if (args.length != 5) {
-            throw new IllegalArgumentException("Usage: cassandraScraper [address] [port] [keyspace] [base] [sevod output file]");
+            String className = CassandraScraper.class.getName();
+            throw new IllegalArgumentException("Usage: " + className + " [address] [port] [keyspace] [base] [sevod output file]");
         }
 
         String address = args[0];
