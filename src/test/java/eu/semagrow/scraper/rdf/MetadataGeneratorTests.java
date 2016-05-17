@@ -9,6 +9,6 @@ public class MetadataGeneratorTests extends TestCase {
 
     public void testSevod() throws Exception {
         String array[] = {"/home/antonis/datasets/SWDF.nq", "http://10.0.100.57:8899/sparql/", "-pv", "0", "0",  "bla.n3"};
-        Main.main(array);
+        RdfDumpScraper.main(array);
     }
 }
