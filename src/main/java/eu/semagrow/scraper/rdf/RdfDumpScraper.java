@@ -8,7 +8,7 @@ import java.io.File;
 /**
  * Created by antonis on 14/5/2015.
  */
-public class Main {
+public class RdfDumpScraper {
 
     public static void main(String[] args) throws Exception {
 
