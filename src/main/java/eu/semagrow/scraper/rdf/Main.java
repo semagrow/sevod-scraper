@@ -16,23 +16,19 @@ public class Main {
 
         if (args.length != 6 || (args.length == 6 && !args[2].startsWith("-"))) {
             String className = MetadataGenerator.class.getName();
-            System.err.println("USAGE: java " + className + " [input_file.nq] [endpoint_url] [-s|p|o] [subjectBound] [objectBound] [output_file.n3]");
-            System.exit(1);
+            throw new IllegalArgumentException("USAGE: java " + className + " [input_file.nq] [endpoint_url] [-s|p|o] [subjectBound] [objectBound] [output_file.n3]");
         }
 
         File infile = new File(args[0]);
         if (!infile.exists()) {
-            System.err.println("file not found: " + infile);
-            System.exit(1);
+            throw new RuntimeException("file not found: " + infile);
         }
         if (!infile.isFile()) {
-            System.err.println("not a normal file: " + infile);
-            System.exit(1);
+            throw new RuntimeException("not a normal file: " + infile);
         }
         RDFFormat format = Rio.getParserFormatForFileName(args[0]);
         if (format == null) {
-            System.err.println("can not identify RDF format for: " + args[0]);
-            System.exit(1);
+            throw new RuntimeException("can not identify RDF format for: " + args[0]);
         }
 
         String endpoint = args[1];
@@ -44,8 +40,7 @@ public class Main {
 
         File outfile = new File(args[5]);
         if (outfile.exists() && !outfile.isFile()) {
-            System.err.println("file not found: " + infile);
-            System.exit(1);
+            throw new RuntimeException("file not found: " + infile);
         }
 
         ///////////////////////////////////////////////////////////////////////
