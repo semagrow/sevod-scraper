@@ -1,5 +1,7 @@
 #!/bin/bash
 
+mvn compile
+
 if [ "$1" == "cassandra" ]
 then
 	shift
@@ -8,7 +10,7 @@ fi
 
 if [ "$1" == "rdfdump" ]
 then
-        shift
+	shift
 	mvn exec:java -Dexec.mainClass="eu.semagrow.scraper.rdf.RdfDumpScraper" -Dexec.args="$*"
 fi
 
