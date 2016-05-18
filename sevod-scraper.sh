@@ -1,7 +1,5 @@
 #!/bin/bash
 
-mvn compile
-
 if [ "$1" == "cassandra" ]
 then
 	shift
