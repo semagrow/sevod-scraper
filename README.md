@@ -33,11 +33,11 @@ Also, if the dump is not sorted by predicate, you could use the sort command (e.
 ### cassandra mode ###
 
 Usage: 
-**./sevod-scraper.sh cassandra [cassandra-ip-address] [cassandra-port] [cassandra-keynote] [base] [output_file]**
+**./sevod-scraper.sh cassandra [cassandra-ip-address] [cassandra-port] [cassandra-keyspace] [base] [output_file]**
 
 * **[cassandra-ip-address]** - cassandra server ip address. 
 * **[cassandra-port]** - cassandra server port.
-* **[cassandra-keynote]** - cassandra relevant keynote.
+* **[cassandra-keyspace]** - cassandra relevant keyspace.
 * **[base]** - base string to generate uri predicates. At this moment, it shoud contain the "cassandra" substring.
 * **[output_file]** - output file path. Metadata are exported in n3 format.
 
@@ -65,5 +65,5 @@ Generates metadata for subject and object prefixes and properties (with subj.obj
 ```
 Generates metadata from a Cassandra server:
 ```
-./sevod-scraper.sh cassandra [address] [port] [keynote] http://cassandra.semagrow.eu/ output.n3
+./sevod-scraper.sh cassandra [address] [port] [keyspace] http://cassandra.semagrow.eu/ output.n3
 ```
