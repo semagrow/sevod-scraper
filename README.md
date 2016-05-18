@@ -65,5 +65,5 @@ Generates metadata for subject and object prefixes and properties (with subj.obj
 ```
 Generates metadata from a Cassandra server:
 ```
-./sevod-scraper.sh cassandra [cassandra-ip-address] [cassandra-port] [cassandra-keynote] http://cassandra.semagrow.eu/ output.n3
+./sevod-scraper.sh cassandra [address] [port] [keynote] http://cassandra.semagrow.eu/ output.n3
 ```
