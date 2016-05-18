@@ -14,7 +14,7 @@ mvn clean install
 Sevod-scraper can run in two modes, 
 In **rdfdump** mode the tool extracts SemaGrow metadata from a rdf data dump file, while in **cassandra** mode it extracts SemaGrow metadata from a Cassandra server.
 
-# rdfdump mode #
+### rdfdump mode ###
 
 Usage: 
 **./sevod-scraper.sh rdfdump [dump_file] [endpoint_url] [-s|p|o] [output_file]**
@@ -30,7 +30,7 @@ The dump file should be in NQUADS or NTRIPLES format, the triples should be grou
 If you want to convert the data dump in one of the two formats you could use a tool such as rdf2rdf (http://www.l3s.de/~minack/rdf2rdf/).
 Also, if the dump is not sorted by predicate, you could use the sort command (e.g. sort -k 2 unsorted.nt > sorted.nt)
 
-# cassandra mode #
+### cassandra mode ###
 
 Usage: 
 **./sevod-scraper.sh cassandra [cassandra-ip-address] [cassandra-port] [cassandra-keynote] [base] [output_file]**
