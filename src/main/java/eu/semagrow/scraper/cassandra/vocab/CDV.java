@@ -15,7 +15,7 @@ public final class CDV {
 
     public static final URI ADDRESS;
     public static final URI PORT;
-    public static final URI KEYNOTE;
+    public static final URI KEYSPACE;
 
     public static final URI BASE;
 
@@ -42,7 +42,7 @@ public final class CDV {
 
         ADDRESS = vf.createURI(NAMESPACE, "address");
         PORT = vf.createURI(NAMESPACE, "port");
-        KEYNOTE = vf.createURI(NAMESPACE, "keynote");
+        KEYSPACE = vf.createURI(NAMESPACE, "keyspace");
 
         BASE = vf.createURI(NAMESPACE, "base");
 

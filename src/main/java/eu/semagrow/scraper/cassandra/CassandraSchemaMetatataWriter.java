@@ -65,7 +65,7 @@ public class CassandraSchemaMetatataWriter implements MetadataWriter {
             writer.handleStatement(vf.createStatement(root, VOID.SPARQLENDPOINT, endpoint));
             writer.handleStatement(vf.createStatement(root, CDV.ADDRESS, vf.createLiteral(client.getAddress())));
             writer.handleStatement(vf.createStatement(root, CDV.PORT, vf.createLiteral(String.valueOf(client.getPort()))));
-            writer.handleStatement(vf.createStatement(root, CDV.KEYNOTE, vf.createLiteral(client.getKeyspace())));
+            writer.handleStatement(vf.createStatement(root, CDV.KEYSPACE, vf.createLiteral(client.getKeyspace())));
             writer.handleStatement(vf.createStatement(root, CDV.BASE, vf.createLiteral(base)));
 
             for (TableMetadata tableMetadata: client.getTables()) {
