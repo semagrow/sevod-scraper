@@ -1,9 +1,9 @@
 package eu.semagrow.scraper.cassandra.utils;
 
 import com.datastax.driver.core.DataType;
-import com.datastax.driver.core.Row;
+import eu.semagrow.scraper.cassandra.vocab.CDT;
+import eu.semagrow.scraper.cassandra.vocab.XSD;
 import org.openrdf.model.URI;
-import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.ValueFactoryImpl;
 
@@ -25,72 +25,62 @@ public class RdfMapper {
     }
 
     public static URI getXsdFromColumnDatatype(DataType dataType) {
-        if (dataType.equals(DataType.ascii()) || dataType.equals(DataType.varchar()) || dataType.equals(DataType.text())) {
-            return vf.createURI("http://www.w3.org/2001/XMLSchema#string");
+        if (dataType.equals(DataType.ascii()) || dataType.equals(DataType.varchar()) || dataType.equals(DataType.text()) || dataType.equals(DataType.inet())) {
+            return XSD.STRING;
         }
         if (dataType.equals(DataType.varint())) {
-            return vf.createURI("http://www.w3.org/2001/XMLSchema#integer");
+            return XSD.INTEGER;
         }
         if (dataType.equals(DataType.decimal())) {
-            return vf.createURI("http://www.w3.org/2001/XMLSchema#decimal");
+            return XSD.DECIMAL;
         }
         if (dataType.equals(DataType.cint())) {
-            return vf.createURI("http://www.w3.org/2001/XMLSchema#int");
+            return XSD.INT;
         }
         if (dataType.equals(DataType.bigint()) || dataType.equals(DataType.counter()) ) {
-            return vf.createURI("http://www.w3.org/2001/XMLSchema#long");
+            return XSD.LONG;
         }
         if (dataType.equals(DataType.cdouble())) {
-            return vf.createURI("http://www.w3.org/2001/XMLSchema#double");
+            return XSD.DOUBLE;
         }
         if (dataType.equals(DataType.cfloat())) {
-            return vf.createURI("http://www.w3.org/2001/XMLSchema#float");
+            return XSD.FLOAT;
         }
         if (dataType.equals(DataType.cboolean())) {
-            return vf.createURI("http://www.w3.org/2001/XMLSchema#boolean");
+            return XSD.BOOLEAN;
         }
-        throw new RuntimeException();  /*blob, inet, timestamp, uuid, timeuuid, list, map, set*/
-    }
-
-    public static Value getLiteralFromCassandraResult(Row row, String columnname) {
-        DataType dataType = row.getColumnDefinitions().getType(columnname);
-
-        if (row.getObject(columnname) == null) {
-            return vf.createLiteral("");
+        if (dataType.equals(DataType.blob())) {
+            return CDT.BLOB;
         }
-
-        if (dataType.equals(DataType.ascii()) || dataType.equals(DataType.varchar()) || dataType.equals(DataType.text())) {
-            String result = row.getString(columnname);
-            if (result.startsWith("<") && result.endsWith(">")) {
-                return vf.createURI(result.substring(1,result.length()-1));
+        if (dataType.equals(DataType.date())) {
+            return CDT.DATE;
+        }
+        if (dataType.equals(DataType.time())) {
+            return CDT.TIME;
+        }
+        if (dataType.equals(DataType.timestamp())) {
+            return CDT.TIMESTAMP;
+        }
+        if (dataType.equals(DataType.timeuuid())) {
+            return CDT.TIMEUUID;
+        }
+        if (dataType.isFrozen()) {
+            if (dataType.getName().toString().equals("udt")) {
+                return CDT.UDT;
             }
-            else {
-                return vf.createLiteral(result);
+        }
+        if (dataType.isCollection()) {
+            if (dataType.getName().toString().equals("set")) {
+                return CDT.SET;
+            }
+            if (dataType.getName().toString().equals("list")) {
+                return CDT.LIST;
+            }
+            if (dataType.getName().toString().equals("map")) {
+                return CDT.MAP;
             }
         }
-        if (dataType.equals(DataType.varint())) {
-            return vf.createLiteral(row.getVarint(columnname).doubleValue());
-        }
-        if (dataType.equals(DataType.decimal())) {
-            return vf.createLiteral(row.getDecimal(columnname).doubleValue());
-        }
-        if (dataType.equals(DataType.cint())) {
-            return vf.createLiteral(row.getInt(columnname));
-        }
-        if (dataType.equals(DataType.bigint()) || dataType.equals(DataType.counter()) ) {
-            return vf.createLiteral(row.getLong(columnname));
-        }
-        if (dataType.equals(DataType.cdouble())) {
-            return vf.createLiteral(row.getDouble(columnname));
-        }
-        if (dataType.equals(DataType.cfloat())) {
-            return vf.createLiteral(row.getFloat(columnname));
-        }
-        if (dataType.equals(DataType.cboolean())) {
-            return vf.createLiteral(row.getBool(columnname));
-        }
-        throw new RuntimeException();  /*blob, inet, timestamp, uuid, timeuuid, list, map, set, isNULL */
+        throw new RuntimeException();
     }
-
 
 }

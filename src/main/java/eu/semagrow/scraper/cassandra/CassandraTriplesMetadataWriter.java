@@ -61,22 +61,24 @@ public class CassandraTriplesMetadataWriter implements MetadataWriter {
             writer.handleStatement(vf.createStatement(root, RDF.TYPE, VOID.DATASET));
 
             long triples = 0;
+            long subj = 0;
 
             for (TableMetadata tableMetadata: client.getTables()) {
                 String tableName = tableMetadata.getName();
                 for (ColumnMetadata columnMetadata: tableMetadata.getColumns()) {
                     if (columnMetadata.getParent().getPartitionKey().contains(columnMetadata)) {
-                        writePrimaryColumnMetadata(writer, root, base, columnMetadata.getName(), tableName);
+                        triples += writePrimaryColumnMetadata(writer, root, base, columnMetadata.getName(), tableName);
                     } else {
-                        writeRegularColumnMetadata(writer, root, base, columnMetadata.getName(), tableName);
+                        triples += writeRegularColumnMetadata(writer, root, base, columnMetadata.getName(), tableName);
                     }
                 }
-                triples += client.executeCount("SELECT COUNT(*) FROM " + tableName + ";");
+                subj += client.executeCount("SELECT COUNT(*) FROM " + tableName + ";");
             }
 
             writer.handleStatement(vf.createStatement(root, VOID.SPARQLENDPOINT, endpoint));
             writer.handleStatement(vf.createStatement(root, VOID.URISPACE, vf.createLiteral(base)));
             writer.handleStatement(vf.createStatement(root, VOID.TRIPLES, vf.createLiteral(triples)));
+            writer.handleStatement(vf.createStatement(root, VOID.DISTINCTSUBJECTS, vf.createLiteral(subj)));
 
             writer.endRDF();
 
@@ -85,7 +87,7 @@ public class CassandraTriplesMetadataWriter implements MetadataWriter {
         }
     }
 
-    private void writePrimaryColumnMetadata(RDFWriter writer, Resource root, String base, String columnName, String tableName) throws RDFHandlerException {
+    private long writePrimaryColumnMetadata(RDFWriter writer, Resource root, String base, String columnName, String tableName) throws RDFHandlerException {
 
         long triples = client.executeCount("SELECT COUNT(*) FROM " + tableName + ";");
 
@@ -95,9 +97,11 @@ public class CassandraTriplesMetadataWriter implements MetadataWriter {
         writer.handleStatement(vf.createStatement(partition, VOID.PROPERTY, property));
         writer.handleStatement(vf.createStatement(partition, VOID.TRIPLES, vf.createLiteral(triples)));
         writer.handleStatement(vf.createStatement(partition, VOID.DISTINCTSUBJECTS, vf.createLiteral(triples)));
+
+        return triples;
     }
 
-    private void writeRegularColumnMetadata(RDFWriter writer, Resource root, String base, String columnName, String tableName) throws RDFHandlerException {
+    private long writeRegularColumnMetadata(RDFWriter writer, Resource root, String base, String columnName, String tableName) throws RDFHandlerException {
 
         long triples = client.executeCount("SELECT COUNT(" + columnName + ") FROM " + tableName + ";");
 
@@ -107,5 +111,7 @@ public class CassandraTriplesMetadataWriter implements MetadataWriter {
         writer.handleStatement(vf.createStatement(partition, VOID.PROPERTY, property));
         writer.handleStatement(vf.createStatement(partition, VOID.TRIPLES, vf.createLiteral(triples)));
         writer.handleStatement(vf.createStatement(partition, VOID.DISTINCTSUBJECTS, vf.createLiteral(triples)));
+
+        return triples;
     }
 }
