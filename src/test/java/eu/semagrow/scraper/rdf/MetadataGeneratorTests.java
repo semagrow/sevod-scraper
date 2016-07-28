@@ -1,6 +1,6 @@
 package eu.semagrow.scraper.rdf;
 
-import eu.semagrow.scraper.cassandra.CassandraScraper;
+import cassandra.CassandraScraper;
 import junit.framework.TestCase;
 
 /**
