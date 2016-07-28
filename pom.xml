@@ -67,6 +67,7 @@
     <modules>
         <module>commons</module>
         <module>rdfdump</module>
+        <module>rdfdump-spark</module>
         <module>cql</module>
         <module>assembly</module>
     </modules>
