@@ -68,6 +68,7 @@
         <module>commons</module>
         <module>rdfdump</module>
         <module>cql</module>
+        <module>sparql</module>
         <module>assembly</module>
     </modules>
 </project>
