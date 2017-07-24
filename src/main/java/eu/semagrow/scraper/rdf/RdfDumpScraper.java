@@ -4,7 +4,6 @@ import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.Rio;
 
 import java.io.File;
-import java.util.IllegalFormatCodePointException;
 
 /**
  * Created by antonis on 14/5/2015.
@@ -73,6 +72,9 @@ public class RdfDumpScraper {
 
         if (whatToGenerate.contains("v"))
             generator.generateVocabulary();
+
+        if (whatToGenerate.contains("l"))
+            generator.generateSelectivities();
 
         generator.setBounds(subjectBound, objectBound);
 

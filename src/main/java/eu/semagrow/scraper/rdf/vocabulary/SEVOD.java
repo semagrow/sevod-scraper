@@ -15,7 +15,11 @@ public enum SEVOD {
     intInterval,
     dateInterval,
     from,
-    to;
+    to,
+    Join,
+    selectivity,
+    joinSubject,
+    joinObject;
 
     public static final String NAMESPACE = "http://rdf.iit.demokritos.gr/2013/sevod#";
 
@@ -34,4 +38,3 @@ public enum SEVOD {
     }
 
 }
-

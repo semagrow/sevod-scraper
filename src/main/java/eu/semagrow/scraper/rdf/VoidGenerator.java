@@ -1,32 +1,17 @@
 package eu.semagrow.scraper.rdf;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import eu.semagrow.scraper.rdf.util.DistinctCounter;
 import eu.semagrow.scraper.rdf.vocabulary.SEVOD;
 import eu.semagrow.scraper.rdf.vocabulary.VOID;
-import eu.semagrow.scraper.rdf.util.DistinctCounter;
 import org.apache.log4j.Logger;
-import org.openrdf.model.BNode;
-import org.openrdf.model.Literal;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
-import org.openrdf.model.Value;
-import org.openrdf.model.ValueFactory;
+import org.openrdf.model.*;
 import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFWriter;
 import org.openrdf.rio.helpers.RDFHandlerBase;
 
-import static java.lang.Math.max;
+import java.util.*;
 
 /**
  * Created by antru on 21/4/2015.
@@ -44,6 +29,8 @@ public class VoidGenerator extends RDFHandlerBase {
 
     private final DistinctCounter distSubjectTotal = new DistinctCounter(null);
     private final DistinctCounter distObjectTotal = new DistinctCounter(null);
+
+    private Map<URI, Resource> propertyPartitionMap = new HashMap<>();
 
     private String endpoint;
 
@@ -67,6 +54,10 @@ public class VoidGenerator extends RDFHandlerBase {
     };
 
     // ------------------------------------------------------------------------
+
+    public Map<URI, Resource> getPropertiesMap() {
+        return this.propertyPartitionMap;
+    }
 
     private void countType(URI type) {
         Integer count = typeCountMap.get(type);
@@ -141,6 +132,7 @@ public class VoidGenerator extends RDFHandlerBase {
             if (genVocab) {
                 writeSummaries(propPartition, predicate);
             }
+            propertyPartitionMap.put(predicate, propPartition);
         } catch (RDFHandlerException e) {
             e.printStackTrace();
         }

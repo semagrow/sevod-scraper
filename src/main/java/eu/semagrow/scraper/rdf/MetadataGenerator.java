@@ -2,23 +2,26 @@ package eu.semagrow.scraper.rdf;
 
 import eu.semagrow.scraper.rdf.handler.ObjectHandler;
 import eu.semagrow.scraper.rdf.handler.SubjectHandler;
-import eu.semagrow.scraper.rdf.util.CompactBNodeTurtleWriter;
 import eu.semagrow.scraper.rdf.vocabulary.VOID;
-import eu.semagrow.scraper.rdf.writer.SubjectWriter;
 import eu.semagrow.scraper.rdf.writer.ObjectWriter;
+import eu.semagrow.scraper.rdf.writer.SubjectWriter;
 import org.apache.log4j.Logger;
 import org.openrdf.model.BNode;
+import org.openrdf.model.Resource;
+import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.rio.*;
 import org.openrdf.rio.helpers.BasicParserSettings;
+import org.openrdf.rio.turtle.TurtleWriter;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by antonis on 14/5/2015.
@@ -39,10 +42,13 @@ public class MetadataGenerator {
 
     VoidGenerator voidGenerator = null;
 
+    Map<URI, Resource> propertyPartitionMap = null;
+
     boolean genSubjects = false;
     boolean genObjects = false;
     boolean genProperties = false;
     boolean genVocab = false;
+    boolean genSelectivities = false;
 
     int subjectBound = 15;
     int objectBound = 350;
@@ -72,6 +78,8 @@ public class MetadataGenerator {
     public void generateVocabulary() { genVocab = true; }
 
     public void generateProperties() { genProperties = true; }
+
+    public void generateSelectivities() { genSelectivities = true; }
 
     private void handleSubjects(File file) throws RDFParseException, IOException, RDFHandlerException {
 
@@ -124,13 +132,24 @@ public class MetadataGenerator {
         parser.getParserConfig().set(BasicParserSettings.VERIFY_DATATYPE_VALUES, false);
         parser.setRDFHandler(voidGenerator);
         parser.parse(new FileInputStream(file), "");
+
+        propertyPartitionMap = voidGenerator.getPropertiesMap();
+    }
+
+    private void handleSelectivities(File file) throws Exception {
+        log.debug("Generating Selectivity Metadata...");
+        SelectivityGenerator gen = new SelectivityGenerator(propertyPartitionMap);
+        gen.calculateSelectivities(format, file);
+        gen.writeSelectivities(writer);
     }
 
     ///////////////////////////////////////////////////////////////////////////
 
-    public void writeMetadata(File infile, File outfile) throws RDFParseException, IOException, RDFHandlerException {
+    public void writeMetadata(File infile, File outfile) throws Exception {
 
-        writer = new CompactBNodeTurtleWriter(new FileOutputStream(outfile));
+        //writer = new CompactBNodeTurtleWriter(new FileOutputStream(outfile));
+
+        writer = new TurtleWriter(new FileOutputStream(outfile));
 
         writer.startRDF();
 
@@ -150,6 +169,10 @@ public class MetadataGenerator {
 
         if (genProperties) {
             handleProperties(infile);
+        }
+
+        if (genSelectivities) {
+            handleSelectivities(infile);
         }
 
         writer.endRDF();
