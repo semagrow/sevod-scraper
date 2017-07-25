@@ -73,8 +73,11 @@ public class RdfDumpScraper {
         if (whatToGenerate.contains("v"))
             generator.generateVocabulary();
 
-        if (whatToGenerate.contains("l"))
+        if (whatToGenerate.contains("j"))
             generator.generateSelectivities();
+
+        if (whatToGenerate.contains("E"))
+            generator.useEndpoint();
 
         generator.setBounds(subjectBound, objectBound);
 

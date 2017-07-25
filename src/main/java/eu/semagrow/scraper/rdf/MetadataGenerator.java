@@ -2,6 +2,7 @@ package eu.semagrow.scraper.rdf;
 
 import eu.semagrow.scraper.rdf.handler.ObjectHandler;
 import eu.semagrow.scraper.rdf.handler.SubjectHandler;
+import eu.semagrow.scraper.rdf.util.CompactBNodeTurtleWriter;
 import eu.semagrow.scraper.rdf.vocabulary.VOID;
 import eu.semagrow.scraper.rdf.writer.ObjectWriter;
 import eu.semagrow.scraper.rdf.writer.SubjectWriter;
@@ -49,6 +50,7 @@ public class MetadataGenerator {
     boolean genProperties = false;
     boolean genVocab = false;
     boolean genSelectivities = false;
+    boolean use_endpoint = false;
 
     int subjectBound = 15;
     int objectBound = 350;
@@ -67,9 +69,7 @@ public class MetadataGenerator {
             objectBound = ob;
     }
 
-    public void setFormat(RDFFormat f) {
-        format = f;
-    }
+    public void setFormat(RDFFormat f) { format = f; }
 
     public void generateSubjects() { genSubjects = true; }
 
@@ -80,6 +80,8 @@ public class MetadataGenerator {
     public void generateProperties() { genProperties = true; }
 
     public void generateSelectivities() { genSelectivities = true; }
+
+    public void useEndpoint() { use_endpoint = true; }
 
     private void handleSubjects(File file) throws RDFParseException, IOException, RDFHandlerException {
 
@@ -136,10 +138,15 @@ public class MetadataGenerator {
         propertyPartitionMap = voidGenerator.getPropertiesMap();
     }
 
-    private void handleSelectivities(File file) throws Exception {
+    private void handleSelectivities(File file, boolean use_endpoint) throws Exception {
         log.debug("Generating Selectivity Metadata...");
         SelectivityGenerator gen = new SelectivityGenerator(propertyPartitionMap);
-        gen.calculateSelectivities(format, file);
+        if (use_endpoint) {
+            gen.calculateSelectivities(endpoint);
+        }
+        else {
+            gen.calculateSelectivities(format, file);
+        }
         gen.writeSelectivities(writer);
     }
 
@@ -147,9 +154,12 @@ public class MetadataGenerator {
 
     public void writeMetadata(File infile, File outfile) throws Exception {
 
-        //writer = new CompactBNodeTurtleWriter(new FileOutputStream(outfile));
-
-        writer = new TurtleWriter(new FileOutputStream(outfile));
+        if (genSelectivities) {
+            writer = new TurtleWriter(new FileOutputStream(outfile));
+        }
+        else {
+            writer = new CompactBNodeTurtleWriter(new FileOutputStream(outfile));
+        }
 
         writer.startRDF();
 
@@ -169,10 +179,10 @@ public class MetadataGenerator {
 
         if (genProperties) {
             handleProperties(infile);
-        }
 
-        if (genSelectivities) {
-            handleSelectivities(infile);
+            if (genSelectivities) {
+                handleSelectivities(infile, use_endpoint);
+            }
         }
 
         writer.endRDF();

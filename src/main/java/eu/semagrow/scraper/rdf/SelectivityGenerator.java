@@ -14,6 +14,7 @@ import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.sail.SailRepository;
+import org.openrdf.repository.sparql.SPARQLRepository;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFWriter;
 import org.openrdf.sail.nativerdf.NativeStore;
@@ -39,6 +40,19 @@ public class SelectivityGenerator {
 
     public SelectivityGenerator(Map<URI, Resource> propertyPartitionMap) {
         this.propertyPartitionMap = propertyPartitionMap;
+        log.debug("Found " + propertyPartitionMap.keySet().size() + " properties.");
+    }
+
+    public void calculateSelectivities(String endpoint) throws Exception {
+        Repository repo = new SPARQLRepository(endpoint);
+        repo.initialize();
+        RepositoryConnection conn = repo.getConnection();
+        try {
+            calculateSelectivitiesInternal(conn);
+        }
+        finally {
+            conn.close();
+        }
     }
 
     public void calculateSelectivities(final RDFFormat format, final File file) throws Exception {
@@ -49,60 +63,61 @@ public class SelectivityGenerator {
         RepositoryConnection conn = repo.getConnection();
         try {
             conn.add(file, "", format);
-
-            for (URI p1: propertyPartitionMap.keySet()) {
-                for (URI p2: propertyPartitionMap.keySet()) {
-                    if (p1.equals(vf.createURI("http://data.nytimes.com/elements/topicPage"))
-                            && p2.equals(vf.createURI("http://www.w3.org/2002/07/owl#sameAs")) ||
-                            p1.equals(vf.createURI("http://www.w3.org/2002/07/owl#sameAs"))
-                                    && p2.equals(vf.createURI("http://data.nytimes.com/elements/topicPage"))) {
-                        if (!(p1.equals(p2))) {
-
-                            String star_query = "" +
-                                    "SELECT (count(*) as ?result) \n" +
-                                    "WHERE { \n" +
-                                    "   ?s <" + p1.toString() + "> ?o1 . \n" +
-                                    "   ?s <" + p2.toString() + "> ?o2 . \n" +
-                                    "}";
-
-                            String sink_query = "" +
-                                    "SELECT (count(*) as ?result) \n" +
-                                    "WHERE { \n" +
-                                    "   ?s1 <" + p1.toString() + "> ?o . \n" +
-                                    "   ?s2 <" + p2.toString() + "> ?o . \n" +
-                                    "}";
-
-                            String path_query = "" +
-                                    "SELECT (count(*) as ?result) \n" +
-                                    "WHERE { \n" +
-                                    "   ?s <" + p1.toString() + "> ?c . \n" +
-                                    "   ?c <" + p2.toString() + "> ?o . \n" +
-                                    "}";
-
-                            if (URIlessEq(p1, p2)) {
-                                long stars = evaluateQuery(conn, star_query, "result");
-
-                                long sinks = evaluateQuery(conn, sink_query, "result");
-
-                                if (stars > 0) {
-                                    starJoins.put(Pair.of(p1, p2), stars);
-                                }
-                                if (sinks > 0) {
-                                    sinkJoins.put(Pair.of(p1, p2), sinks);
-                                }
-                            }
-                            long paths = evaluateQuery(conn, path_query, "result");
-
-                            if (paths > 0) {
-                                pathJoins.put(Pair.of(p1, p2), paths);
-                            }
-                        }
-                    }
-                }
-            }
+            calculateSelectivitiesInternal(conn);
         }
         finally {
             conn.close();
+        }
+    }
+
+    private void calculateSelectivitiesInternal(RepositoryConnection conn) throws Exception {
+
+        for (URI p1 : propertyPartitionMap.keySet()) {
+            for (URI p2 : propertyPartitionMap.keySet()) {
+                if (!(p1.equals(p2))) {
+
+                    log.debug("Calculating selectivity between " + p1 + " and " + p2);
+
+                    String star_query = "" +
+                            "SELECT (count(*) as ?result) \n" +
+                            "WHERE { \n" +
+                            "   ?s <" + p1.toString() + "> ?o1 . \n" +
+                            "   ?s <" + p2.toString() + "> ?o2 . \n" +
+                            "}";
+
+                    String sink_query = "" +
+                            "SELECT (count(*) as ?result) \n" +
+                            "WHERE { \n" +
+                            "   ?s1 <" + p1.toString() + "> ?o . \n" +
+                            "   ?s2 <" + p2.toString() + "> ?o . \n" +
+                            "}";
+
+                    String path_query = "" +
+                            "SELECT (count(*) as ?result) \n" +
+                            "WHERE { \n" +
+                            "   ?s <" + p1.toString() + "> ?c . \n" +
+                            "   ?c <" + p2.toString() + "> ?o . \n" +
+                            "}";
+
+                    if (URIlessEq(p1, p2)) {
+                        long stars = evaluateQuery(conn, star_query, "result");
+
+                        long sinks = evaluateQuery(conn, sink_query, "result");
+
+                        if (stars > 0) {
+                            starJoins.put(Pair.of(p1, p2), stars);
+                        }
+                        if (sinks > 0) {
+                            sinkJoins.put(Pair.of(p1, p2), sinks);
+                        }
+                    }
+                    long paths = evaluateQuery(conn, path_query, "result");
+
+                    if (paths > 0) {
+                        pathJoins.put(Pair.of(p1, p2), paths);
+                    }
+                }
+            }
         }
     }
 

@@ -29,7 +29,7 @@ public class SelectivityTests extends TestCase {
 
     @Test
     public void testSevod() throws Exception {
-        String array[] = {"/home/antonis/Documents/sevod/NYT.nq", "http://10.0.100.57:8899/sparql/", "-pvl", "0", "0",  "output.n3"};
+        String array[] = {"/home/antonis/Documents/sevod/NYT.nq", "http://10.0.100.57:8899/sparql/", "-pvj", "0", "0",  "output.n3"};
         RdfDumpScraper.main(array);
     }
 }
