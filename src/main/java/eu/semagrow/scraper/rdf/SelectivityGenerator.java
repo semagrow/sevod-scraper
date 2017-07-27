@@ -3,10 +3,7 @@ package eu.semagrow.scraper.rdf;
 import eu.semagrow.scraper.rdf.vocabulary.SEVOD;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.log4j.Logger;
-import org.openrdf.model.BNode;
-import org.openrdf.model.Resource;
-import org.openrdf.model.URI;
-import org.openrdf.model.ValueFactory;
+import org.openrdf.model.*;
 import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.query.*;
@@ -20,7 +17,9 @@ import org.openrdf.rio.RDFWriter;
 import org.openrdf.sail.nativerdf.NativeStore;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -38,6 +37,8 @@ public class SelectivityGenerator {
     final private Map<Pair<URI, URI>, Long> pathJoins = new HashMap();
     final private Map<Pair<URI, URI>, Long> sinkJoins = new HashMap();
 
+    int batch_size = 10;
+
     public SelectivityGenerator(Map<URI, Resource> propertyPartitionMap) {
         this.propertyPartitionMap = propertyPartitionMap;
         log.debug("Found " + propertyPartitionMap.keySet().size() + " properties.");
@@ -48,7 +49,7 @@ public class SelectivityGenerator {
         repo.initialize();
         RepositoryConnection conn = repo.getConnection();
         try {
-            calculateSelectivitiesInternal(conn);
+            calculateSelectivitiesInternalBatch(conn);
         }
         finally {
             conn.close();
@@ -68,6 +69,111 @@ public class SelectivityGenerator {
         finally {
             conn.close();
         }
+    }
+
+    private void calculateSelectivitiesInternalBatch(RepositoryConnection conn) throws Exception {
+
+        List<List<Pair<URI, URI>>> list = new ArrayList<>();
+        List<Pair<URI, URI>> batch = new ArrayList<>();
+        int count = 0;
+
+        for (URI p1 : propertyPartitionMap.keySet()) {
+            for (URI p2 : propertyPartitionMap.keySet()) {
+                if (!(p1.equals(p2))) {
+                    batch.add(Pair.of(p1, p2));
+                    count++;
+                    if (count < batch_size) {
+                        list.add(batch);
+                        batch = new ArrayList<>();
+                    }
+                }
+            }
+        }
+
+        for (List<Pair<URI, URI>> ll: list) {
+
+            String values = "   VALUES (?p1 ?p2) {\n";
+            for (Pair<URI, URI> pp: ll) {
+                URI p1 = pp.getLeft();
+                URI p2 = pp.getRight();
+                values += "      ( <" + p1.toString() + "> <" + p2.toString() + "> )\n";
+            }
+            values += "   }\n";
+
+            String star_query = "" +
+                    "SELECT ?p1 ?p2 (count(*) as ?result) \n" +
+                    "WHERE { \n" +
+                    "   ?s ?p1 ?o1 . \n" +
+                    "   ?s ?p2 ?o2 . \n" + values +
+                    "} \n" +
+                    "GROUP BY ?p1 ?p2;";
+
+            String sink_query = "" +
+                    "SELECT (count(*) as ?result) \n" +
+                    "WHERE { \n" +
+                    "   ?s1 ?p1 ?o . \n" +
+                    "   ?s2 ?p2 ?o . \n" + values +
+                    "}";
+
+            String path_query = "" +
+                    "SELECT (count(*) as ?result) \n" +
+                    "WHERE { \n" +
+                    "   ?s ?p1 ?c . \n" +
+                    "   ?c ?p2 ?o . \n" + values +
+                    "}";
+
+            List<Pair<Pair<URI, URI>, Long>> starbach = evaluateQueryBatch(conn, star_query, "p1", "p2", "result");
+            List<Pair<Pair<URI, URI>, Long>> sinkbach = evaluateQueryBatch(conn, sink_query, "p1", "p2", "result");
+            List<Pair<Pair<URI, URI>, Long>> pathbach = evaluateQueryBatch(conn, path_query, "p1", "p2", "result");
+
+            for (Pair<Pair<URI, URI>, Long> pair: starbach) {
+                Pair<URI, URI> uris = pair.getLeft();
+                long result = pair.getRight();
+                if (URIlessEq(uris.getLeft(), uris.getRight())) {
+                    starJoins.put(uris, result);
+                }
+            }
+
+            for (Pair<Pair<URI, URI>, Long> pair: sinkbach) {
+                Pair<URI, URI> uris = pair.getLeft();
+                long result = pair.getRight();
+                if (URIlessEq(uris.getLeft(), uris.getRight())) {
+                    sinkJoins.put(uris, result);
+                }
+            }
+
+            for (Pair<Pair<URI, URI>, Long> pair: pathbach) {
+                Pair<URI, URI> uris = pair.getLeft();
+                long result = pair.getRight();
+                pathJoins.put(uris, result);
+            }
+        }
+
+    }
+
+    private List<Pair<Pair<URI, URI>, Long>> evaluateQueryBatch(RepositoryConnection conn,
+                String query, String leftVar, String rightVar, String resultVar)
+            throws MalformedQueryException, QueryEvaluationException, RepositoryException {
+
+        List<Pair<Pair<URI, URI>, Long>> list = new ArrayList<>();
+
+        TupleQuery tupleQuery = conn.prepareTupleQuery(QueryLanguage.SPARQL, query);
+        TupleQueryResult results = tupleQuery.evaluate();
+        try {
+            while (results.hasNext()) {
+                BindingSet bs = results.next();
+                Value left = bs.getValue(leftVar);
+                Value right = bs.getValue(rightVar);
+
+                if (left instanceof URI && right instanceof URI) {
+                    long result = Integer.valueOf(bs.getValue(resultVar).stringValue());
+                    list.add(Pair.of(Pair.of((URI) left, (URI) right), result));
+                }
+            }
+        } finally {
+            results.close();
+        }
+        return list;
     }
 
     private void calculateSelectivitiesInternal(RepositoryConnection conn) throws Exception {
