@@ -12,7 +12,6 @@ import java.util.Set;
 import org.semagrow.sevod.commons.vocabulary.SEVOD;
 import org.semagrow.sevod.commons.vocabulary.VOID;
 import org.semagrow.sevod.scraper.rdf.dump.util.DistinctCounter;
-import org.slf4j.Logger;
 import org.openrdf.model.BNode;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Resource;
@@ -26,6 +25,7 @@ import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFWriter;
 import org.openrdf.rio.helpers.RDFHandlerBase;
 import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 /**
  * Created by antru on 21/4/2015.
@@ -43,6 +43,8 @@ public class VoidGenerator extends RDFHandlerBase {
 
     private final DistinctCounter distSubjectTotal = new DistinctCounter(null);
     private final DistinctCounter distObjectTotal = new DistinctCounter(null);
+
+    private Map<URI, Resource> propertyPartitionMap = new HashMap<>();
 
     private String endpoint;
 
@@ -66,6 +68,10 @@ public class VoidGenerator extends RDFHandlerBase {
     };
 
     // ------------------------------------------------------------------------
+
+    public Map<URI, Resource> getPropertiesMap() {
+        return this.propertyPartitionMap;
+    }
 
     private void countType(URI type) {
         Integer count = typeCountMap.get(type);
@@ -140,6 +146,7 @@ public class VoidGenerator extends RDFHandlerBase {
             if (genVocab) {
                 writeSummaries(propPartition, predicate);
             }
+            propertyPartitionMap.put(predicate, propPartition);
         } catch (RDFHandlerException e) {
             e.printStackTrace();
         }

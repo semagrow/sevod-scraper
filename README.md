@@ -12,23 +12,34 @@ mvn clean install
 ## usage ##
 
 Sevod-scraper can run in two modes, 
-In **rdfdump** mode the tool extracts SemaGrow metadata from a rdf data dump file, while in **cassandra** mode it extracts SemaGrow metadata from a Cassandra server.
+In **rdfdump** mode the tool extracts SemaGrow metadata from a rdf data dump file, 
+while in **cassandra** mode it extracts SemaGrow metadata from a Cassandra server.
 
 ### rdfdump mode ###
 
 Usage: 
-**./sevod-scraper.sh rdfdump [dump_file] [endpoint_url] [-s|p|o] [output_file]**
-**./sevod-scraper.sh rdfdump [dump_file] [endpoint_url] [-s|p|o] [subjectTrieParameter] [objectTrieParameter] [output_file]**
+```
+./sevod-scraper.sh rdfdump [dump_file] [endpoint_url] [-s|p|o] [output_file]
+
+./sevod-scraper.sh rdfdump [dump_file] [endpoint_url] [-s|p|o] [subjectTrieParameter] [objectTrieParameter] [output_file]
+
+```
 
 * **[dump_file]** - data-dump file path. It was tested mainly for NQUADS and NTriples input. 
-* **[endpoint_url]** - the url endpoint of the dataset. Used for annotation purposes (the tool relies exclusively on the dump file).
-* **[-s|p|o|v]** - s: generate metadata for subject URI prefixes, p: generate metadata for properties and o: generate metadata for object URI prefixes, v: generate subject and object vocabularies for each predicate.
-* **[subjectTrieParameter]**, **[objectTrieParameter]** are optional parameters for the subject and object path tries. Use 0 for the default values.
+* **[endpoint_url]** - the url endpoint of the dataset. Used for annotation purposes (the 
+  tool relies exclusively on the dump file).
+* **[-s|p|o|v|j]** - s: generate metadata for subject URI prefixes, p: generate metadata 
+  for properties and o: generate metadata for object URI prefixes, v: generate subject and 
+  object vocabularies for each predicate, j: generate metadata for join selectivities 
+  between every pair of properties.
+* **[subjectTrieParameter]**, **[objectTrieParameter]** are optional parameters for the 
+  subject and object path tries. Use 0 for the default values.
 * **[output_file]** - output file path. Metadata are exported in n3 format.
 
-The dump file should be in NQUADS or NTRIPLES format, the triples should be grouped by predicate URI.
-If you want to convert the data dump in one of the two formats you could use a tool such as rdf2rdf (http://www.l3s.de/~minack/rdf2rdf/).
-Also, if the dump is not sorted by predicate, you could use the sort command (e.g. sort -k 2 unsorted.nt > sorted.nt)
+The dump file should be in NQUADS or NTRIPLES format, the triples should be grouped by 
+predicate URI. If you want to convert the data dump in one of the two formats you could use 
+a tool such as rdf2rdf (http://www.l3s.de/~minack/rdf2rdf/). Also, if the dump is not sorted 
+by predicate, you could use the sort command (e.g. sort -k 2 unsorted.nt > sorted.nt)
 
 ### cassandra mode ###
 
@@ -38,7 +49,8 @@ Usage:
 * **[cassandra-ip-address]** - cassandra server ip address. 
 * **[cassandra-port]** - cassandra server port.
 * **[cassandra-keyspace]** - cassandra relevant keyspace.
-* **[base]** - base string to generate uri predicates. At this moment, it shoud contain the "cassandra" substring.
+* **[base]** - base string to generate uri predicates. At this moment, it shoud contain the
+  "cassandra" substring.
 * **[output_file]** - output file path. Metadata are exported in n3 format.
 
 ## Examples: ##
