@@ -1,11 +1,12 @@
 package eu.semagrow.scraper.rdf;
-
+/*
 import cassandra.CassandraScraper;
 import junit.framework.TestCase;
-
+*/
 /**
  * Created by antonis on 14/5/2015.
  */
+/*
 public class MetadataGeneratorTests extends TestCase {
 
     public void testSevod() throws Exception {
@@ -18,3 +19,4 @@ public class MetadataGeneratorTests extends TestCase {
         CassandraScraper.main(array);
     }
 }
+*/

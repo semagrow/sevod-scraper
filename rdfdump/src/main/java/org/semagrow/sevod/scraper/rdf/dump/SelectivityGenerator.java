@@ -1,6 +1,5 @@
-package eu.semagrow.scraper.rdf;
+package org.semagrow.sevod.scraper.rdf.dump;
 
-import eu.semagrow.scraper.rdf.vocabulary.SEVOD;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.log4j.Logger;
 import org.openrdf.model.*;
@@ -15,6 +14,7 @@ import org.openrdf.repository.sparql.SPARQLRepository;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFWriter;
 import org.openrdf.sail.nativerdf.NativeStore;
+import org.semagrow.sevod.commons.vocabulary.SEVOD;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -267,10 +267,10 @@ public class SelectivityGenerator {
             Resource right = propertyPartitionMap.get(pair.getRight());
             Long selectivityValue = starJoins.get(pair);
 
-            writer.handleStatement(vf.createStatement(j, RDF.TYPE , vf.createURI(SEVOD.Join.toString())));
-            writer.handleStatement(vf.createStatement(j, vf.createURI(SEVOD.joinSubject.toString()), left));
-            writer.handleStatement(vf.createStatement(j, vf.createURI(SEVOD.joinSubject.toString()), right));
-            writer.handleStatement(vf.createStatement(j, vf.createURI(SEVOD.selectivity.toString()), s));
+            writer.handleStatement(vf.createStatement(j, RDF.TYPE , SEVOD.JOIN));
+            writer.handleStatement(vf.createStatement(j, SEVOD.JOINSUBJECT, left));
+            writer.handleStatement(vf.createStatement(j, SEVOD.JOINSUBJECT, right));
+            writer.handleStatement(vf.createStatement(j, SEVOD.SELECTIVITY, s));
             writer.handleStatement(vf.createStatement(s, RDF.VALUE, vf.createLiteral(selectivityValue)));
         }
 
@@ -281,10 +281,10 @@ public class SelectivityGenerator {
             Resource right = propertyPartitionMap.get(pair.getRight());
             Long selectivityValue = pathJoins.get(pair);
 
-            writer.handleStatement(vf.createStatement(j, RDF.TYPE , vf.createURI(SEVOD.Join.toString())));
-            writer.handleStatement(vf.createStatement(j, vf.createURI(SEVOD.joinSubject.toString()), left));
-            writer.handleStatement(vf.createStatement(j, vf.createURI(SEVOD.joinObject.toString()), right));
-            writer.handleStatement(vf.createStatement(j, vf.createURI(SEVOD.selectivity.toString()), s));
+            writer.handleStatement(vf.createStatement(j, RDF.TYPE , SEVOD.JOIN));
+            writer.handleStatement(vf.createStatement(j, SEVOD.JOINSUBJECT, left));
+            writer.handleStatement(vf.createStatement(j, SEVOD.JOINOBJECT, right));
+            writer.handleStatement(vf.createStatement(j, SEVOD.SELECTIVITY, s));
             writer.handleStatement(vf.createStatement(s, RDF.VALUE, vf.createLiteral(selectivityValue)));
         }
 
@@ -295,10 +295,10 @@ public class SelectivityGenerator {
             Resource right = propertyPartitionMap.get(pair.getRight());
             Long selectivityValue = sinkJoins.get(pair);
 
-            writer.handleStatement(vf.createStatement(j, RDF.TYPE , vf.createURI(SEVOD.Join.toString())));
-            writer.handleStatement(vf.createStatement(j, vf.createURI(SEVOD.joinObject.toString()), left));
-            writer.handleStatement(vf.createStatement(j, vf.createURI(SEVOD.joinObject.toString()), right));
-            writer.handleStatement(vf.createStatement(j, vf.createURI(SEVOD.selectivity.toString()), s));
+            writer.handleStatement(vf.createStatement(j, RDF.TYPE , SEVOD.JOIN));
+            writer.handleStatement(vf.createStatement(j, SEVOD.JOINOBJECT, left));
+            writer.handleStatement(vf.createStatement(j, SEVOD.JOINOBJECT, right));
+            writer.handleStatement(vf.createStatement(j, SEVOD.SELECTIVITY, s));
             writer.handleStatement(vf.createStatement(s, RDF.VALUE, vf.createLiteral(selectivityValue)));
         }
     }

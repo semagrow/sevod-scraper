@@ -1,20 +1,9 @@
 package eu.semagrow.scraper.rdf;
 
-import junit.framework.TestCase;
-import org.junit.Test;
-import org.openrdf.model.Resource;
-import org.openrdf.model.URI;
-import org.openrdf.model.ValueFactory;
-import org.openrdf.model.impl.ValueFactoryImpl;
-import org.openrdf.rio.RDFFormat;
-
-import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * Created by antonis on 24/7/2017.
  */
+/*
 public class SelectivityTests extends TestCase {
 
     @Test
@@ -33,3 +22,4 @@ public class SelectivityTests extends TestCase {
         RdfDumpScraper.main(array);
     }
 }
+*/

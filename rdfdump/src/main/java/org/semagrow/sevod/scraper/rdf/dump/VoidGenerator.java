@@ -1,31 +1,18 @@
 package org.semagrow.sevod.scraper.rdf.dump;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.semagrow.sevod.commons.vocabulary.SEVOD;
-import org.semagrow.sevod.commons.vocabulary.VOID;
-import org.semagrow.sevod.scraper.rdf.dump.util.DistinctCounter;
-import org.openrdf.model.BNode;
-import org.openrdf.model.Literal;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
-import org.openrdf.model.Value;
-import org.openrdf.model.ValueFactory;
+import org.openrdf.model.*;
 import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFWriter;
 import org.openrdf.rio.helpers.RDFHandlerBase;
-import org.slf4j.LoggerFactory;
+import org.semagrow.sevod.commons.vocabulary.SEVOD;
+import org.semagrow.sevod.commons.vocabulary.VOID;
+import org.semagrow.sevod.scraper.rdf.dump.util.DistinctCounter;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.*;
 
 /**
  * Created by antru on 21/4/2015.
