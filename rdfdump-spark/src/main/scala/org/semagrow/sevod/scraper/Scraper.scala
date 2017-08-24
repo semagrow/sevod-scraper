@@ -18,6 +18,7 @@ object Scraper {
   def main(args : Array[String]) {
 
     val sparkConfig = new SparkConf()
+        .setMaster("local[*]")
       .setAppName("SEVOD Stats")
       .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
       .set("spark.kryo.registrator", "org.semagrow.sevod.scraper.io.TriplesIOOps$JenaKryoRegistrator")
