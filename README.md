@@ -52,7 +52,7 @@ by predicate, you could use the sort command (e.g. sort -k 2 unsorted.nt > sorte
 
 Usage: 
 ```
-./sevod-scraper.sh cassandra [cassandra-ip-address] [cassandra-port] [cassandra-keyspace] [base] [output_file]**
+./sevod-scraper.sh cassandra [cassandra-ip-address] [cassandra-port] [cassandra-keyspace] [base] [output_file]
 ```
 
 * **[cassandra-ip-address]** - cassandra server ip address. 

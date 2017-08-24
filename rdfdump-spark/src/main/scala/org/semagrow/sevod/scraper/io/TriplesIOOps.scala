@@ -4,10 +4,10 @@ import java.io.{DataInputStream, DataOutputStream}
 
 import org.semagrow.sevod.model._
 import org.apache.hadoop.conf.Configuration
-import org.apache.hadoop.io.{Writable, LongWritable}
+import org.apache.hadoop.io.{LongWritable, Writable}
 import org.apache.jena.hadoop.rdf.io.input.ntriples.{BlockedNTriplesInputFormat, NTriplesInputFormat}
 import org.apache.jena.hadoop.rdf.io.output.ntriples.NTriplesOutputFormat
-import org.apache.jena.hadoop.rdf.types.TripleWritable
+import org.apache.jena.hadoop.rdf.types.{QuadWritable, TripleWritable}
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
 import org.apache.jena.graph.{Triple => JTriple}
@@ -16,6 +16,7 @@ import org.semagrow.sevod.scraper.Scraper.Stats
 import org.semagrow.sevod.scraper.io.JenaKryoSerializers._
 import com.esotericsoftware.kryo.io.{Input, Output}
 import com.esotericsoftware.kryo.{Kryo, Serializer}
+import org.apache.jena.hadoop.rdf.io.input.nquads.BlockedNQuadsInputFormat
 
 
 /**
@@ -87,6 +88,17 @@ object TriplesIOOps {
           classOf[TripleWritable], //value
           conf)
         .map(_._2.get())
+    }
+
+    def nQuadsFile(path : String): RDD[JTriple] = {
+
+      sc.newAPIHadoopFile(path,
+          classOf[BlockedNQuadsInputFormat],
+          classOf[LongWritable], //position
+          classOf[QuadWritable], //value
+          conf)
+        .map(_._2.get())
+        .map(_.asTriple())
     }
   }
 
