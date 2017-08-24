@@ -13,6 +13,7 @@ Extract the *.tar.gz file that is contained in the assembly/target directory to 
 cd assembly/target
 tar xzvf sevod-scraper-1.0-SNAPSHOT-dist.tar.gz
 cd bin
+./sevod-scraper.sh
 ```
 
 ## usage ##
@@ -25,9 +26,9 @@ while in **cassandra** mode it extracts SemaGrow metadata from a Cassandra serve
 
 Usage: 
 ```
-./sevod-scraper.sh rdfdump [dump_file] [endpoint_url] [-s|p|o] [output_file]
+./sevod-scraper.sh rdfdump [dump_file] [endpoint_url] [-s|p|o|v|j] [output_file]
 
-./sevod-scraper.sh rdfdump [dump_file] [endpoint_url] [-s|p|o] [subjectTrieParameter] [objectTrieParameter] [output_file]
+./sevod-scraper.sh rdfdump [dump_file] [endpoint_url] [-s|p|o|v|j] [subjectTrieParameter] [objectTrieParameter] [output_file]
 
 ```
 
@@ -50,7 +51,9 @@ by predicate, you could use the sort command (e.g. sort -k 2 unsorted.nt > sorte
 ### cassandra mode ###
 
 Usage: 
-**./sevod-scraper.sh cassandra [cassandra-ip-address] [cassandra-port] [cassandra-keyspace] [base] [output_file]**
+```
+./sevod-scraper.sh cassandra [cassandra-ip-address] [cassandra-port] [cassandra-keyspace] [base] [output_file]**
+```
 
 * **[cassandra-ip-address]** - cassandra server ip address. 
 * **[cassandra-port]** - cassandra server port.
