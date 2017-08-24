@@ -2,11 +2,17 @@
 
 A tool to create void/sevod metadata for SemaGrow.
 
-## how to build ##
+## how to use ##
 
 Build with maven using the following command:
 ```
-mvn clean install
+mvn clean package
+```
+Extract the *.tar.gz file that is contained in the assembly/target directory to run sevod scraper.
+```
+cd assembly/target
+tar xzvf sevod-scraper-1.0-SNAPSHOT-dist.tar.gz
+cd bin
 ```
 
 ## usage ##
