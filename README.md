@@ -88,3 +88,18 @@ Generates metadata from a Cassandra server:
 ```
 ./sevod-scraper.sh cassandra [address] [port] [keyspace] http://cassandra.semagrow.eu/ output.n3
 ```
+
+### rdfdump-spark mode ###
+
+In order to extract sevod metadata from a dump file using spark, issue the following command:
+```
+mvn clean package -P spark
+```
+Use spark-submit script (see https://spark.apache.org/docs/latest/submitting-applications.html) 
+to submit your application in an existing spark cluster. 
+
+* the application jar can be found in assembly/target/sevod-scraper-*-spark-onejar-jar-with-dependencies.jar
+* the main class is org.semagrow.sevod.scraper.Scraper
+* the arguments are the same as in the rdfdump mode.
+
+For example configuration using docker containers cf. rdfdump-spark/src/main/resources

@@ -2,10 +2,11 @@ package org.semagrow.sevod.scraper
 
 import org.apache.spark.rdd.RDD
 import org.apache.spark.{HashPartitioner, SparkConf, SparkContext}
-import org.semagrow.sevod.model.Triplifyable
 import org.semagrow.sevod.scraper.io.TriplesIOOps._
 import org.apache.jena.graph._
-import org.apache.jena.datatypes.xsd._
+
+import scala.reflect.ClassTag
+
 
 /**
   * Created by angel on 25/7/2016.
@@ -14,84 +15,77 @@ object Scraper {
 
   import org.semagrow.sevod.model.TriplifierImplicits._
 
+  val subjectTrieParameterDefault = "15"
+  val objectTrieParameterDefault = "150"
+
+  val usage = "USAGE:" +
+    "\n\t scala " + Scraper.getClass + " [input] [endpoint_url] [-s|p|o|v] [output]" +
+    "\n\t scala " + Scraper.getClass + " [input] [endpoint_url] [-s|p|o|v] [subjectBound] [objectBound] [output]"
+
   def main(args : Array[String]) {
 
-    val sparkConfig = new SparkConf()
-      .setMaster("local[*]")
-      .setAppName("SEVOD Stats")
-      .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-      .set("spark.kryo.registrator", "org.semagrow.sevod.scraper.io.TriplesIOOps$JenaKryoRegistrator")
-
-    val sc = new SparkContext(sparkConfig)
-
-    if (args.length < 1)
-      System.err.println("No path is defined")
+    if (args.length != 6 && args.length != 4) {
+      throw new IllegalArgumentException(usage)
+    }
     else {
+
       val path = args(0)
+      val endpoint = args(1)
+      val flags = args(2)
+
+      val subjectTrieParameter = if (args.length == 4) subjectTrieParameterDefault else args(3)
+      val objectTrieParameter =  if (args.length == 4) objectTrieParameterDefault  else args(4)
+
+      val output = args(args.length-1)
+
+      val sparkConfig = new SparkConf()
+        //.setMaster("local[*]")
+        .setAppName("SEVOD Stats")
+        .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
+        .set("spark.closure.serializer", "org.apache.spark.serializer.KryoSerializer")
+        .set("spark.kryo.registrator", "org.semagrow.sevod.scraper.io.TriplesIOOps$JenaKryoRegistrator")
+        .set("sparqlEndpoint", endpoint)
+        .set("subjectTrieParameter", subjectTrieParameter)
+        .set("objectTrieParameter", objectTrieParameter)
+
+      val sc = new SparkContext(sparkConfig)
 
       val triples = sc
-        .nQuadsFile(path)
-        .scrape()
-        .saveAsNTriplesFile(args(1))
+        .inputFile(path)
+        .scrape(flags)
+        .saveAsNTriplesFile(output)
+
+      sc.stop()
     }
-    sc.stop()
   }
 
   implicit def rddToScraper(triples : RDD[Triple]): Scraper = new Scraper(triples)
 
   def getVocabulary(node : Node) : Node =
-    NodeFactory.createURI(node.getURI.substring(0, node.getURI.indexOf('/', "http://".size + 1)))
-
-  case class Stats(property: Node,
-                   count : Long,
-                   distinctSubjects: Long,
-                   distinctObjects: Long) extends Triplifyable[Stats] {
-
-    val ns = "http://rdfs.org/ns/void#"
-
-    override def triplify(): Seq[Triple] = {
-      val n = NodeFactory.createBlankNode()
-      Seq(
-        t(n, u(ns,"property"), property),
-        t(n, u(ns,"triples"), l(count)),
-        t(n, u(ns,"distinctSubjects"), l(distinctSubjects)),
-        t(n, u(ns,"distinctObjects"), l(distinctObjects))
-      )
-    }
-
-    def t(s: Node, p : Node, o: Node) = new Triple(s,p,o)
-    def u(s: String) = NodeFactory.createURI(s)
-    def u(p:String, s: String) = NodeFactory.createURI(p.concat(s))
-    def l(o : Long) = NodeFactory.createLiteralByValue(o, XSDDatatype.XSDinteger)
-
-  }
-
-  case class ExtStats(voidStats: Stats,
-                      subjectVocab: Iterable[Node],
-                      objectVocab: Iterable[Node]) extends Triplifyable[ExtStats] {
-
-    val ns = "http://rdf.iit.demokritos.gr/2013/sevod#"
-
-    override def triplify(): Seq[Triple] = {
-      val vst = voidStats.triplify()
-      val sub = vst.head.getSubject
-      vst ++
-        subjectVocab.map(n => t(sub, u(ns,"subjectVocabulary"), n)) ++
-        objectVocab.map(n => t(sub, u(ns,"objectVocabulary"), n))
-    }
-
-    def t(s: Node, p : Node, o: Node) = new Triple(s,p,o)
-    def u(s: String) = NodeFactory.createURI(s)
-    def u(p:String, s: String) = NodeFactory.createURI(p.concat(s))
-  }
-
+    NodeFactory.createURI(node.getURI.substring(0, node.getURI.indexOf('/', "http://".size + 1) + 1))
 }
 
 class Scraper (triples : RDD[Triple]) {
 
-  import Scraper._
+  import Statistics._
+  import Utils._
 
-  def scrape() : RDD[ExtStats] = {
+  def countTriples[T: ClassTag](trdd: RDD[(T,Triple)]) =
+    trdd
+      .mapValues(t => 1).reduceByKey(_+_)
+
+  def countDistSubjects[T: ClassTag](trdd: RDD[(T,Triple)]) =
+    trdd
+      .mapValues(_.getSubject).distinct()
+      .mapValues(t => 1).reduceByKey(_+_)
+
+  def countDistObjects[T: ClassTag](trdd: RDD[(T,Triple)]) =
+    trdd.mapValues(_.getObject).distinct()
+      .mapValues(t => 1).reduceByKey(_+_)
+
+  /* scrape Predicates (simple and with vocabularies) */
+
+  def scrapePredicates() : RDD[Stats] = {
 
     val predicatePartitioner = new HashPartitioner(triples.context.defaultParallelism)
 
@@ -99,9 +93,30 @@ class Scraper (triples : RDD[Triple]) {
       .keyBy(t => t.getPredicate)
       .partitionBy(predicatePartitioner).persist()
 
-    val count        = triplesByPred.mapValues(t => 1).reduceByKey(_+_)
-    val subjectCount = triplesByPred.mapValues(_.getSubject).countApproxDistinctByKey()
-    val objectCount  = triplesByPred.mapValues(_.getObject).countApproxDistinctByKey()
+    val count        = countTriples(triplesByPred)
+    val subjectCount = countDistSubjects(triplesByPred)
+    val objectCount  = countDistObjects(triplesByPred)
+
+    val endpoint = triples.context.getConf.get("sparqlEndpoint")
+
+    count.join(subjectCount).join(objectCount)
+      .coalesce(triples.context.defaultMinPartitions)
+      .map {
+        case (n,((c,s),o)) => VoidStats(endpoint, n, c, s, o)
+     }
+  }
+
+  def scrapePredicatesVoc() : RDD[Stats] = {
+
+    val predicatePartitioner = new HashPartitioner(triples.context.defaultParallelism)
+
+    val triplesByPred = triples
+      .keyBy(t => t.getPredicate)
+      .partitionBy(predicatePartitioner).persist()
+
+    val count        = countTriples(triplesByPred)
+    val subjectCount = countDistSubjects(triplesByPred)
+    val objectCount  = countDistObjects(triplesByPred)
 
     def vocabulariesOf(elems : RDD[(Node, Node)]) : RDD[(Node, Iterable[Node])] =
       elems
@@ -112,15 +127,111 @@ class Scraper (triples : RDD[Triple]) {
     val subjVocab = vocabulariesOf(triplesByPred.mapValues(_.getSubject))
     val objVocab  = vocabulariesOf(triplesByPred.mapValues(_.getObject))
 
+    val endpoint = triples.context.getConf.get("sparqlEndpoint")
+
     count.join(subjectCount).join(objectCount).join(subjVocab).join(objVocab)
       .coalesce(triples.context.defaultMinPartitions)
       .map {
-        case (n,((((c,s),o),sv),ov)) => ExtStats(Stats(n, c, s, o), sv, ov)
-
-     }
+        case (n,((((c,s),o),sv),ov)) => PredStats(VoidStats(endpoint, n, c, s, o), sv, ov)
+      }
   }
-  //case (n,((c,s),o)) => Stats(n, c, s, o)
-}
 
+  /* scrape Subjects and Objects */
+
+  def scrapeUris(f: Triple => Node, trieParameter: Integer, label: String) : RDD[Stats] = {
+
+    val prefixPartitioner = new HashPartitioner(triples.context.defaultParallelism)
+
+    val uris = triples.map(f(_)).filter(_.isURI).map(_.getURI)
+    val prefixes = PathTrie.getPrefixes(uris, trieParameter)
+
+    var prefixMap = uris.context.broadcast(prefixes.collect())
+
+    val urisByPrefix = triples.filter(_.getObject.isURI)
+      .flatMap(t => prefixMap.value.filter(p => t.getObject.getURI.startsWith(p)).map(p => (t, p)))
+      .keyBy(_._2).mapValues(_._1)
+      .partitionBy(prefixPartitioner).persist()
+
+    val count        = countTriples(urisByPrefix)
+    val subjectCount = countDistSubjects(urisByPrefix)
+    val objectCount  = countDistObjects(urisByPrefix)
+
+    val endpoint = triples.context.getConf.get("sparqlEndpoint")
+
+    count.join(subjectCount).join(objectCount)
+      .coalesce(triples.context.defaultMinPartitions)
+      .map {
+        case (n, ((c,s),o)) => PrefixStats(endpoint, label, n, c, s, o)
+      }
+  }
+
+  def scrapeSubjects() : RDD[Stats] = {
+    val subjectTrieParameter = Integer.valueOf(triples.context.getConf.get("subjectTrieParameter"))
+    scrapeUris(_.getSubject, subjectTrieParameter, "subject")
+  }
+
+  def scrapeObjects() : RDD[Stats] = {
+    val objectTrieParameter = Integer.valueOf(triples.context.getConf.get("objectTrieParameter"))
+    scrapeUris(_.getObject, objectTrieParameter, "object")
+  }
+
+  /* scrape Classes */
+
+  def scrapeClasses() : RDD[Stats] = {
+
+    val classPartitioner = new HashPartitioner(triples.context.defaultParallelism)
+
+    val triplesByClass = triples
+      .filter(_.getPredicate.equals(u(rdf, "type")))
+      .keyBy(t => t.getObject)
+      .partitionBy(classPartitioner).persist()
+
+    val subjectCount = countDistSubjects(triplesByClass)
+
+    val endpoint = triples.context.getConf.get("sparqlEndpoint")
+
+    subjectCount
+      .coalesce(triples.context.defaultMinPartitions)
+      .map {
+        case (n,e) => ClssStats(endpoint, n, e)
+      }
+  }
+
+  /* scrape General Stats */
+
+  def scrapeGeneral() : RDD[Stats] = {
+
+    val cnt = triples.count()
+    val prp = triples.map(_.getPredicate).distinct().count()
+    val ent = triples.filter(_.getPredicate.equals(u(rdf, "type"))).map(_.getSubject).distinct().count()
+    val cls = triples.filter(_.getPredicate.equals(u(rdf, "type"))).map(_.getObject).distinct().count()
+    val sjc = triples.map(_.getSubject).distinct().count()
+    val ojc = triples.map(_.getObject).distinct().count()
+
+    val endpoint = triples.context.getConf.get("sparqlEndpoint")
+
+    triples.context.makeRDD(Seq(GenStats(endpoint, cnt, prp, cls, ent, sjc, ojc)))
+  }
+
+  /* scrape main function */
+
+  def scrape(flags: String) : RDD[Stats] = {
+
+    val emptyrdd = triples.context.emptyRDD[Stats]
+    val u = scrapeGeneral()
+    val v = if (flags.contains("p")) {
+      if (flags.contains("v"))
+        scrapePredicatesVoc()
+      else
+        scrapePredicates()
+    }
+    else emptyrdd
+    val x = if (flags.contains("p")) scrapeClasses()  else emptyrdd
+    val y = if (flags.contains("s")) scrapeSubjects() else emptyrdd
+    val z = if (flags.contains("o")) scrapeObjects()  else emptyrdd
+
+    u.union(v).union(x).union(y).union(z)
+  }
+}
 
 

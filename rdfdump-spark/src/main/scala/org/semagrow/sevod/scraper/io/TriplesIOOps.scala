@@ -12,11 +12,11 @@ import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
 import org.apache.jena.graph.{Triple => JTriple}
 import org.apache.spark.serializer.KryoRegistrator
-import org.semagrow.sevod.scraper.Scraper.Stats
 import org.semagrow.sevod.scraper.io.JenaKryoSerializers._
 import com.esotericsoftware.kryo.io.{Input, Output}
 import com.esotericsoftware.kryo.{Kryo, Serializer}
 import org.apache.jena.hadoop.rdf.io.input.nquads.BlockedNQuadsInputFormat
+import org.semagrow.sevod.scraper.Statistics._
 
 
 /**
@@ -35,8 +35,16 @@ object TriplesIOOps {
       kryo.register(classOf[org.apache.jena.graph.Triple], new TripleSerializer)
       kryo.register(classOf[Array[org.apache.jena.graph.Triple]])
       kryo.register(classOf[TripleWritable], new KryoWritableSerializer[TripleWritable])
-      kryo.register(classOf[Stats])
-      kryo.register(classOf[TriplifierOfTriplifyable[Stats]])
+      kryo.register(classOf[VoidStats])
+      kryo.register(classOf[ClssStats])
+      kryo.register(classOf[PredStats])
+      kryo.register(classOf[PrefixStats])
+      kryo.register(classOf[GenStats])
+      kryo.register(classOf[TriplifierOfTriplifyable[VoidStats]])
+      kryo.register(classOf[TriplifierOfTriplifyable[ClssStats]])
+      kryo.register(classOf[TriplifierOfTriplifyable[PredStats]])
+      kryo.register(classOf[TriplifierOfTriplifyable[PrefixStats]])
+      kryo.register(classOf[TriplifierOfTriplifyable[GenStats]])
     }
   }
 
@@ -78,7 +86,20 @@ object TriplesIOOps {
 
     conf.set("rdf.io.input.ignore-bad-tuples", "true")
     conf.set("mapreduce.input.lineinputformat.linespermap", "100000")
+    conf.set("fs.hdfs.impl", classOf[org.apache.hadoop.hdfs.DistributedFileSystem].getName)
+    conf.set("fs.file.impl", classOf[org.apache.hadoop.fs.LocalFileSystem].getName)
 
+    def inputFile(path: String): RDD[JTriple] = {
+      if (path.endsWith(".nt")) {
+        nTriplesFile(path)
+      }
+      else if (path.endsWith(".nq")) {
+        nQuadsFile(path)
+      }
+      else {
+        sc.emptyRDD
+      }
+    }
 
     def nTriplesFile(path : String): RDD[JTriple] = {
 

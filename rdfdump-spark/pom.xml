@@ -14,7 +14,7 @@
     <name>SEVOD scraper for RDF dump in Apache Spark</name>
 
     <properties>
-        <spark.version>1.5.1</spark.version>
+        <spark.version>2.0.1</spark.version>
         <scala.version.major>2.10</scala.version.major>
         <scala.version>${scala.version.major}.4</scala.version>
         <jena.version>3.0.0</jena.version>
@@ -25,7 +25,7 @@
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-core_${scala.version.major}</artifactId>
             <version>${spark.version}</version>
-            <!-- <scope>provided</scope> -->
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.jena</groupId>
@@ -47,6 +47,11 @@
             <artifactId>scala-library</artifactId>
             <version>${scala.version}</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.6.5</version>
         </dependency>
 
     </dependencies>
