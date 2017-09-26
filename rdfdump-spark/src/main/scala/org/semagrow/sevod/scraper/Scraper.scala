@@ -129,7 +129,7 @@ class Scraper (triples : RDD[Triple]) {
 
     val endpoint = triples.context.getConf.get("sparqlEndpoint")
 
-    count.join(subjectCount).join(objectCount).join(subjVocab).join(objVocab)
+    count.join(subjectCount).join(objectCount).leftOuterJoin(subjVocab).leftOuterJoin(objVocab)
       .coalesce(triples.context.defaultMinPartitions)
       .map {
         case (n,((((c,s),o),sv),ov)) => PredStats(VoidStats(endpoint, n, c, s, o), sv, ov)

@@ -51,15 +51,20 @@ object Statistics {
   }
 
   case class PredStats(voidStats: VoidStats,
-                       subjectVocab: Iterable[Node],
-                       objectVocab: Iterable[Node]) extends Stats {
+                       subjectVocab: Option[Iterable[Node]],
+                       objectVocab: Option[Iterable[Node]]) extends Stats {
+
+    def triplifyVocabularies(sub: Node, vocabularies: Option[Iterable[Node]]): Seq[Triple] = vocabularies match {
+      case Some(_) => vocabularies.get.map(n => t(sub, u(svd,"subjectVocabulary"), n)).toSeq
+      case None => Seq()
+    }
 
     override def triplify(): Seq[Triple] = {
       val vst = voidStats.triplify()
       val sub = vst.head.getObject
-      vst ++
-        subjectVocab.map(n => t(sub, u(svd,"subjectVocabulary"), n)) ++
-        objectVocab.map(n => t(sub, u(svd,"objectVocabulary"), n))
+      val sst = triplifyVocabularies(sub, subjectVocab)
+      val ost = triplifyVocabularies(sub, objectVocab)
+      vst ++ sst ++ ost
     }
   }
 
