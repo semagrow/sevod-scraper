@@ -16,14 +16,14 @@ object Statistics {
 
   trait Stats extends Triplifyable[Stats]
 
-  case class VoidStats(endpoint: String,
+  case class VoidStats(datasetid: String,
                        property: Node,
                        count : Long,
                        distinctSubjects: Long,
                        distinctObjects: Long) extends Stats {
 
     override def triplify(): Seq[Triple] = {
-      val dataset = getDataset(endpoint)
+      val dataset = getDataset(datasetid)
       val n = NodeFactory.createBlankNode()
       Seq(
         t(dataset, u(vd,"propertyPartition"), n),
@@ -35,12 +35,12 @@ object Statistics {
     }
   }
 
-  case class ClssStats(endpoint: String,
+  case class ClssStats(datasetid: String,
                        clazz: Node,
                        entities : Long) extends Stats {
 
     override def triplify(): Seq[Triple] = {
-      val dataset = getDataset(endpoint)
+      val dataset = getDataset(datasetid)
       val n = NodeFactory.createBlankNode()
       Seq(
         t(dataset, u(vd,"classPartition"), n),
@@ -68,7 +68,7 @@ object Statistics {
     }
   }
 
-  case class PrefixStats(endpoint: String,
+  case class PrefixStats(datasetid: String,
                          whatPrefix : String,
                          thePrefix : String,
                          count : Long,
@@ -76,7 +76,7 @@ object Statistics {
                          distinctObjects: Long) extends Stats {
 
     override def triplify(): Seq[Triple] = {
-      val dataset = getDataset(endpoint)
+      val dataset = getDataset(datasetid)
       val n = NodeFactory.createBlankNode()
       Seq(
         t(dataset, u(vd,"subset"), n),
@@ -88,7 +88,8 @@ object Statistics {
     }
   }
 
-  case class GenStats(endpoint: String,
+  case class GenStats(datasetid: String,
+                      endpoint: String,
                       triples: Long,
                       properties: Long,
                       classes: Long,
@@ -97,7 +98,7 @@ object Statistics {
                       distinctObjects: Long) extends Stats {
 
     override def triplify(): Seq[Triple] = {
-      val dataset = getDataset(endpoint)
+      val dataset = getDataset(datasetid)
       Seq(
         t(dataset, u(rdf,"type"), u(vd,"Dataset")),
         t(dataset, u(vd,"sparqlEndpoint"), u(endpoint)),

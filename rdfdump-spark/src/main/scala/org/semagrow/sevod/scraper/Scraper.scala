@@ -38,6 +38,8 @@ object Scraper {
 
       val output = args(args.length-1)
 
+      val datasetId = System.currentTimeMillis.toString
+
       val sparkConfig = new SparkConf()
         //.setMaster("local[*]")
         .setAppName("SEVOD Stats")
@@ -45,6 +47,7 @@ object Scraper {
         .set("spark.closure.serializer", "org.apache.spark.serializer.KryoSerializer")
         .set("spark.kryo.registrator", "org.semagrow.sevod.scraper.io.TriplesIOOps$JenaKryoRegistrator")
         .set("sparqlEndpoint", endpoint)
+        .set("datasetId", datasetId)
         .set("subjectTrieParameter", subjectTrieParameter)
         .set("objectTrieParameter", objectTrieParameter)
 
@@ -97,12 +100,12 @@ class Scraper (triples : RDD[Triple]) {
     val subjectCount = countDistSubjects(triplesByPred)
     val objectCount  = countDistObjects(triplesByPred)
 
-    val endpoint = triples.context.getConf.get("sparqlEndpoint")
+    val datasetId = triples.context.getConf.get("datasetId")
 
     count.join(subjectCount).join(objectCount)
       .coalesce(triples.context.defaultMinPartitions)
       .map {
-        case (n,((c,s),o)) => VoidStats(endpoint, n, c, s, o)
+        case (n,((c,s),o)) => VoidStats(datasetId, n, c, s, o)
      }
   }
 
@@ -127,12 +130,12 @@ class Scraper (triples : RDD[Triple]) {
     val subjVocab = vocabulariesOf(triplesByPred.mapValues(_.getSubject))
     val objVocab  = vocabulariesOf(triplesByPred.mapValues(_.getObject))
 
-    val endpoint = triples.context.getConf.get("sparqlEndpoint")
+    val datasetId = triples.context.getConf.get("datasetId")
 
     count.join(subjectCount).join(objectCount).leftOuterJoin(subjVocab).leftOuterJoin(objVocab)
       .coalesce(triples.context.defaultMinPartitions)
       .map {
-        case (n,((((c,s),o),sv),ov)) => PredStats(VoidStats(endpoint, n, c, s, o), sv, ov)
+        case (n,((((c,s),o),sv),ov)) => PredStats(VoidStats(datasetId, n, c, s, o), sv, ov)
       }
   }
 
@@ -156,12 +159,12 @@ class Scraper (triples : RDD[Triple]) {
     val subjectCount = countDistSubjects(urisByPrefix)
     val objectCount  = countDistObjects(urisByPrefix)
 
-    val endpoint = triples.context.getConf.get("sparqlEndpoint")
+    val datasetId = triples.context.getConf.get("datasetId")
 
     count.join(subjectCount).join(objectCount)
       .coalesce(triples.context.defaultMinPartitions)
       .map {
-        case (n, ((c,s),o)) => PrefixStats(endpoint, label, n, c, s, o)
+        case (n, ((c,s),o)) => PrefixStats(datasetId, label, n, c, s, o)
       }
   }
 
@@ -188,12 +191,12 @@ class Scraper (triples : RDD[Triple]) {
 
     val subjectCount = countDistSubjects(triplesByClass)
 
-    val endpoint = triples.context.getConf.get("sparqlEndpoint")
+    val datasetId = triples.context.getConf.get("datasetId")
 
     subjectCount
       .coalesce(triples.context.defaultMinPartitions)
       .map {
-        case (n,e) => ClssStats(endpoint, n, e)
+        case (n,e) => ClssStats(datasetId, n, e)
       }
   }
 
@@ -209,8 +212,9 @@ class Scraper (triples : RDD[Triple]) {
     val ojc = triples.map(_.getObject).distinct().count()
 
     val endpoint = triples.context.getConf.get("sparqlEndpoint")
+    val datasetid = triples.context.getConf.get("datasetId")
 
-    triples.context.makeRDD(Seq(GenStats(endpoint, cnt, prp, cls, ent, sjc, ojc)))
+    triples.context.makeRDD(Seq(GenStats(datasetid, endpoint, cnt, prp, cls, ent, sjc, ojc)))
   }
 
   /* scrape main function */
