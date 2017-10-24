@@ -127,7 +127,7 @@ public class VoidGenerator extends RDFHandlerBase {
         try {
             writer.handleStatement(vf.createStatement(dataset, VOID.PROPERTYPARTITION, propPartition));
             writer.handleStatement(vf.createStatement(propPartition, VOID.PROPERTY, predicate));
-            writer.handleStatement(vf.createStatement(propPartition, VOID.PROPERTIES, count));
+            writer.handleStatement(vf.createStatement(propPartition, VOID.TRIPLES, count));
             writer.handleStatement(vf.createStatement(propPartition, VOID.DISTINCTSUBJECTS, distinctS));
             writer.handleStatement(vf.createStatement(propPartition, VOID.DISTINCTOBJECTS, distinctO));
             if (genVocab) {
