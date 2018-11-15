@@ -1,8 +1,6 @@
-#! /bin/bash
+#! /bin/sh
 
-pushd `dirname $0` > /dev/null
-SCRIPTPATH=`pwd`
-popd > /dev/null
+SCRIPTPATH=$(dirname $0)
 
 LIB=$SCRIPTPATH"/../lib"
 JARS=`ls $LIB/*.jar | tr '\n' ':'`
