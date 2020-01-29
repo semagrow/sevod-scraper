@@ -29,6 +29,11 @@ public final class SEVOD {
     public final static URI FROM;
     public final static URI TO;
 
+    public final static URI JOIN;
+    public final static URI SELECTIVITY;
+    public final static URI JOINSUBJECT;
+    public final static URI JOINOBJECT;
+
     static {
         ValueFactory factory = ValueFactoryImpl.getInstance();
         SUBJECTREGEXPATTERN = factory.createURI(SEVOD.NAMESPACE, "subjectRegexPattern");
@@ -41,5 +46,9 @@ public final class SEVOD {
         DATEINTERVAL = factory.createURI(SEVOD.NAMESPACE, "dateInterval");
         FROM = factory.createURI(SEVOD.NAMESPACE, "from");
         TO = factory.createURI(SEVOD.NAMESPACE, "to");
+        JOIN = factory.createURI(SEVOD.NAMESPACE, "Join");
+        SELECTIVITY = factory.createURI(SEVOD.NAMESPACE, "selectivity");
+        JOINSUBJECT = factory.createURI(SEVOD.NAMESPACE, "joinSubject");
+        JOINOBJECT = factory.createURI(SEVOD.NAMESPACE, "joinObject");
     }
 }

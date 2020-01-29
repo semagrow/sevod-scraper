@@ -2,43 +2,64 @@
 
 A tool to create void/sevod metadata for SemaGrow.
 
-## how to build ##
+## how to use ##
 
 Build with maven using the following command:
 ```
-mvn clean install
+mvn clean package
+```
+Extract the *.tar.gz file that is contained in the assembly/target directory to run sevod scraper.
+```
+cd assembly/target
+tar xzvf sevod-scraper-1.0-SNAPSHOT-dist.tar.gz
+cd bin
+./sevod-scraper.sh
 ```
 
 ## usage ##
 
 Sevod-scraper can run in two modes, 
-In **rdfdump** mode the tool extracts SemaGrow metadata from a rdf data dump file, while in **cassandra** mode it extracts SemaGrow metadata from a Cassandra server.
+In **rdfdump** mode the tool extracts SemaGrow metadata from a rdf data dump file, 
+while in **cassandra** mode it extracts SemaGrow metadata from a Cassandra server.
 
 ### rdfdump mode ###
 
 Usage: 
-**./sevod-scraper.sh rdfdump [dump_file] [endpoint_url] [-s|p|o] [output_file]**
-**./sevod-scraper.sh rdfdump [dump_file] [endpoint_url] [-s|p|o] [subjectTrieParameter] [objectTrieParameter] [output_file]**
+```
+./sevod-scraper.sh rdfdump [dump_file] [endpoint_url] [-s|p|o|v|j] [output_file]
+
+./sevod-scraper.sh rdfdump [dump_file] [endpoint_url] [-s|p|o|v|j] [subjectTrieParameter] [objectTrieParameter] [output_file]
+
+```
 
 * **[dump_file]** - data-dump file path. It was tested mainly for NQUADS and NTriples input. 
-* **[endpoint_url]** - the url endpoint of the dataset. Used for annotation purposes (the tool relies exclusively on the dump file).
-* **[-s|p|o|v]** - s: generate metadata for subject URI prefixes, p: generate metadata for properties and o: generate metadata for object URI prefixes, v: generate subject and object vocabularies for each predicate.
-* **[subjectTrieParameter]**, **[objectTrieParameter]** are optional parameters for the subject and object path tries. Use 0 for the default values.
+* **[endpoint_url]** - the url endpoint of the dataset. Used for annotation purposes (the 
+  tool relies exclusively on the dump file).
+* **[-s|p|o|v|j]** - s: generate metadata for subject URI prefixes, p: generate metadata 
+  for properties and o: generate metadata for object URI prefixes, v: generate subject and 
+  object vocabularies for each predicate, j: generate metadata for join selectivities 
+  between every pair of properties.
+* **[subjectTrieParameter]**, **[objectTrieParameter]** are optional parameters for the 
+  subject and object path tries. Use 0 for the default values.
 * **[output_file]** - output file path. Metadata are exported in n3 format.
 
-The dump file should be in NQUADS or NTRIPLES format, the triples should be grouped by predicate URI.
-If you want to convert the data dump in one of the two formats you could use a tool such as rdf2rdf (http://www.l3s.de/~minack/rdf2rdf/).
-Also, if the dump is not sorted by predicate, you could use the sort command (e.g. sort -k 2 unsorted.nt > sorted.nt)
+The dump file should be in NQUADS or NTRIPLES format, the triples should be grouped by 
+predicate URI. If you want to convert the data dump in one of the two formats you could use 
+a tool such as rdf2rdf (http://www.l3s.de/~minack/rdf2rdf/). Also, if the dump is not sorted 
+by predicate, you could use the sort command (e.g. sort -k 2 unsorted.nt > sorted.nt)
 
 ### cassandra mode ###
 
 Usage: 
-**./sevod-scraper.sh cassandra [cassandra-ip-address] [cassandra-port] [cassandra-keyspace] [base] [output_file]**
+```
+./sevod-scraper.sh cassandra [cassandra-ip-address] [cassandra-port] [cassandra-keyspace] [base] [output_file]
+```
 
 * **[cassandra-ip-address]** - cassandra server ip address. 
 * **[cassandra-port]** - cassandra server port.
 * **[cassandra-keyspace]** - cassandra relevant keyspace.
-* **[base]** - base string to generate uri predicates. At this moment, it shoud contain the "cassandra" substring.
+* **[base]** - base string to generate uri predicates. At this moment, it shoud contain the
+  "cassandra" substring.
 * **[output_file]** - output file path. Metadata are exported in n3 format.
 
 ## Examples: ##
@@ -67,3 +88,18 @@ Generates metadata from a Cassandra server:
 ```
 ./sevod-scraper.sh cassandra [address] [port] [keyspace] http://cassandra.semagrow.eu/ output.n3
 ```
+
+### rdfdump-spark mode ###
+
+In order to extract sevod metadata from a dump file using spark, issue the following command:
+```
+mvn clean package -P spark
+```
+Use spark-submit script (see https://spark.apache.org/docs/latest/submitting-applications.html) 
+to submit your application in an existing spark cluster. 
+
+* the application jar can be found in assembly/target/sevod-scraper-*-spark-onejar-jar-with-dependencies.jar
+* the main class is org.semagrow.sevod.scraper.Scraper
+* the arguments are the same as in the rdfdump mode.
+
+For example configuration using docker containers cf. rdfdump-spark/src/main/resources

@@ -11,12 +11,22 @@
     </parent>
 
     <artifactId>sevod-scraper-rdf-dump</artifactId>
-    <name>SEVOD scraper from RDF dump</name>
+    <name>SEVOD scraper for RDF dump</name>
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>sevod-scraper-commons</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.rdf4j</groupId>
+            <artifactId>rdf4j-sail-nativerdf</artifactId>
+            <version>2.1.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.5</version>
         </dependency>
     </dependencies>
 </project>

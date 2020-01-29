@@ -1,31 +1,18 @@
 package org.semagrow.sevod.scraper.rdf.dump;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.semagrow.sevod.commons.vocabulary.SEVOD;
-import org.semagrow.sevod.commons.vocabulary.VOID;
-import org.semagrow.sevod.scraper.rdf.dump.util.DistinctCounter;
-import org.slf4j.Logger;
-import org.openrdf.model.BNode;
-import org.openrdf.model.Literal;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
-import org.openrdf.model.Value;
-import org.openrdf.model.ValueFactory;
+import org.openrdf.model.*;
 import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFWriter;
 import org.openrdf.rio.helpers.RDFHandlerBase;
+import org.semagrow.sevod.commons.vocabulary.SEVOD;
+import org.semagrow.sevod.commons.vocabulary.VOID;
+import org.semagrow.sevod.scraper.rdf.dump.util.DistinctCounter;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.*;
 
 /**
  * Created by antru on 21/4/2015.
@@ -43,6 +30,8 @@ public class VoidGenerator extends RDFHandlerBase {
 
     private final DistinctCounter distSubjectTotal = new DistinctCounter(null);
     private final DistinctCounter distObjectTotal = new DistinctCounter(null);
+
+    private Map<URI, Resource> propertyPartitionMap = new HashMap<>();
 
     private String endpoint;
 
@@ -66,6 +55,10 @@ public class VoidGenerator extends RDFHandlerBase {
     };
 
     // ------------------------------------------------------------------------
+
+    public Map<URI, Resource> getPropertiesMap() {
+        return this.propertyPartitionMap;
+    }
 
     private void countType(URI type) {
         Integer count = typeCountMap.get(type);
@@ -134,12 +127,13 @@ public class VoidGenerator extends RDFHandlerBase {
         try {
             writer.handleStatement(vf.createStatement(dataset, VOID.PROPERTYPARTITION, propPartition));
             writer.handleStatement(vf.createStatement(propPartition, VOID.PROPERTY, predicate));
-            writer.handleStatement(vf.createStatement(propPartition, VOID.PROPERTIES, count));
+            writer.handleStatement(vf.createStatement(propPartition, VOID.TRIPLES, count));
             writer.handleStatement(vf.createStatement(propPartition, VOID.DISTINCTSUBJECTS, distinctS));
             writer.handleStatement(vf.createStatement(propPartition, VOID.DISTINCTOBJECTS, distinctO));
             if (genVocab) {
                 writeSummaries(propPartition, predicate);
             }
+            propertyPartitionMap.put(predicate, propPartition);
         } catch (RDFHandlerException e) {
             e.printStackTrace();
         }
