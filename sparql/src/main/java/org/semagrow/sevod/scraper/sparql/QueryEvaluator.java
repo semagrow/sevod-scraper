@@ -5,6 +5,8 @@ import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.sparql.SPARQLRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,11 +14,13 @@ import java.util.List;
 /**
  * Created by antonis on 29/7/2016.
  */
-public class QueryEvaluation {
+public class QueryEvaluator {
+
+    final private Logger log = LoggerFactory.getLogger(QueryEvaluator.class);
 
     private String endpoint;
 
-    public QueryEvaluation(String endpoint) {
+    public QueryEvaluator(String endpoint) {
         this.endpoint = endpoint;
     }
 
@@ -30,6 +34,8 @@ public class QueryEvaluation {
 
             RepositoryConnection connection = repository.getConnection();
             TupleQuery query = connection.prepareTupleQuery(QueryLanguage.SPARQL, query_str);
+
+            log.info("Query  {}", query_str);
 
             query.evaluate(new TupleQueryResultHandler() {
 
@@ -70,6 +76,8 @@ public class QueryEvaluation {
         } catch (MalformedQueryException e) {
             e.printStackTrace();
         }
+
+        log.info("Result {}", result);
 
         return result;
     }
