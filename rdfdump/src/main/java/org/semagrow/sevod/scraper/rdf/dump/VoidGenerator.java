@@ -8,7 +8,7 @@ import org.openrdf.rio.RDFWriter;
 import org.openrdf.rio.helpers.RDFHandlerBase;
 import org.semagrow.sevod.commons.vocabulary.SEVOD;
 import org.semagrow.sevod.commons.vocabulary.VOID;
-import org.semagrow.sevod.scraper.rdf.dump.util.DistinctCounter;
+import org.semagrow.sevod.scraper.rdf.dump.util.FileDistinctCounter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,11 +25,11 @@ public class VoidGenerator extends RDFHandlerBase {
     private final Map<URI, Integer> typeCountMap = new HashMap<URI, Integer>();
     private final Set<URI> predicates = new HashSet<URI>();
 
-    private DistinctCounter distSubject;
-    private DistinctCounter distObject;
+    private FileDistinctCounter distSubject;
+    private FileDistinctCounter distObject;
 
-    private final DistinctCounter distSubjectTotal = new DistinctCounter(null);
-    private final DistinctCounter distObjectTotal = new DistinctCounter(null);
+    private final FileDistinctCounter distSubjectTotal = new FileDistinctCounter(null);
+    private final FileDistinctCounter distObjectTotal = new FileDistinctCounter(null);
 
     private Map<URI, Resource> propertyPartitionMap = new HashMap<>();
 
@@ -87,11 +87,11 @@ public class VoidGenerator extends RDFHandlerBase {
         }
 
         // store subject and object
-        distSubject.add(st.getSubject().toString());
-        distObject.add(st.getObject().toString());
+        distSubject.add(st.getSubject());
+        distObject.add(st.getObject());
 
-        distSubjectTotal.add(st.getSubject().toString());
-        distObjectTotal.add(st.getObject().toString());
+        distSubjectTotal.add(st.getSubject());
+        distObjectTotal.add(st.getObject());
 
         lastPredicate = predicate;
         curPredicate = st.getPredicate();
@@ -112,8 +112,8 @@ public class VoidGenerator extends RDFHandlerBase {
         // clear stored values;
         distSubject.close();
         distObject.close();
-        distSubject = new DistinctCounter(null);
-        distObject = new DistinctCounter(null);
+        distSubject = new FileDistinctCounter(null);
+        distObject = new FileDistinctCounter(null);
 
         predCount = 0;
     }
@@ -205,8 +205,8 @@ public class VoidGenerator extends RDFHandlerBase {
     @Override
     public void startRDF() throws RDFHandlerException {
         super.startRDF();
-        distSubject = new DistinctCounter(null);
-        distObject = new DistinctCounter(null);
+        distSubject = new FileDistinctCounter(null);
+        distObject = new FileDistinctCounter(null);
     }
 
 

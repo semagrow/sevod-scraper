@@ -1,5 +1,8 @@
 package org.semagrow.sevod.scraper.rdf.dump.util;
 
+import org.openrdf.model.Value;
+import org.semagrow.sevod.scraper.rdf.dump.api.DistinctCounter;
+
 import java.io.*;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -10,13 +13,13 @@ import java.util.concurrent.Callable;
 /**
  * Created by antonis on 18/5/2015.
  */
-public class DistinctCounter {
+public class FileDistinctCounter implements DistinctCounter {
 
     private File file;
     private FileWriter writer;
     private Set<String> authorities = new HashSet<>();
 
-    public DistinctCounter(String prefix) {
+    public FileDistinctCounter(String prefix) {
         try {
             if (prefix == null) {
                 file = File.createTempFile("metadatagen-", ".tmp");
@@ -30,7 +33,8 @@ public class DistinctCounter {
         }
     }
 
-    public void add(String str) {
+    public void add(Value value) {
+        String str = value.toString();
         openFile();
         try {
             writer.write(str + "\n");
