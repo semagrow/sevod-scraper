@@ -56,6 +56,11 @@
             <artifactId>sesame-sail-nativerdf</artifactId>
             <version>2.7.10</version>
         </dependency>
+        <dependency>
+            <groupId>org.mapdb</groupId>
+            <artifactId>mapdb</artifactId>
+            <version>3.0.8</version>
+        </dependency>
     </dependencies>
 
     <build>

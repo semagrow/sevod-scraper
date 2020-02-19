@@ -10,7 +10,7 @@ import org.openrdf.rio.helpers.RDFHandlerBase;
 import org.semagrow.sevod.commons.vocabulary.SEVOD;
 import org.semagrow.sevod.commons.vocabulary.VOID;
 import org.semagrow.sevod.scraper.rdf.dump.api.DistinctCounter;
-import org.semagrow.sevod.scraper.rdf.dump.util.HashDistinctCounter;
+import org.semagrow.sevod.scraper.rdf.dump.util.MapDBDistinctCounter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,7 +54,7 @@ public class RdfDumpMetadataExtractor extends RDFHandlerBase {
 
     @Override
     public void handleStatement(Statement st) {
-        log.debug("Handling statement " + st.toString());
+        log.info("Handling statement " + st.toString());
 
         URI p = st.getPredicate();
 
@@ -101,8 +101,8 @@ public class RdfDumpMetadataExtractor extends RDFHandlerBase {
         private Set<String> knownPrefixes;
 
         private int triples = 0;
-        private DistinctCounter subjCount = new HashDistinctCounter();
-        private DistinctCounter objCount = new HashDistinctCounter();
+        private DistinctCounter subjCount = new MapDBDistinctCounter();
+        private DistinctCounter objCount = new MapDBDistinctCounter();
         private Set<String> subjPrefix = new HashSet<>();
         private Set<String> objPrefix = new HashSet<>();
 
@@ -157,7 +157,7 @@ public class RdfDumpMetadataExtractor extends RDFHandlerBase {
         private URI clazz;
         private Set<String> knownPrefixes;
 
-        private DistinctCounter entityCount = new HashDistinctCounter();
+        private DistinctCounter entityCount = new MapDBDistinctCounter();
         private Set<String> entityPrefix = new HashSet<>();
 
         public ClassMetadata(URI clazz, Set<String> knownPrefixes) {
@@ -198,11 +198,11 @@ public class RdfDumpMetadataExtractor extends RDFHandlerBase {
         private String endpoint;
 
         private int triples = 0;
-        private DistinctCounter propCount = new HashDistinctCounter();
-        private DistinctCounter clzCount = new HashDistinctCounter();
-        private DistinctCounter entCount = new HashDistinctCounter();
-        private DistinctCounter subjCount = new HashDistinctCounter();
-        private DistinctCounter objCount = new HashDistinctCounter();
+        private DistinctCounter propCount = new MapDBDistinctCounter();
+        private DistinctCounter clzCount = new MapDBDistinctCounter();
+        private DistinctCounter entCount = new MapDBDistinctCounter();
+        private DistinctCounter subjCount = new MapDBDistinctCounter();
+        private DistinctCounter objCount = new MapDBDistinctCounter();
 
         public DatasetMetadata(String endpoint) {
             this.endpoint = endpoint;

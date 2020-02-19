@@ -26,7 +26,7 @@ public class RdfDumpScraper {
                 "\n\t java " + className + " [input_file] [endpoint] [-s|p|o|v] [subjectBound] [objectBound] [output_file]" +
                 "\n\t java " + className + " [input_file] [endpoint] [known_prefixes_path] [output_file]";
 
-        if (args.length > 6 && args.length < 4) {
+        if (args.length > 6 || args.length < 4) {
             throw new IllegalArgumentException(usage);
         }
 
