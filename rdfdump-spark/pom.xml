@@ -14,9 +14,9 @@
     <name>SEVOD scraper for RDF dump in Apache Spark</name>
 
     <properties>
-        <spark.version>2.0.1</spark.version>
-        <scala.version.major>2.10</scala.version.major>
-        <scala.version>${scala.version.major}.4</scala.version>
+        <spark.version>2.4.5</spark.version>
+        <scala.version.major>2.12</scala.version.major>
+        <scala.version>${scala.version.major}.6</scala.version>
         <jena.version>3.0.0</jena.version>
     </properties>
 
