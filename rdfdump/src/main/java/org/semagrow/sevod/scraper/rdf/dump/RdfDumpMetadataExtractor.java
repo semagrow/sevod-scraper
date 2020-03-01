@@ -1,5 +1,9 @@
 package org.semagrow.sevod.scraper.rdf.dump;
 
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.io.ParseException;
+import org.locationtech.jts.io.WKTReader;
+import org.locationtech.jts.io.WKTWriter;
 import org.openrdf.model.*;
 import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.model.vocabulary.RDF;
@@ -30,6 +34,7 @@ public class RdfDumpMetadataExtractor extends RDFHandlerBase {
     private Map<URI,PredicateMetadata> predicates;
     private Map<URI,ClassMetadata> classes;
     private DatasetMetadata datasetMetadata;
+    private BoundaryMetadata boundaryMetadata;
 
     private ValueFactory vf = ValueFactoryImpl.getInstance();
 
@@ -46,6 +51,7 @@ public class RdfDumpMetadataExtractor extends RDFHandlerBase {
         predicates = new HashMap<>();
         classes = new HashMap<>();
         datasetMetadata = new DatasetMetadata(endpoint);
+        boundaryMetadata = new BoundaryMetadata();
 
         writer.handleNamespace(VOID.PREFIX, VOID.NAMESPACE);
         writer.handleNamespace(SEVOD.PREFIX, SEVOD.NAMESPACE);
@@ -72,6 +78,7 @@ public class RdfDumpMetadataExtractor extends RDFHandlerBase {
         }
 
         datasetMetadata.processStatement(st);
+        boundaryMetadata.processStatement(st);
     }
 
     @Override
@@ -91,11 +98,17 @@ public class RdfDumpMetadataExtractor extends RDFHandlerBase {
         }
 
         datasetMetadata.serializeMetadata(dataset, writer);
+        boundaryMetadata.serializeMetadata(dataset, writer);
 
         super.endRDF();
     }
 
-    private class PredicateMetadata {
+    private interface Metadata {
+        void processStatement(Statement statement);
+        void serializeMetadata(Resource dataset, RDFWriter writer) throws RDFHandlerException;
+    }
+
+    private class PredicateMetadata implements Metadata {
 
         private URI predicate;
         private Set<String> knownPrefixes;
@@ -111,6 +124,7 @@ public class RdfDumpMetadataExtractor extends RDFHandlerBase {
             this.knownPrefixes = knownPrefixes;
         }
 
+        @Override
         public void processStatement(Statement statement) {
             assert statement.getPredicate().equals(predicate);
 
@@ -132,6 +146,7 @@ public class RdfDumpMetadataExtractor extends RDFHandlerBase {
             triples++;
         }
 
+        @Override
         public void serializeMetadata(Resource dataset, RDFWriter writer) throws RDFHandlerException {
             BNode prop = vf.createBNode();
 
@@ -152,7 +167,7 @@ public class RdfDumpMetadataExtractor extends RDFHandlerBase {
         }
     }
 
-    private class ClassMetadata {
+    private class ClassMetadata implements Metadata {
 
         private URI clazz;
         private Set<String> knownPrefixes;
@@ -165,6 +180,7 @@ public class RdfDumpMetadataExtractor extends RDFHandlerBase {
             this.knownPrefixes = knownPrefixes;
         }
 
+        @Override
         public void processStatement(Statement statement) {
             assert statement.getPredicate().equals(RDF.TYPE);
             assert statement.getObject().equals(clazz);
@@ -180,6 +196,7 @@ public class RdfDumpMetadataExtractor extends RDFHandlerBase {
             }
         }
 
+        @Override
         public void serializeMetadata(Resource dataset, RDFWriter writer) throws RDFHandlerException {
             BNode clzp = vf.createBNode();
 
@@ -193,7 +210,7 @@ public class RdfDumpMetadataExtractor extends RDFHandlerBase {
         }
     }
 
-    private class DatasetMetadata {
+    private class DatasetMetadata implements Metadata {
 
         private String endpoint;
 
@@ -208,6 +225,7 @@ public class RdfDumpMetadataExtractor extends RDFHandlerBase {
             this.endpoint = endpoint;
         }
 
+        @Override
         public void processStatement(Statement statement) {
 
             Value s = statement.getSubject();
@@ -226,6 +244,7 @@ public class RdfDumpMetadataExtractor extends RDFHandlerBase {
             triples++;
         }
 
+        @Override
         public void serializeMetadata(Resource dataset, RDFWriter writer) throws RDFHandlerException {
             writer.handleStatement(vf.createStatement(dataset, VOID.SPARQLENDPOINT, vf.createURI(endpoint)));
             writer.handleStatement(vf.createStatement(dataset, VOID.TRIPLES, vf.createLiteral(triples)));
@@ -234,6 +253,58 @@ public class RdfDumpMetadataExtractor extends RDFHandlerBase {
             writer.handleStatement(vf.createStatement(dataset, VOID.ENTITIES, vf.createLiteral(entCount.getDistinctCount())));
             writer.handleStatement(vf.createStatement(dataset, VOID.DISTINCTSUBJECTS, vf.createLiteral(subjCount.getDistinctCount())));
             writer.handleStatement(vf.createStatement(dataset, VOID.DISTINCTOBJECTS, vf.createLiteral(objCount.getDistinctCount())));
+        }
+    }
+
+    private class BoundaryMetadata implements Metadata {
+
+        private Geometry mbb = null;
+        private URI srid = null;
+
+        private final URI wktLiteral = vf.createURI("http://www.opengis.net/ont/geosparql#wktLiteral");
+        private final URI svdDatasetBoundary = vf.createURI(SEVOD.NAMESPACE + "datasetBoundingBox");
+
+        private final WKTReader wktReader = new WKTReader();
+        private final WKTWriter wktWriter = new WKTWriter();
+
+        @Override
+        public void processStatement(Statement statement) {
+
+            Value o = statement.getObject();
+
+            if (o instanceof Literal
+                    && (((Literal) o).getDatatype() != null)
+                    && ((Literal) o).getDatatype().equals(wktLiteral)) {
+
+                String wktString = o.stringValue();
+
+                if (wktString.startsWith("<")) {
+                    int n = wktString.indexOf(">");
+                    srid = vf.createURI(wktString.substring(1,n));
+                    wktString = wktString.substring(n+2);
+                }
+
+                try {
+                    Geometry g = wktReader.read(wktString);
+
+                    if (mbb == null) {
+                        mbb = g.getEnvelope();
+                    }
+                    else {
+                        mbb = g.getEnvelope().union(mbb).getEnvelope();
+                    }
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        @Override
+        public void serializeMetadata(Resource dataset, RDFWriter writer) throws RDFHandlerException {
+            String wktStr = wktWriter.write(mbb);
+            String sridStr = (srid == null) ? "" : "<" + srid.toString() + "> ";
+            Literal literal = vf.createLiteral(sridStr + wktStr, wktLiteral);
+            writer.handleStatement(vf.createStatement(dataset, svdDatasetBoundary, literal));
         }
     }
 }
