@@ -97,6 +97,7 @@ public class RdfDumpMetadataExtractor extends RDFHandlerBase {
             classes.get(c).serializeMetadata(dataset, writer);
         }
 
+        log.info("Writing general metadata");
         datasetMetadata.serializeMetadata(dataset, writer);
         boundaryMetadata.serializeMetadata(dataset, writer);
 
@@ -301,10 +302,12 @@ public class RdfDumpMetadataExtractor extends RDFHandlerBase {
 
         @Override
         public void serializeMetadata(Resource dataset, RDFWriter writer) throws RDFHandlerException {
-            String wktStr = wktWriter.write(mbb);
-            String sridStr = (srid == null) ? "" : "<" + srid.toString() + "> ";
-            Literal literal = vf.createLiteral(sridStr + wktStr, wktLiteral);
-            writer.handleStatement(vf.createStatement(dataset, svdDatasetBoundary, literal));
+            if (mbb != null) {
+                String wktStr = wktWriter.write(mbb);
+                String sridStr = (srid == null) ? "" : "<" + srid.toString() + "> ";
+                Literal literal = vf.createLiteral(sridStr + wktStr, wktLiteral);
+                writer.handleStatement(vf.createStatement(dataset, svdDatasetBoundary, literal));
+            }
         }
     }
 }
