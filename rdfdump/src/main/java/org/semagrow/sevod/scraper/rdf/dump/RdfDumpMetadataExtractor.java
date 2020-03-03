@@ -23,14 +23,15 @@ public class RdfDumpMetadataExtractor extends RDFHandlerBase {
 
     private String endpoint;
     private Set<String> knownPrefixes;
-    private RDFWriter writer;
+    protected RDFWriter writer;
 
     private Map<URI,Metadata> predicates;
     private Map<URI,Metadata> classes;
     private Metadata datasetMetadata;
-    private Metadata boundaryMetadata;
 
     private ValueFactory vf = ValueFactoryImpl.getInstance();
+
+    protected Resource dataset = vf.createBNode();
 
     public RdfDumpMetadataExtractor(String endpoint, Set<String> knownPrefixes, RDFWriter writer) {
         this.endpoint = endpoint;
@@ -42,10 +43,11 @@ public class RdfDumpMetadataExtractor extends RDFHandlerBase {
     public void startRDF() throws RDFHandlerException {
         super.startRDF();
 
+        log.info("Scraping the dataset...");
+
         predicates = new HashMap<>();
         classes = new HashMap<>();
         datasetMetadata = new DatasetMetadata(endpoint);
-        boundaryMetadata = new BoundaryMetadata();
 
         writer.handleNamespace(VOID.PREFIX, VOID.NAMESPACE);
         writer.handleNamespace(SEVOD.PREFIX, SEVOD.NAMESPACE);
@@ -54,7 +56,6 @@ public class RdfDumpMetadataExtractor extends RDFHandlerBase {
 
     @Override
     public void handleStatement(Statement st) {
-        log.info("Handling statement " + st.toString());
 
         URI p = st.getPredicate();
 
@@ -72,28 +73,24 @@ public class RdfDumpMetadataExtractor extends RDFHandlerBase {
         }
 
         datasetMetadata.processStatement(st);
-        boundaryMetadata.processStatement(st);
     }
 
     @Override
     public void endRDF() throws RDFHandlerException {
-        Resource dataset = vf.createBNode();
+
+        log.info("Writing dataset metadata...");
 
         writer.handleStatement(vf.createStatement(dataset, RDF.TYPE, VOID.DATASET));
 
         for (URI p: predicates.keySet()) {
-            log.info("Writing metadata of predicate " + p.stringValue());
             predicates.get(p).serializeMetadata(dataset, writer);
         }
 
         for (URI c: classes.keySet()) {
-            log.info("Writing metadata of class " + c.stringValue());
             classes.get(c).serializeMetadata(dataset, writer);
         }
 
-        log.info("Writing general metadata");
         datasetMetadata.serializeMetadata(dataset, writer);
-        boundaryMetadata.serializeMetadata(dataset, writer);
 
         super.endRDF();
     }
