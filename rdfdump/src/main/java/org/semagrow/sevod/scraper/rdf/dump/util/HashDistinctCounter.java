@@ -3,7 +3,6 @@ package org.semagrow.sevod.scraper.rdf.dump.util;
 import org.apache.commons.codec.digest.DigestUtils;
 
 import org.openrdf.model.Value;
-import org.semagrow.sevod.scraper.rdf.dump.api.DistinctCounter;
 
 import java.util.HashSet;
 import java.util.Set;

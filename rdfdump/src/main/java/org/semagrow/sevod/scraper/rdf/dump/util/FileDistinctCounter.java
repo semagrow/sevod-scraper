@@ -1,14 +1,10 @@
 package org.semagrow.sevod.scraper.rdf.dump.util;
 
 import org.openrdf.model.Value;
-import org.semagrow.sevod.scraper.rdf.dump.api.DistinctCounter;
 
 import java.io.*;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.Callable;
 
 /**
  * Created by antonis on 18/5/2015.

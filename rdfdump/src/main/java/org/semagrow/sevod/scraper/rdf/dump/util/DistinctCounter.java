@@ -1,4 +1,4 @@
-package org.semagrow.sevod.scraper.rdf.dump.api;
+package org.semagrow.sevod.scraper.rdf.dump.util;
 
 import org.openrdf.model.Value;
 
@@ -8,4 +8,3 @@ public interface DistinctCounter {
 
     int getDistinctCount();
 }
-

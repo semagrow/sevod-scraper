@@ -5,7 +5,6 @@ import org.mapdb.DB;
 import org.mapdb.DBMaker;
 import org.mapdb.Serializer;
 import org.openrdf.model.Value;
-import org.semagrow.sevod.scraper.rdf.dump.api.DistinctCounter;
 
 import java.util.Set;
 
@@ -20,13 +19,11 @@ public class MapDBDistinctCounter implements DistinctCounter {
                 .createOrOpen();
     }
 
-    @Override
     public void add(Value value) {
         String md5hex = DigestUtils.md5Hex(value.toString());
         set.add(md5hex);
     }
 
-    @Override
     public int getDistinctCount() {
         return set.size();
     }

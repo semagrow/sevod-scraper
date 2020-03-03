@@ -13,7 +13,7 @@ import org.openrdf.rio.RDFWriter;
 import org.openrdf.rio.helpers.RDFHandlerBase;
 import org.semagrow.sevod.commons.vocabulary.SEVOD;
 import org.semagrow.sevod.commons.vocabulary.VOID;
-import org.semagrow.sevod.scraper.rdf.dump.api.DistinctCounter;
+import org.semagrow.sevod.scraper.rdf.dump.util.DistinctCounter;
 import org.semagrow.sevod.scraper.rdf.dump.util.MapDBDistinctCounter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
