@@ -13,7 +13,8 @@ public final class GEO {
     public final static URI WKT_LITERAL;
     public final static URI HAS_GEOMETRY;
     public final static URI AS_WKT;
-
+    
+    public static final String DEFAULT_SRID = "http://www.opengis.net/def/crs/OGC/1.3/CRS84";
 
 
     static {

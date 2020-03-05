@@ -1,43 +1,42 @@
 package org.semagrow.sevod.scraper.geordf.dump;
 
 import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
+import org.openrdf.model.vocabulary.RDFS;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFWriter;
 import org.semagrow.sevod.scraper.geordf.dump.metadata.BoundingBoxMetadata;
+import org.semagrow.sevod.scraper.geordf.dump.vocabulary.GEO;
 import org.semagrow.sevod.scraper.rdf.dump.RdfDumpMetadataExtractor;
+import org.semagrow.sevod.scraper.rdf.dump.metadata.Metadata;
 
 import java.util.Set;
 
 public class GeoRdfDumpMetadataExtractor extends RdfDumpMetadataExtractor {
 
-    private BoundingBoxMetadata metadata;
-    private boolean allSubjectsInMBB = true;
+    private Metadata metadata;
 
-    public GeoRdfDumpMetadataExtractor(String endpoint, Set<String> knownPrefixes, BoundingBoxMetadata metadata, RDFWriter writer) {
+    public GeoRdfDumpMetadataExtractor(String endpoint, Set<String> knownPrefixes, RDFWriter writer) {
         super(endpoint, knownPrefixes, writer);
-        this.metadata = metadata;
     }
 
     @Override
     public void startRDF() throws RDFHandlerException {
         super.startRDF();
-        metadata.serializePreamble(this.writer);
+        writer.handleNamespace(RDFS.PREFIX, RDFS.NAMESPACE);
+        writer.handleNamespace(GEO.PREFIX, GEO.NAMESPACE);
+
+        metadata = new BoundingBoxMetadata();
     }
 
     @Override
     public void handleStatement(Statement st) {
         super.handleStatement(st);
-        if (allSubjectsInMBB && !metadata.isGeometricURI((URI) st.getSubject())) {
-            allSubjectsInMBB = false;
-        }
+        metadata.processStatement(st);
     }
 
     @Override
     public void endRDF() throws RDFHandlerException {
         super.endRDF();
-        if (allSubjectsInMBB) {
-            metadata.serializeMetadata(this.dataset, this.writer);
-        }
+        metadata.serializeMetadata(this.dataset, this.writer);
     }
 }
