@@ -58,13 +58,13 @@ public class BoundingBoxMetadata implements Metadata {
 
     @Override
     public void serializeMetadata(Resource dataset, RDFWriter writer) throws RDFHandlerException {
-        assert mbb != null;
+        if (mbb != null) {
+            Resource mbbResource = vf.createBNode();
+            Resource geometry = vf.createBNode();
 
-        Resource mbbResource = vf.createBNode();
-        Resource geometry = vf.createBNode();
-
-        writer.handleStatement(vf.createStatement(dataset, VOCAB.DATASET_BOUNDING_BOX, mbbResource));
-        writer.handleStatement(vf.createStatement(mbbResource, GEO.HAS_GEOMETRY, geometry));
-        writer.handleStatement(vf.createStatement(geometry, GEO.AS_WKT, WktHelpers.createWKTLiteral(mbb, crs)));
+            writer.handleStatement(vf.createStatement(dataset, VOCAB.DATASET_BOUNDING_BOX, mbbResource));
+            writer.handleStatement(vf.createStatement(mbbResource, GEO.HAS_GEOMETRY, geometry));
+            writer.handleStatement(vf.createStatement(geometry, GEO.AS_WKT, WktHelpers.createWKTLiteral(mbb, crs)));
+        }
     }
 }
