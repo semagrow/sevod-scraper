@@ -6,17 +6,12 @@ import org.locationtech.jts.io.WKTReader;
 import org.locationtech.jts.io.WKTWriter;
 import org.openrdf.model.*;
 import org.openrdf.model.impl.ValueFactoryImpl;
-import org.openrdf.model.vocabulary.RDFS;
-import org.openrdf.model.vocabulary.XMLSchema;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFWriter;
 import org.semagrow.sevod.scraper.geordf.dump.helpers.WktHelpers;
 import org.semagrow.sevod.scraper.geordf.dump.vocabulary.GEO;
 import org.semagrow.sevod.scraper.geordf.dump.vocabulary.VOCAB;
 import org.semagrow.sevod.scraper.rdf.dump.metadata.Metadata;
-
-import java.util.HashSet;
-import java.util.Set;
 
 public class BoundingBoxMetadata implements Metadata {
 
@@ -59,12 +54,7 @@ public class BoundingBoxMetadata implements Metadata {
     @Override
     public void serializeMetadata(Resource dataset, RDFWriter writer) throws RDFHandlerException {
         if (mbb != null) {
-            Resource mbbResource = vf.createBNode();
-            Resource geometry = vf.createBNode();
-
-            writer.handleStatement(vf.createStatement(dataset, VOCAB.DATASET_BOUNDING_BOX, mbbResource));
-            writer.handleStatement(vf.createStatement(mbbResource, GEO.HAS_GEOMETRY, geometry));
-            writer.handleStatement(vf.createStatement(geometry, GEO.AS_WKT, WktHelpers.createWKTLiteral(mbb, crs)));
+            writer.handleStatement(vf.createStatement(dataset, VOCAB.DATASET_BOUNDING_POLYGON, WktHelpers.createWKTLiteral(mbb, crs)));
         }
     }
 }
