@@ -1,7 +1,13 @@
 package org.semagrow.sevod.scraper.geordf.dump;
 
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.io.ParseException;
+import org.openrdf.model.Literal;
+import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.rio.*;
 import org.openrdf.rio.helpers.BasicParserSettings;
+import org.openrdf.rio.ntriples.NTriplesUtil;
+import org.semagrow.sevod.scraper.geordf.dump.helpers.WktHelpers;
 import org.semagrow.sevod.scraper.rdf.dump.RdfDumpMetadataExtractor;
 import org.semagrow.sevod.util.CompactBNodeTurtleWriter;
 
@@ -9,11 +15,11 @@ import java.io.*;
 import java.util.HashSet;
 import java.util.Set;
 
-
 public class GeoRdfDumpScraper {
 
     private String endpoint;
     private Set<String> knownPrefixes;
+    private Geometry knownBoundingPolygon = null;
 
     public void setEndpoint(String endpoint) {
         this.endpoint = endpoint;
@@ -23,13 +29,19 @@ public class GeoRdfDumpScraper {
         this.knownPrefixes = fileToSetOfStrings(knownPrefixes);
     }
 
+    public void setKnownBoundingPolygon(String knownBoundingPolygonPath) throws IOException, ParseException {
+        String knownBoundingPolygon = fileToSetOfStrings(knownBoundingPolygonPath).iterator().next();
+        Literal l = NTriplesUtil.parseLiteral(knownBoundingPolygon, ValueFactoryImpl.getInstance());
+        this.knownBoundingPolygon = WktHelpers.createGeometry(l, WktHelpers.getCRS(l));
+    }
+
     public void scrape(String inputPath, String outputPath) throws IOException, RDFHandlerException, RDFParseException {
 
         RDFWriter writer = new CompactBNodeTurtleWriter(new FileWriter(outputPath));
 
         writer.startRDF();
 
-        RdfDumpMetadataExtractor extractor = new GeoRdfDumpMetadataExtractor(endpoint, knownPrefixes, writer);
+        RdfDumpMetadataExtractor extractor = new GeoRdfDumpMetadataExtractor(endpoint, knownPrefixes, knownBoundingPolygon, writer);
 
         RDFFormat format = Rio.getParserFormatForFileName(inputPath);
         RDFParser parser = Rio.createParser(format);
@@ -54,7 +66,7 @@ public class GeoRdfDumpScraper {
         return set;
     }
 
-    public static void main(String[] args) throws IOException, RDFParseException, RDFHandlerException {
+    public static void main(String[] args) throws IOException, RDFParseException, RDFHandlerException, ParseException {
 
         if (args.length < 4) {
             throw new IllegalArgumentException();
@@ -62,9 +74,18 @@ public class GeoRdfDumpScraper {
 
         GeoRdfDumpScraper scraper = new GeoRdfDumpScraper();
 
-        scraper.setEndpoint(args[1]);
-        scraper.setKnownPrefixes(args[2]);
+        if (args.length == 4) {
+            scraper.setEndpoint(args[1]);
+            scraper.setKnownPrefixes(args[2]);
 
-        scraper.scrape(args[0], args[3]);
+            scraper.scrape(args[0], args[3]);
+        }
+        else {
+            scraper.setEndpoint(args[1]);
+            scraper.setKnownPrefixes(args[2]);
+            scraper.setKnownBoundingPolygon(args[3]);
+
+            scraper.scrape(args[0], args[4]);
+        }
     }
 }
