@@ -18,6 +18,7 @@ then
     echo "Usage:"
     echo "$0 rdfdump [dump_file] [endpoint_url] [-s|p|o|j] [output_file]"
     echo "$0 rdfdump [dump_file] [endpoint_url] [-s|p|o|j] [subjectTrieParameter] [objectTrieParameter] [output_file]"
+    echo "$0 rdfdump [dump_file] [endpoint_url] [output_file]"
     echo "$0 rdfdump [dump_file] [endpoint_url] [known_prefixes_path] [output_file]"
     echo "$0 geordfdump [dump_file] [endpoint_url] [known_prefixes_path] [output_file]"
     echo "$0 geordfdump [dump_file] [endpoint_url] [known_prefixes_path] [known_polygon_path] [output_file]"

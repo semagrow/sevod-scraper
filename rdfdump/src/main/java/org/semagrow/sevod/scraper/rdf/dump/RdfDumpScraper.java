@@ -24,9 +24,10 @@ public class RdfDumpScraper {
         String usage = "USAGE:" +
                 "\n\t java " + className + " [input_file] [endpoint] [-s|p|o|v] [output_file]" +
                 "\n\t java " + className + " [input_file] [endpoint] [-s|p|o|v] [subjectBound] [objectBound] [output_file]" +
+                "\n\t java " + className + " [input_file] [endpoint] [output_file]" +
                 "\n\t java " + className + " [input_file] [endpoint] [known_prefixes_path] [output_file]";
 
-        if (args.length > 6 || args.length < 4) {
+        if (args.length > 6 || args.length < 3) {
             throw new IllegalArgumentException(usage);
         }
 
@@ -95,19 +96,18 @@ public class RdfDumpScraper {
         else {
             // new functionality (known prefixes)
 
-            String prefixesPath = args[2];
-            String metadataPath = args[3];
-
-            BufferedReader bufferedReader = new BufferedReader(new FileReader(prefixesPath));
-
-            String line;
+            String metadataPath = args.length == 3 ? args[2] : args[3];
             Set<String> knownPrefixes = new HashSet<>();
 
-            while ((line = bufferedReader.readLine()) != null) {
-                knownPrefixes.add(line);
+            if (args.length > 3) {
+                String prefixesPath = args[2];
+                BufferedReader bufferedReader = new BufferedReader(new FileReader(prefixesPath));
+                String line;
+                while ((line = bufferedReader.readLine()) != null) {
+                    knownPrefixes.add(line);
+                }
+                bufferedReader.close();
             }
-
-            bufferedReader.close();
 
             RDFWriter writer = new CompactBNodeTurtleWriter(new FileWriter(metadataPath));
 

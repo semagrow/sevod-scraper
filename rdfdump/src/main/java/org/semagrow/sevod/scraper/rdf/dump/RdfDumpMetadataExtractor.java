@@ -1,9 +1,9 @@
 package org.semagrow.sevod.scraper.rdf.dump;
 
+import org.eclipse.rdf4j.model.vocabulary.FOAF;
 import org.openrdf.model.*;
 import org.openrdf.model.impl.ValueFactoryImpl;
-import org.openrdf.model.vocabulary.RDF;
-import org.openrdf.model.vocabulary.XMLSchema;
+import org.openrdf.model.vocabulary.*;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFWriter;
 import org.openrdf.rio.helpers.RDFHandlerBase;
@@ -37,6 +37,15 @@ public class RdfDumpMetadataExtractor extends RDFHandlerBase {
         this.endpoint = endpoint;
         this.knownPrefixes = knownPrefixes;
         this.writer = writer;
+
+        knownPrefixes.add(RDF.NAMESPACE);
+        knownPrefixes.add(RDFS.NAMESPACE);
+        knownPrefixes.add(OWL.NAMESPACE);
+        knownPrefixes.add(DC.NAMESPACE);
+        knownPrefixes.add(DCTERMS.NAMESPACE);
+        knownPrefixes.add(FOAF.NAMESPACE);
+        knownPrefixes.add(SKOS.NAMESPACE);
+        knownPrefixes.add(XMLSchema.NAMESPACE);
     }
 
     @Override
