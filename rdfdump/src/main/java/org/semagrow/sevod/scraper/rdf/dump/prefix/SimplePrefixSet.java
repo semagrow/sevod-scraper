@@ -9,6 +9,8 @@ import java.util.regex.Pattern;
 
 public class SimplePrefixSet implements PrefixSet {
 
+    private int MAX_PREFIXES = 100;
+    
     private Set<String> knownPrefixes;
     private Set<String> prefixSet = new HashSet<>();
 
@@ -35,7 +37,12 @@ public class SimplePrefixSet implements PrefixSet {
 
     @Override
     public Set<String> getPrefixSet() {
-        return prefixSet;
+        if (prefixSet.size() < MAX_PREFIXES) {
+            return prefixSet;
+        }
+        else {
+            return new HashSet<>();
+        }
     }
 
     static private String getAuthority(URI uri) {
