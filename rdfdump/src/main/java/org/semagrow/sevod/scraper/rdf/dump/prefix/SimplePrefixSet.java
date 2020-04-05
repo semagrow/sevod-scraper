@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 public class SimplePrefixSet implements PrefixSet {
 
     private int MAX_PREFIXES = 100;
-    
+
     private Set<String> knownPrefixes;
     private Set<String> prefixSet = new HashSet<>();
 

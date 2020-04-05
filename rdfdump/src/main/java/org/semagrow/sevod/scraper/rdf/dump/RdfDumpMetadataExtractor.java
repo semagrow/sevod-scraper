@@ -37,15 +37,6 @@ public class RdfDumpMetadataExtractor extends RDFHandlerBase {
         this.endpoint = endpoint;
         this.knownPrefixes = knownPrefixes;
         this.writer = writer;
-
-        knownPrefixes.add(RDF.NAMESPACE);
-        knownPrefixes.add(RDFS.NAMESPACE);
-        knownPrefixes.add(OWL.NAMESPACE);
-        knownPrefixes.add(DC.NAMESPACE);
-        knownPrefixes.add(DCTERMS.NAMESPACE);
-        knownPrefixes.add(FOAF.NAMESPACE);
-        knownPrefixes.add(SKOS.NAMESPACE);
-        knownPrefixes.add(XMLSchema.NAMESPACE);
     }
 
     @Override
