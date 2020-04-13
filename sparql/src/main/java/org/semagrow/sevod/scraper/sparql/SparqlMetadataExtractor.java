@@ -9,8 +9,13 @@ import org.eclipse.rdf4j.rio.RDFHandlerException;
 import org.eclipse.rdf4j.rio.RDFWriter;
 import org.semagrow.sevod.commons.vocabulary.SEVOD;
 import org.semagrow.sevod.commons.vocabulary.VOID;
+import org.semagrow.sevod.scraper.sparql.metadata.ClassMetadata;
+import org.semagrow.sevod.scraper.sparql.metadata.DatasetMetadata;
+import org.semagrow.sevod.scraper.sparql.metadata.Metadata;
+import org.semagrow.sevod.scraper.sparql.metadata.PredicateMetadata;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by antonis on 29/7/2016.
@@ -19,10 +24,10 @@ public class SparqlMetadataExtractor {
 
     private String endpoint;
     private String graph;
-    private List<String> knownPrefixes;
+    private Set<String> knownPrefixes;
     private ValueFactory vf = ValueFactoryImpl.getInstance();
 
-    public SparqlMetadataExtractor(String endpoint, String graph, List<String> knownPrefixes) {
+    public SparqlMetadataExtractor(String endpoint, String graph, Set<String> knownPrefixes) {
         this.endpoint = endpoint;
         this.graph = graph;
         this.knownPrefixes = knownPrefixes;
@@ -38,100 +43,27 @@ public class SparqlMetadataExtractor {
 
         writer.handleStatement(vf.createStatement(dataset, RDF.TYPE, VOID.DATASET));
 
-        for (BindingSet bindings: resultQuery(Queries.predicates)) {
-
-            BNode prop = vf.createBNode();
-            IRI predicate = getPredicate(bindings);
-
-            writer.handleStatement(vf.createStatement(dataset, VOID.PROPERTYPARTITION, prop));
-            writer.handleStatement(vf.createStatement(prop, VOID.PROPERTY, predicate));
-
-            writer.handleStatement(vf.createStatement(prop, VOID.TRIPLES, countQuery(setPredicate(Queries.triples_count, predicate))));
-            writer.handleStatement(vf.createStatement(prop, VOID.DISTINCTSUBJECTS, countQuery(setPredicate(Queries.subjects_count, predicate))));
-            writer.handleStatement(vf.createStatement(prop, VOID.DISTINCTOBJECTS, countQuery(setPredicate(Queries.objects_count, predicate))));
-
-            for (String prefix: knownPrefixes) {
-                if (!askQuery(setPredicate(setPrefix(Queries.subject_prefix, prefix), predicate))) {
-                    writer.handleStatement(vf.createStatement(prop, SEVOD.SUBJECTREGEXPATTERN, vf.createLiteral(prefix, XMLSchema.STRING)));
-                }
-            }
-
-            for (String prefix: knownPrefixes) {
-                if (!askQuery(setPredicate(setPrefix(Queries.object_prefix, prefix), predicate))) {
-                    writer.handleStatement(vf.createStatement(prop, SEVOD.OBJECTREGEXPATTERN, vf.createLiteral(prefix, XMLSchema.STRING)));
-                }
-            }
-        }
-
-        List<BindingSet> r = resultQuery(Queries.classes);
-
-        for (BindingSet bindings: resultQuery(Queries.classes)) {
-
-            BNode clzp = vf.createBNode();
-            IRI clazz = getClass(bindings);
-
-            writer.handleStatement(vf.createStatement(dataset, VOID.CLASSPARTITION, clzp));
-            writer.handleStatement(vf.createStatement(clzp, VOID.CLASS, clazz));
-            writer.handleStatement(vf.createStatement(clzp, VOID.ENTITIES, countQuery(setClass(Queries.entities_count, clazz))));
-
-            for (String prefix: knownPrefixes) {
-                if (!askQuery(setClass(setPrefix(Queries.entity_prefix, prefix), clazz))) {
-                    writer.handleStatement(vf.createStatement(clzp, SEVOD.SUBJECTREGEXPATTERN, vf.createLiteral(prefix, XMLSchema.STRING)));
-                }
-            }
-        }
-
-        writer.handleStatement(vf.createStatement(dataset, VOID.SPARQLENDPOINT, vf.createIRI(endpoint)));
-        writer.handleStatement(vf.createStatement(dataset, VOID.TRIPLES, countQuery(Queries.triples_count)));
-        writer.handleStatement(vf.createStatement(dataset, VOID.PROPERTIES, countQuery(Queries.predicates_count)));
-        writer.handleStatement(vf.createStatement(dataset, VOID.CLASSES, countQuery(Queries.classes_count)));
-        writer.handleStatement(vf.createStatement(dataset, VOID.ENTITIES, countQuery(Queries.entities_count)));
-        writer.handleStatement(vf.createStatement(dataset, VOID.DISTINCTSUBJECTS, countQuery(Queries.subjects_count)));
-        writer.handleStatement(vf.createStatement(dataset, VOID.DISTINCTOBJECTS, countQuery(Queries.objects_count)));
-    }
-
-    private List<BindingSet> resultQuery(String query) {
         QueryEvaluator eval = new QueryEvaluator(endpoint);
-        return eval.run(setGraph(query));
-    }
+        QueryTransformer qt = new QueryTransformer();
 
-    private Value countQuery(String query) {
-        QueryEvaluator eval = new QueryEvaluator(endpoint);
-        return eval.run(setGraph(query)).get(0).getBinding(Queries.count_var.substring(1)).getValue();
-    }
+        List<IRI> predicates = eval.iris(qt.from(Queries.predicates).setGraph(graph).toString(), Queries.predicate_var);
 
-    private boolean askQuery(String query) {
-        QueryEvaluator eval = new QueryEvaluator(endpoint);
-        return eval.run(setGraph(query)).isEmpty();
-    }
-
-    private IRI getPredicate(BindingSet bindings) {
-        return (IRI) bindings.getBinding(Queries.predicate_var.substring(1)).getValue();
-    }
-
-    private IRI getClass(BindingSet bindings) {
-        return (IRI) bindings.getBinding(Queries.class_var.substring(1)).getValue();
-    }
-
-    private String setGraph(String qstr) {
-        if (graph != null) {
-            return qstr.replace(Queries.graph_var, "<" + graph + ">");
+        for (IRI predicate: predicates) {
+            Metadata metadata = new PredicateMetadata(predicate, graph, knownPrefixes);
+            metadata.processEndpoint(endpoint);
+            metadata.serializeMetadata(dataset, writer);
         }
-        else {
-            return qstr;
+
+        List<IRI> classes = eval.iris(qt.from(Queries.classes).setGraph(graph).toString(), Queries.class_var);
+
+        for (IRI clazz: classes) {
+            Metadata metadata = new ClassMetadata(clazz, graph, knownPrefixes);
+            metadata.processEndpoint(endpoint);
+            metadata.serializeMetadata(dataset, writer);
         }
-    }
 
-    private String setPredicate(String qstr, IRI predicate) {
-        String rturn = qstr.replace(Queries.predicate_var, "<"+predicate.stringValue()+">");
-        return  rturn;
-    }
-
-    private String setClass(String qstr, IRI clazz) {
-        return qstr.replace(Queries.class_var, "<" + clazz.stringValue() + ">");
-    }
-
-    private String setPrefix(String qstr, String prefix) {
-        return qstr.replace(Queries.prefix_var, "\""+prefix+"\"");
+        Metadata metadata = new DatasetMetadata(graph);
+        metadata.processEndpoint(endpoint);
+        metadata.serializeMetadata(dataset, writer);
     }
 }

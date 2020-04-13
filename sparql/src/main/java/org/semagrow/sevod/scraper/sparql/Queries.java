@@ -37,14 +37,14 @@ public final class Queries {
         predicates = "select distinct ?p where { graph ?g { ?s ?p ?o } }";
         classes    = "select distinct ?o where { graph ?g { ?s a ?o } }";
 
-        subject_prefix = "select * where { graph ?g { ?s ?p ?o . filter(strstarts(str(?s), ?prf)) } } LIMIT 1";
-        object_prefix  = "select * where { graph ?g { ?s ?p ?o . filter(strstarts(str(?o), ?prf)) } } LIMIT 1";
-        entity_prefix  = "select * where { graph ?g { ?s a ?o . filter(strstarts(str(?s), ?prf)) } } LIMIT 1";
+        subject_prefix = "select * where { graph ?g { ?s ?p ?o . filter(strstarts(str(?s), ?z)) } } LIMIT 1";
+        object_prefix  = "select * where { graph ?g { ?s ?p ?o . filter(strstarts(str(?o), ?z)) } } LIMIT 1";
+        entity_prefix  = "select * where { graph ?g { ?s a ?o . filter(strstarts(str(?s), ?z)) } } LIMIT 1";
 
         graph_var = "?g";
         predicate_var = "?p";
         class_var = "?o";
-        prefix_var = "?prf";
+        prefix_var = "?z";
         count_var = "?c";
 
     }

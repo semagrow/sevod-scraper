@@ -1,5 +1,7 @@
 package org.semagrow.sevod.scraper.sparql;
 
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.query.*;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
@@ -24,7 +26,7 @@ public class QueryEvaluator {
         this.endpoint = endpoint;
     }
 
-    public List<BindingSet> run(String query_str) {
+    private List<BindingSet> run(String qStr) {
 
         final List<BindingSet> result = new ArrayList<>();
 
@@ -33,9 +35,9 @@ public class QueryEvaluator {
             repository.initialize();
 
             RepositoryConnection connection = repository.getConnection();
-            TupleQuery query = connection.prepareTupleQuery(QueryLanguage.SPARQL, query_str);
+            TupleQuery query = connection.prepareTupleQuery(QueryLanguage.SPARQL, qStr);
 
-            log.info("Query  {}", query_str);
+            log.info("Query  {}", qStr);
 
             query.evaluate(new TupleQueryResultHandler() {
 
@@ -82,4 +84,20 @@ public class QueryEvaluator {
         return result;
     }
 
+    public boolean ask(String qStr) {
+        return !run(qStr).isEmpty();
+    }
+
+    public int count(String qStr) {
+        Value result = run(qStr).get(0).getBinding(Queries.count_var.substring(1)).getValue();
+        return Integer.parseInt(result.stringValue());
+    }
+
+    public List<IRI> iris(String qStr, String var) {
+        List<IRI> result = new ArrayList<>();
+        for (BindingSet bs: run(qStr)) {
+            result.add((IRI) bs.getBinding(var.substring(1)).getValue());
+        }
+        return result;
+    }
 }

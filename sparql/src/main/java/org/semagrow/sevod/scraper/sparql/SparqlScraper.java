@@ -8,8 +8,8 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by antonis on 29/7/2016.
@@ -33,7 +33,7 @@ public class SparqlScraper {
         BufferedReader bufferreader = new BufferedReader(new FileReader(prefixesPath));
 
         String line;
-        List<String> prefixes = new ArrayList<>();
+        Set<String> prefixes = new HashSet<>();
 
         while ((line = bufferreader.readLine()) != null) {
             prefixes.add(line);
