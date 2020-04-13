@@ -1,6 +1,6 @@
 package org.semagrow.sevod.scraper.rdf.dump.util;
 
-import org.openrdf.model.Value;
+import org.eclipse.rdf4j.model.Value;
 
 import java.io.*;
 import java.util.HashSet;

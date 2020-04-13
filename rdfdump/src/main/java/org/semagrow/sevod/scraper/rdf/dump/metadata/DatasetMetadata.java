@@ -1,20 +1,20 @@
 package org.semagrow.sevod.scraper.rdf.dump.metadata;
 
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-import org.openrdf.model.Value;
-import org.openrdf.model.ValueFactory;
-import org.openrdf.model.impl.ValueFactoryImpl;
-import org.openrdf.model.vocabulary.RDF;
-import org.openrdf.rio.RDFHandlerException;
-import org.openrdf.rio.RDFWriter;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.eclipse.rdf4j.model.vocabulary.RDF;
+import org.eclipse.rdf4j.rio.RDFHandlerException;
+import org.eclipse.rdf4j.rio.RDFWriter;
 import org.semagrow.sevod.commons.vocabulary.VOID;
 import org.semagrow.sevod.scraper.rdf.dump.util.DistinctCounter;
 import org.semagrow.sevod.scraper.rdf.dump.util.MapDBDistinctCounter;
 
 public class DatasetMetadata implements Metadata {
 
-    private ValueFactory vf = ValueFactoryImpl.getInstance();
+    private ValueFactory vf = SimpleValueFactory.getInstance();
 
     private String endpoint;
 
@@ -50,7 +50,7 @@ public class DatasetMetadata implements Metadata {
 
     @Override
     public void serializeMetadata(Resource dataset, RDFWriter writer) throws RDFHandlerException {
-        writer.handleStatement(vf.createStatement(dataset, VOID.SPARQLENDPOINT, vf.createURI(endpoint)));
+        writer.handleStatement(vf.createStatement(dataset, VOID.SPARQLENDPOINT, vf.createIRI(endpoint)));
         writer.handleStatement(vf.createStatement(dataset, VOID.TRIPLES, vf.createLiteral(triples)));
         writer.handleStatement(vf.createStatement(dataset, VOID.PROPERTIES, vf.createLiteral(propCount.getDistinctCount())));
         writer.handleStatement(vf.createStatement(dataset, VOID.CLASSES, vf.createLiteral(clzCount.getDistinctCount())));

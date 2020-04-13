@@ -1,6 +1,15 @@
 package org.semagrow.sevod.scraper.rdf.dump;
 
-import org.openrdf.model.vocabulary.XMLSchema;
+import org.eclipse.rdf4j.model.BNode;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.eclipse.rdf4j.model.vocabulary.RDF;
+import org.eclipse.rdf4j.model.vocabulary.XMLSchema;
+import org.eclipse.rdf4j.rio.*;
+import org.eclipse.rdf4j.rio.helpers.BasicParserSettings;
+import org.eclipse.rdf4j.rio.turtle.TurtleWriter;
 import org.semagrow.sevod.commons.vocabulary.SEVOD;
 import org.semagrow.sevod.commons.vocabulary.VOID;
 import org.semagrow.sevod.scraper.rdf.dump.handler.ObjectHandler;
@@ -9,15 +18,6 @@ import org.semagrow.sevod.scraper.rdf.dump.writer.ObjectWriter;
 import org.semagrow.sevod.scraper.rdf.dump.writer.SubjectWriter;
 import org.semagrow.sevod.util.CompactBNodeTurtleWriter;
 import org.slf4j.Logger;
-import org.openrdf.model.BNode;
-import org.openrdf.model.Resource;
-import org.openrdf.model.URI;
-import org.openrdf.model.ValueFactory;
-import org.openrdf.model.impl.ValueFactoryImpl;
-import org.openrdf.model.vocabulary.RDF;
-import org.openrdf.rio.*;
-import org.openrdf.rio.helpers.BasicParserSettings;
-import org.openrdf.rio.turtle.TurtleWriter;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
@@ -34,7 +34,7 @@ public class MetadataGenerator {
 
     final private Logger log = LoggerFactory.getLogger(MetadataGenerator.class);
 
-    private ValueFactory vf = ValueFactoryImpl.getInstance();
+    private ValueFactory vf = SimpleValueFactory.getInstance();
     private BNode dataset = vf.createBNode();
     private RDFWriter writer = null;
     private RDFFormat format;
@@ -46,7 +46,7 @@ public class MetadataGenerator {
 
     VoidGenerator voidGenerator = null;
 
-    Map<URI, Resource> propertyPartitionMap = null;
+    Map<IRI, Resource> propertyPartitionMap = null;
 
     boolean genSubjects = false;
     boolean genObjects = false;

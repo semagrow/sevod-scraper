@@ -2,12 +2,10 @@ package org.semagrow.sevod.scraper.geordf.dump.metadata;
 
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.io.ParseException;
-import org.locationtech.jts.io.WKTReader;
-import org.locationtech.jts.io.WKTWriter;
-import org.openrdf.model.*;
-import org.openrdf.model.impl.ValueFactoryImpl;
-import org.openrdf.rio.RDFHandlerException;
-import org.openrdf.rio.RDFWriter;
+import org.eclipse.rdf4j.model.*;
+import org.eclipse.rdf4j.model.impl.ValueFactoryImpl;
+import org.eclipse.rdf4j.rio.RDFHandlerException;
+import org.eclipse.rdf4j.rio.RDFWriter;
 import org.semagrow.sevod.scraper.geordf.dump.helpers.WktHelpers;
 import org.semagrow.sevod.scraper.geordf.dump.vocabulary.GEO;
 import org.semagrow.sevod.scraper.geordf.dump.vocabulary.VOCAB;
@@ -18,7 +16,7 @@ public class BoundingBoxMetadata implements Metadata {
     private ValueFactory vf = ValueFactoryImpl.getInstance();
 
     private Geometry mbb = null;
-    private URI crs = null;
+    private IRI crs = null;
 
     @Override
     public void processStatement(Statement statement) {

@@ -1,7 +1,7 @@
 package org.semagrow.sevod.scraper.cql;
 
+import org.eclipse.rdf4j.rio.RDFHandlerException;
 import org.semagrow.sevod.scraper.cql.utils.CassandraClient;
-import org.openrdf.rio.RDFHandlerException;
 
 import java.io.*;
 

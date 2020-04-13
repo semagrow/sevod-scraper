@@ -1,10 +1,10 @@
 package org.semagrow.sevod.scraper.rdf.dump;
 
-import org.openrdf.rio.RDFFormat;
-import org.openrdf.rio.RDFParser;
-import org.openrdf.rio.RDFWriter;
-import org.openrdf.rio.Rio;
-import org.openrdf.rio.helpers.BasicParserSettings;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.RDFParser;
+import org.eclipse.rdf4j.rio.RDFWriter;
+import org.eclipse.rdf4j.rio.Rio;
+import org.eclipse.rdf4j.rio.helpers.BasicParserSettings;
 import org.semagrow.sevod.util.CompactBNodeTurtleWriter;
 
 import java.io.*;
@@ -38,10 +38,6 @@ public class RdfDumpScraper {
         if (!infile.isFile()) {
             throw new RuntimeException("not a normal file: " + infile);
         }
-        RDFFormat format = Rio.getParserFormatForFileName(args[0]);
-        if (format == null) {
-            throw new RuntimeException("can not identify RDF format for: " + args[0]);
-        }
         String endpoint = args[1];
 
         if (args[2].startsWith("-")) {
@@ -69,7 +65,7 @@ public class RdfDumpScraper {
 
             MetadataGenerator generator = new MetadataGenerator(endpoint);
 
-            generator.setFormat(format);
+            generator.setFormat(RDFFormat.NTRIPLES);
 
             if (whatToGenerate.contains("s"))
                 generator.generateSubjects();
@@ -115,7 +111,8 @@ public class RdfDumpScraper {
 
             RdfDumpMetadataExtractor extractor = new RdfDumpMetadataExtractor(endpoint, knownPrefixes, writer);
 
-            RDFParser parser = Rio.createParser(format);
+            RDFParser parser = Rio.createParser(RDFFormat.NTRIPLES);
+            parser.getParserConfig().set(BasicParserSettings.VERIFY_URI_SYNTAX, false);
             parser.getParserConfig().set(BasicParserSettings.VERIFY_DATATYPE_VALUES, false);
             parser.setRDFHandler(extractor);
             parser.parse(new FileInputStream(infile), "");

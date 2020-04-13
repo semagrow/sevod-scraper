@@ -1,12 +1,15 @@
 package org.semagrow.sevod.scraper.rdf.dump;
 
-import org.eclipse.rdf4j.model.vocabulary.FOAF;
-import org.openrdf.model.*;
-import org.openrdf.model.impl.ValueFactoryImpl;
-import org.openrdf.model.vocabulary.*;
-import org.openrdf.rio.RDFHandlerException;
-import org.openrdf.rio.RDFWriter;
-import org.openrdf.rio.helpers.RDFHandlerBase;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.eclipse.rdf4j.model.vocabulary.RDF;
+import org.eclipse.rdf4j.model.vocabulary.XMLSchema;
+import org.eclipse.rdf4j.rio.RDFHandlerException;
+import org.eclipse.rdf4j.rio.RDFWriter;
+import org.eclipse.rdf4j.rio.helpers.RDFHandlerBase;
 import org.semagrow.sevod.commons.vocabulary.SEVOD;
 import org.semagrow.sevod.commons.vocabulary.VOID;
 import org.semagrow.sevod.scraper.rdf.dump.metadata.*;
@@ -25,11 +28,11 @@ public class RdfDumpMetadataExtractor extends RDFHandlerBase {
     private Set<String> knownPrefixes;
     protected RDFWriter writer;
 
-    private Map<URI,Metadata> predicates;
-    private Map<URI,Metadata> classes;
+    private Map<IRI,Metadata> predicates;
+    private Map<IRI,Metadata> classes;
     private Metadata datasetMetadata;
 
-    private ValueFactory vf = ValueFactoryImpl.getInstance();
+    private ValueFactory vf = SimpleValueFactory.getInstance();
 
     protected Resource dataset = vf.createBNode();
 
@@ -57,7 +60,7 @@ public class RdfDumpMetadataExtractor extends RDFHandlerBase {
     @Override
     public void handleStatement(Statement st) {
 
-        URI p = st.getPredicate();
+        IRI p = st.getPredicate();
 
         if (!predicates.containsKey(p)) {
             predicates.put(p, new PredicateMetadata(p, knownPrefixes));
@@ -65,7 +68,7 @@ public class RdfDumpMetadataExtractor extends RDFHandlerBase {
         predicates.get(p).processStatement(st);
 
         if (p.equals(RDF.TYPE)) {
-            URI c = (URI) st.getObject();
+            IRI c = (IRI) st.getObject();
             if (!classes.containsKey(c)) {
                 classes.put(c, new ClassMetadata(c, knownPrefixes));
             }
@@ -82,11 +85,11 @@ public class RdfDumpMetadataExtractor extends RDFHandlerBase {
 
         writer.handleStatement(vf.createStatement(dataset, RDF.TYPE, VOID.DATASET));
 
-        for (URI p: predicates.keySet()) {
+        for (IRI p: predicates.keySet()) {
             predicates.get(p).serializeMetadata(dataset, writer);
         }
 
-        for (URI c: classes.keySet()) {
+        for (IRI c: classes.keySet()) {
             classes.get(c).serializeMetadata(dataset, writer);
         }
 

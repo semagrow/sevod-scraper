@@ -2,11 +2,11 @@ package org.semagrow.sevod.scraper.geordf.dump;
 
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.io.ParseException;
-import org.openrdf.model.Literal;
-import org.openrdf.model.impl.ValueFactoryImpl;
-import org.openrdf.rio.*;
-import org.openrdf.rio.helpers.BasicParserSettings;
-import org.openrdf.rio.ntriples.NTriplesUtil;
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.model.impl.ValueFactoryImpl;
+import org.eclipse.rdf4j.rio.*;
+import org.eclipse.rdf4j.rio.helpers.BasicParserSettings;
+import org.eclipse.rdf4j.rio.ntriples.NTriplesUtil;
 import org.semagrow.sevod.scraper.geordf.dump.helpers.WktHelpers;
 import org.semagrow.sevod.scraper.rdf.dump.RdfDumpMetadataExtractor;
 import org.semagrow.sevod.util.CompactBNodeTurtleWriter;
@@ -43,9 +43,10 @@ public class GeoRdfDumpScraper {
 
         RdfDumpMetadataExtractor extractor = new GeoRdfDumpMetadataExtractor(endpoint, knownPrefixes, knownBoundingPolygon, writer);
 
-        RDFFormat format = Rio.getParserFormatForFileName(inputPath);
+        RDFFormat format = RDFFormat.NTRIPLES;
         RDFParser parser = Rio.createParser(format);
         parser.getParserConfig().set(BasicParserSettings.VERIFY_DATATYPE_VALUES, false);
+        parser.getParserConfig().set(BasicParserSettings.VERIFY_URI_SYNTAX, false);
         parser.setRDFHandler(extractor);
         parser.parse(new FileInputStream(inputPath), "");
 

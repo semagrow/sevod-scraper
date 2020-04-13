@@ -1,30 +1,29 @@
 package org.semagrow.sevod.scraper.cql.utils;
 
 import com.datastax.driver.core.DataType;
-import org.openrdf.model.vocabulary.XMLSchema;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.eclipse.rdf4j.model.vocabulary.XMLSchema;
 import org.semagrow.sevod.scraper.cql.vocab.CDT;
-import org.openrdf.model.URI;
-import org.openrdf.model.ValueFactory;
-import org.openrdf.model.impl.ValueFactoryImpl;
-
 /**
  * Created by antonis on 8/4/2016.
  */
 public class RdfMapper {
 
-    private static final ValueFactory vf = ValueFactoryImpl.getInstance();
+    private static final ValueFactory vf = SimpleValueFactory.getInstance();
 
-    public static URI getUriFromTable(String base, String table) {
+    public static IRI getUriFromTable(String base, String table) {
         String uriString = base + "/" + table;
-        return vf.createURI(uriString);
+        return vf.createIRI(uriString);
     }
 
-    public static URI getUriFromColumn(String base, String table, String column) {
+    public static IRI getUriFromColumn(String base, String table, String column) {
         String uriString = base + "/" + table + "#" + column;
-        return vf.createURI(uriString);
+        return vf.createIRI(uriString);
     }
 
-    public static URI getXsdFromColumnDatatype(DataType dataType) {
+    public static IRI getXsdFromColumnDatatype(DataType dataType) {
         if (dataType.equals(DataType.ascii()) || dataType.equals(DataType.varchar()) || dataType.equals(DataType.text()) || dataType.equals(DataType.inet())) {
             return XMLSchema.STRING;
         }

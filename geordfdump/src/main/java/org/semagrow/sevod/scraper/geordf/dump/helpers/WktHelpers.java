@@ -4,10 +4,10 @@ import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
 import org.locationtech.jts.io.WKTWriter;
-import org.openrdf.model.Literal;
-import org.openrdf.model.URI;
-import org.openrdf.model.ValueFactory;
-import org.openrdf.model.impl.ValueFactoryImpl;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.impl.ValueFactoryImpl;
 import org.semagrow.sevod.scraper.geordf.dump.vocabulary.GEO;
 
 public final class WktHelpers {
@@ -23,21 +23,21 @@ public final class WktHelpers {
         vf = ValueFactoryImpl.getInstance();
     }
 
-    public static final URI getCRS(Literal l) {
+    public static final IRI getCRS(Literal l) {
         assert l.getDatatype().equals(GEO.WKT_LITERAL);
 
         String str = l.stringValue();
 
         if (str.startsWith("<")) {
             int n = str.indexOf(">");
-            return vf.createURI(str.substring(1,n));
+            return vf.createIRI(str.substring(1,n));
         }
         else {
-            return vf.createURI(GEO.DEFAULT_SRID);
+            return vf.createIRI(GEO.DEFAULT_SRID);
         }
     }
 
-    public static final Geometry createGeometry(Literal l, URI crs) throws ParseException {
+    public static final Geometry createGeometry(Literal l, IRI crs) throws ParseException {
         assert l.getDatatype().equals(GEO.WKT_LITERAL);
         String str = l.stringValue();
 
@@ -56,7 +56,7 @@ public final class WktHelpers {
     }
 
 
-    public static final Literal createWKTLiteral(Geometry geometry, URI crs) {
+    public static final Literal createWKTLiteral(Geometry geometry, IRI crs) {
 
         String wktStr = wktWriter.write(geometry);
         String crsStr = crs.equals(GEO.DEFAULT_SRID) ? "" : "<" + crs.toString() + "> ";

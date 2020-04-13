@@ -1,6 +1,6 @@
 package org.semagrow.sevod.scraper.rdf.dump.prefix;
 
-import org.openrdf.model.URI;
+import org.eclipse.rdf4j.model.IRI;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -19,7 +19,7 @@ public class SimplePrefixSet implements PrefixSet {
     }
 
     @Override
-    public void handle(URI uri) {
+    public void handle(IRI uri) {
         boolean found = false;
 
         for (String prefix: knownPrefixes) {
@@ -45,7 +45,7 @@ public class SimplePrefixSet implements PrefixSet {
         }
     }
 
-    static private String getAuthority(URI uri) {
+    static private String getAuthority(IRI uri) {
         // regex source: https://tools.ietf.org/html/rfc3986#appendix-B
         String regex = "^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\\?([^#]*))?(#(.*))?";
 

@@ -1,10 +1,10 @@
 package org.semagrow.sevod.scraper.geordf.dump;
 
 import org.locationtech.jts.geom.Geometry;
-import org.openrdf.model.Statement;
-import org.openrdf.model.vocabulary.RDFS;
-import org.openrdf.rio.RDFHandlerException;
-import org.openrdf.rio.RDFWriter;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.vocabulary.RDFS;
+import org.eclipse.rdf4j.rio.RDFHandlerException;
+import org.eclipse.rdf4j.rio.RDFWriter;
 import org.semagrow.sevod.scraper.geordf.dump.metadata.BoundingBoxMetadata;
 import org.semagrow.sevod.scraper.geordf.dump.metadata.KnownBoundingPolygonMetadata;
 import org.semagrow.sevod.scraper.geordf.dump.vocabulary.GEO;

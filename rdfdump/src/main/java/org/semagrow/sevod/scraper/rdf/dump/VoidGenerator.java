@@ -1,11 +1,11 @@
 package org.semagrow.sevod.scraper.rdf.dump;
 
-import org.openrdf.model.*;
-import org.openrdf.model.impl.ValueFactoryImpl;
-import org.openrdf.model.vocabulary.RDF;
-import org.openrdf.rio.RDFHandlerException;
-import org.openrdf.rio.RDFWriter;
-import org.openrdf.rio.helpers.RDFHandlerBase;
+import org.eclipse.rdf4j.model.*;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.eclipse.rdf4j.model.vocabulary.RDF;
+import org.eclipse.rdf4j.rio.RDFHandlerException;
+import org.eclipse.rdf4j.rio.RDFWriter;
+import org.eclipse.rdf4j.rio.helpers.RDFHandlerBase;
 import org.semagrow.sevod.commons.vocabulary.SEVOD;
 import org.semagrow.sevod.commons.vocabulary.VOID;
 import org.semagrow.sevod.scraper.rdf.dump.util.FileDistinctCounter;
@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+
 
 /**
  * Created by antru on 21/4/2015.
@@ -22,8 +23,8 @@ public class VoidGenerator extends RDFHandlerBase {
 
     final private Logger log = LoggerFactory.getLogger(VoidGenerator.class);
 
-    private final Map<URI, Integer> typeCountMap = new HashMap<URI, Integer>();
-    private final Set<URI> predicates = new HashSet<URI>();
+    private final Map<IRI, Integer> typeCountMap = new HashMap<IRI, Integer>();
+    private final Set<IRI> predicates = new HashSet<IRI>();
 
     private FileDistinctCounter distSubject;
     private FileDistinctCounter distObject;
@@ -31,18 +32,18 @@ public class VoidGenerator extends RDFHandlerBase {
     private final FileDistinctCounter distSubjectTotal = new FileDistinctCounter(null);
     private final FileDistinctCounter distObjectTotal = new FileDistinctCounter(null);
 
-    private Map<URI, Resource> propertyPartitionMap = new HashMap<>();
+    private Map<IRI, Resource> propertyPartitionMap = new HashMap<>();
 
     private String endpoint;
 
-    private URI lastPredicate = null, curPredicate = null;
+    private IRI lastPredicate = null, curPredicate = null;
     private long predCount;
     private long tripleCount;
     private long entityCount;
 
     private boolean genVocab = false;
 
-    private ValueFactory vf = ValueFactoryImpl.getInstance();
+    private ValueFactory vf = SimpleValueFactory.getInstance();
 
     private Resource dataset;
     private final RDFWriter writer;
@@ -56,11 +57,11 @@ public class VoidGenerator extends RDFHandlerBase {
 
     // ------------------------------------------------------------------------
 
-    public Map<URI, Resource> getPropertiesMap() {
+    public Map<IRI, Resource> getPropertiesMap() {
         return this.propertyPartitionMap;
     }
 
-    private void countType(URI type) {
+    private void countType(IRI type) {
         Integer count = typeCountMap.get(type);
         if (count == null) {
             typeCountMap.put(type, 1);
@@ -76,13 +77,13 @@ public class VoidGenerator extends RDFHandlerBase {
      */
     private void storeStatement(Statement st) {
 
-        URI predicate = st.getPredicate();
+        IRI predicate = st.getPredicate();
         predCount++;
 
         // check for type statement
         if (RDF.TYPE.equals(predicate)) {
 
-            countType((URI) st.getObject());
+            countType((IRI) st.getObject());
             entityCount++;
         }
 
@@ -118,7 +119,7 @@ public class VoidGenerator extends RDFHandlerBase {
         predCount = 0;
     }
 
-    private void writePredicateStatToVoid(URI predicate, long pCount, int distS, int distO) {
+    private void writePredicateStatToVoid(IRI predicate, long pCount, int distS, int distO) {
         log.debug("Writing VoID statistics of predicate " + predicate.toString());
         BNode propPartition = vf.createBNode();
         Literal count = vf.createLiteral(pCount);
@@ -139,12 +140,12 @@ public class VoidGenerator extends RDFHandlerBase {
         }
     }
 
-    private void writeSummaries(BNode propPartition, URI predicate) {
+    private void writeSummaries(BNode propPartition, IRI predicate) {
         log.debug("Writing SEVOD vocabularies of predicate " + predicate.toString());
         for (String voc : distSubject.getAuthorities()) {
             try {
                 if (!voc.isEmpty()) {
-                    writer.handleStatement(vf.createStatement(propPartition, SEVOD.SUBJECTVOCABULARY, vf.createURI(voc)));
+                    writer.handleStatement(vf.createStatement(propPartition, SEVOD.SUBJECTVOCABULARY, vf.createIRI(voc)));
                 }
             } catch (RDFHandlerException e) {
                 e.printStackTrace();
@@ -153,7 +154,7 @@ public class VoidGenerator extends RDFHandlerBase {
         for (String voc : distObject.getAuthorities()) {
             try {
                 if (!voc.isEmpty()) {
-                    writer.handleStatement(vf.createStatement(propPartition, SEVOD.OBJECTVOCABULARY, vf.createURI(voc)));
+                    writer.handleStatement(vf.createStatement(propPartition, SEVOD.OBJECTVOCABULARY, vf.createIRI(voc)));
                 }
             } catch (RDFHandlerException e) {
                 e.printStackTrace();
@@ -177,7 +178,7 @@ public class VoidGenerator extends RDFHandlerBase {
     private void writeGeneralStats() {
         log.debug("Writing general VoID statistics");
         try {
-            writer.handleStatement(vf.createStatement(dataset, VOID.SPARQLENDPOINT, vf.createURI(endpoint)));
+            writer.handleStatement(vf.createStatement(dataset, VOID.SPARQLENDPOINT, vf.createIRI(endpoint)));
             writer.handleStatement(vf.createStatement(dataset, VOID.TRIPLES, vf.createLiteral(tripleCount)));
             writer.handleStatement(vf.createStatement(dataset, VOID.PROPERTIES, vf.createLiteral(predicates.size())));
             writer.handleStatement(vf.createStatement(dataset, VOID.CLASSES, vf.createLiteral(typeCountMap.size())));
@@ -236,9 +237,9 @@ public class VoidGenerator extends RDFHandlerBase {
         distSubject.close();
 
         // write type statistics
-        List<URI> types = new ArrayList<URI>(typeCountMap.keySet());
+        List<IRI> types = new ArrayList<IRI>(typeCountMap.keySet());
         Collections.sort(types, VAL_COMP);
-        for (URI uri : types) {
+        for (IRI uri : types) {
             writeTypeStatToVoid(uri, typeCountMap.get(uri));
         }
 

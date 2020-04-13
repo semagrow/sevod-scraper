@@ -1,7 +1,7 @@
 package org.semagrow.sevod.scraper.sparql;
 
-import org.openrdf.rio.RDFHandlerException;
-import org.openrdf.rio.RDFWriter;
+import org.eclipse.rdf4j.rio.RDFHandlerException;
+import org.eclipse.rdf4j.rio.RDFWriter;
 import org.semagrow.sevod.util.CompactBNodeTurtleWriter;
 
 import java.io.BufferedReader;

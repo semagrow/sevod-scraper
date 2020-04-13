@@ -1,12 +1,12 @@
 package org.semagrow.sevod.scraper.sparql;
 
-import org.openrdf.model.*;
-import org.openrdf.model.impl.ValueFactoryImpl;
-import org.openrdf.model.vocabulary.RDF;
-import org.openrdf.model.vocabulary.XMLSchema;
-import org.openrdf.query.BindingSet;
-import org.openrdf.rio.RDFHandlerException;
-import org.openrdf.rio.RDFWriter;
+import org.eclipse.rdf4j.model.*;
+import org.eclipse.rdf4j.model.impl.ValueFactoryImpl;
+import org.eclipse.rdf4j.model.vocabulary.RDF;
+import org.eclipse.rdf4j.model.vocabulary.XMLSchema;
+import org.eclipse.rdf4j.query.BindingSet;
+import org.eclipse.rdf4j.rio.RDFHandlerException;
+import org.eclipse.rdf4j.rio.RDFWriter;
 import org.semagrow.sevod.commons.vocabulary.SEVOD;
 import org.semagrow.sevod.commons.vocabulary.VOID;
 
@@ -41,7 +41,7 @@ public class SparqlMetadataExtractor {
         for (BindingSet bindings: resultQuery(Queries.predicates)) {
 
             BNode prop = vf.createBNode();
-            URI predicate = getPredicate(bindings);
+            IRI predicate = getPredicate(bindings);
 
             writer.handleStatement(vf.createStatement(dataset, VOID.PROPERTYPARTITION, prop));
             writer.handleStatement(vf.createStatement(prop, VOID.PROPERTY, predicate));
@@ -68,7 +68,7 @@ public class SparqlMetadataExtractor {
         for (BindingSet bindings: resultQuery(Queries.classes)) {
 
             BNode clzp = vf.createBNode();
-            URI clazz = getClass(bindings);
+            IRI clazz = getClass(bindings);
 
             writer.handleStatement(vf.createStatement(dataset, VOID.CLASSPARTITION, clzp));
             writer.handleStatement(vf.createStatement(clzp, VOID.CLASS, clazz));
@@ -81,7 +81,7 @@ public class SparqlMetadataExtractor {
             }
         }
 
-        writer.handleStatement(vf.createStatement(dataset, VOID.SPARQLENDPOINT, vf.createURI(endpoint)));
+        writer.handleStatement(vf.createStatement(dataset, VOID.SPARQLENDPOINT, vf.createIRI(endpoint)));
         writer.handleStatement(vf.createStatement(dataset, VOID.TRIPLES, countQuery(Queries.triples_count)));
         writer.handleStatement(vf.createStatement(dataset, VOID.PROPERTIES, countQuery(Queries.predicates_count)));
         writer.handleStatement(vf.createStatement(dataset, VOID.CLASSES, countQuery(Queries.classes_count)));
@@ -105,12 +105,12 @@ public class SparqlMetadataExtractor {
         return eval.run(setGraph(query)).isEmpty();
     }
 
-    private URI getPredicate(BindingSet bindings) {
-        return (URI) bindings.getBinding(Queries.predicate_var.substring(1)).getValue();
+    private IRI getPredicate(BindingSet bindings) {
+        return (IRI) bindings.getBinding(Queries.predicate_var.substring(1)).getValue();
     }
 
-    private URI getClass(BindingSet bindings) {
-        return (URI) bindings.getBinding(Queries.class_var.substring(1)).getValue();
+    private IRI getClass(BindingSet bindings) {
+        return (IRI) bindings.getBinding(Queries.class_var.substring(1)).getValue();
     }
 
     private String setGraph(String qstr) {
@@ -122,12 +122,12 @@ public class SparqlMetadataExtractor {
         }
     }
 
-    private String setPredicate(String qstr, URI predicate) {
+    private String setPredicate(String qstr, IRI predicate) {
         String rturn = qstr.replace(Queries.predicate_var, "<"+predicate.stringValue()+">");
         return  rturn;
     }
 
-    private String setClass(String qstr, URI clazz) {
+    private String setClass(String qstr, IRI clazz) {
         return qstr.replace(Queries.class_var, "<" + clazz.stringValue() + ">");
     }
 

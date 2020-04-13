@@ -1,7 +1,5 @@
 package org.semagrow.sevod.scraper.sparql;
 
-import org.openrdf.model.vocabulary.RDF;
-
 /**
  * Created by antonis on 29/7/2016.
  */

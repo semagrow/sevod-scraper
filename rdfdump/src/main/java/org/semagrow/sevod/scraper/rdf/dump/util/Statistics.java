@@ -1,8 +1,8 @@
 package org.semagrow.sevod.scraper.rdf.dump.util;
 
-import org.openrdf.model.Resource;
-import org.openrdf.model.URI;
-import org.openrdf.model.Value;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Value;
 
 /**
  * Created by antonis on 14/5/2015.
@@ -18,7 +18,7 @@ public class Statistics {
         distSubj.add(s);
     }
 
-    public void addProperty(URI p) {
+    public void addProperty(IRI p) {
         prop.add(p);
     }
 

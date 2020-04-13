@@ -1,10 +1,10 @@
 package org.semagrow.sevod.scraper.rdf.dump.metadata;
 
-import org.openrdf.model.*;
-import org.openrdf.model.impl.ValueFactoryImpl;
-import org.openrdf.model.vocabulary.XMLSchema;
-import org.openrdf.rio.RDFHandlerException;
-import org.openrdf.rio.RDFWriter;
+import org.eclipse.rdf4j.model.*;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.eclipse.rdf4j.model.vocabulary.XMLSchema;
+import org.eclipse.rdf4j.rio.RDFHandlerException;
+import org.eclipse.rdf4j.rio.RDFWriter;
 import org.semagrow.sevod.commons.vocabulary.SEVOD;
 import org.semagrow.sevod.commons.vocabulary.VOID;
 import org.semagrow.sevod.scraper.rdf.dump.prefix.PrefixSet;
@@ -16,9 +16,9 @@ import java.util.Set;
 
 public class PredicateMetadata implements Metadata {
 
-    private ValueFactory vf = ValueFactoryImpl.getInstance();
+    private ValueFactory vf = SimpleValueFactory.getInstance();
 
-    private URI predicate;
+    private IRI predicate;
 
     private int triples = 0;
     private DistinctCounter subjCount = new MapDBDistinctCounter();
@@ -27,7 +27,7 @@ public class PredicateMetadata implements Metadata {
     private PrefixSet subjPrefix;
     private PrefixSet objPrefix;
 
-    public PredicateMetadata(URI predicate, Set<String> knownPrefixes) {
+    public PredicateMetadata(IRI predicate, Set<String> knownPrefixes) {
         this.predicate = predicate;
         subjPrefix = new SimplePrefixSet(knownPrefixes);
         objPrefix = new SimplePrefixSet(knownPrefixes);
@@ -43,11 +43,11 @@ public class PredicateMetadata implements Metadata {
         subjCount.add(s);
         objCount.add(o);
 
-        if (s instanceof URI) {
-            subjPrefix.handle((URI) s);
+        if (s instanceof IRI) {
+            subjPrefix.handle((IRI) s);
         }
-        if (o instanceof URI) {
-            objPrefix.handle((URI) o);
+        if (o instanceof IRI) {
+            objPrefix.handle((IRI) o);
         }
 
         triples++;

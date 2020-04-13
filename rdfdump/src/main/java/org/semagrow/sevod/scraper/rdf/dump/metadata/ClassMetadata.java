@@ -1,11 +1,11 @@
 package org.semagrow.sevod.scraper.rdf.dump.metadata;
 
-import org.openrdf.model.*;
-import org.openrdf.model.impl.ValueFactoryImpl;
-import org.openrdf.model.vocabulary.RDF;
-import org.openrdf.model.vocabulary.XMLSchema;
-import org.openrdf.rio.RDFHandlerException;
-import org.openrdf.rio.RDFWriter;
+import org.eclipse.rdf4j.model.*;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.eclipse.rdf4j.model.vocabulary.RDF;
+import org.eclipse.rdf4j.model.vocabulary.XMLSchema;
+import org.eclipse.rdf4j.rio.RDFHandlerException;
+import org.eclipse.rdf4j.rio.RDFWriter;
 import org.semagrow.sevod.commons.vocabulary.SEVOD;
 import org.semagrow.sevod.commons.vocabulary.VOID;
 import org.semagrow.sevod.scraper.rdf.dump.prefix.PrefixSet;
@@ -17,14 +17,14 @@ import java.util.Set;
 
 public class ClassMetadata implements Metadata {
 
-    private ValueFactory vf = ValueFactoryImpl.getInstance();
+    private ValueFactory vf = SimpleValueFactory.getInstance();
 
-    private URI clazz;
+    private IRI clazz;
 
     private DistinctCounter entityCount = new MapDBDistinctCounter();
     private PrefixSet entityPrefix;
 
-    public ClassMetadata(URI clazz, Set<String> knownPrefixes) {
+    public ClassMetadata(IRI clazz, Set<String> knownPrefixes) {
         this.clazz = clazz;
         entityPrefix = new SimplePrefixSet(knownPrefixes);
     }
@@ -38,8 +38,8 @@ public class ClassMetadata implements Metadata {
 
         entityCount.add(s);
 
-        if (s instanceof URI) {
-            entityPrefix.handle((URI) s);
+        if (s instanceof IRI) {
+            entityPrefix.handle((IRI) s);
         }
     }
 
