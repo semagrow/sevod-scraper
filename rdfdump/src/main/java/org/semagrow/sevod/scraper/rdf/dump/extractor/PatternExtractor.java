@@ -1,4 +1,4 @@
-package org.semagrow.sevod.scraper.rdf.dump.api;
+package org.semagrow.sevod.scraper.rdf.dump.extractor;
 
 import java.util.Set;
 

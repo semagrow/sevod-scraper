@@ -1,4 +1,4 @@
-package org.semagrow.sevod.scraper.rdf.dump.writer;
+package org.semagrow.sevod.scraper.rdf.dump.legacy.writer;
 
 import org.eclipse.rdf4j.model.*;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
@@ -11,25 +11,24 @@ import org.semagrow.sevod.scraper.rdf.dump.util.MyStringUtils;
 import org.semagrow.sevod.scraper.rdf.dump.util.Statistics;
 import org.apache.log4j.Logger;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
- * Created by antonis on 15/5/2015.
+ * Created by antonis on 14/5/2015.
  */
-public class ObjectWriter extends RDFHandlerBase {
+@Deprecated
+public class SubjectWriter extends RDFHandlerBase {
 
-    final private Logger log = Logger.getLogger(ObjectWriter.class);
+    final private Logger log = Logger.getLogger(SubjectWriter.class);
 
     ValueFactory vf = SimpleValueFactory.getInstance();
 
-    Map<String, Statistics> objectStats = new HashMap<>();
+    Map<String, Statistics> subjectStats = new HashMap<>();
 
-    public ObjectWriter(List<String> patterns) {
+    public SubjectWriter(List<String> patterns) {
         for (String p : patterns) {
             Statistics stats = new Statistics();
-            objectStats.put(p, stats);
+            subjectStats.put(p, stats);
         }
     }
 
@@ -41,13 +40,13 @@ public class ObjectWriter extends RDFHandlerBase {
     @Override
     public void handleStatement(Statement st) throws RDFHandlerException {
         log.debug("Handling statement " + st.toString());
-        if (st.getObject() instanceof IRI) {
-            String str = ((IRI) st.getObject()).toString();
-            for (String prefix: objectStats.keySet()) {
+        if (st.getSubject() instanceof IRI) {
+            String str = ((IRI) st.getSubject()).toString();
+            for (String prefix: subjectStats.keySet()) {
                 if (str.startsWith(prefix)) {
-                    Statistics stats = objectStats.get(prefix);
+                    Statistics stats = subjectStats.get(prefix);
                     stats.addCount();
-                    stats.addSubject(st.getSubject());
+                    stats.addObject(st.getObject());
                     stats.addProperty(st.getPredicate());
                 }
             }
@@ -60,22 +59,22 @@ public class ObjectWriter extends RDFHandlerBase {
     }
 
     public void writeSevodStats(RDFWriter writer, Resource dataset) {
-        for (String pattern : objectStats.keySet()) {
+        for (String pattern : subjectStats.keySet()) {
 
-            log.debug("Writing SEVOD statistics of object pattern " + pattern);
+            log.debug("Writing SEVOD statistics of subject pattern " + pattern);
 
             BNode propPartition = vf.createBNode();
-            Literal tripleCount = vf.createLiteral(objectStats.get(pattern).getCount());
-            Literal nDistSubjects = vf.createLiteral(objectStats.get(pattern).getDistinctSubjects());
-            Literal nProperties = vf.createLiteral(objectStats.get(pattern).getProperties());
+            Literal tripleCount = vf.createLiteral(subjectStats.get(pattern).getCount());
+            Literal nDistObjects = vf.createLiteral(subjectStats.get(pattern).getDistinctObjects());
+            Literal nProperties = vf.createLiteral(subjectStats.get(pattern).getProperties());
 
             String patternEsc = MyStringUtils.forRegex(pattern);
 
             try {
                 writer.handleStatement(vf.createStatement(dataset, VOID.SUBSET, propPartition));
-                writer.handleStatement(vf.createStatement(propPartition, SEVOD.OBJECTREGEXPATTERN, vf.createLiteral(patternEsc)));
-                writer.handleStatement(vf.createStatement(propPartition, VOID.TRIPLES, tripleCount));
-                writer.handleStatement(vf.createStatement(propPartition, VOID.DISTINCTSUBJECTS, nDistSubjects));
+                writer.handleStatement(vf.createStatement(propPartition, SEVOD.SUBJECTREGEXPATTERN, vf.createLiteral(patternEsc)));
+                writer.handleStatement(vf.createStatement(propPartition, VOID.PROPERTIES, tripleCount));
+                writer.handleStatement(vf.createStatement(propPartition, VOID.DISTINCTOBJECTS, nDistObjects));
                 writer.handleStatement(vf.createStatement(propPartition, VOID.PROPERTIES, nProperties));
 
             } catch (RDFHandlerException e) {
@@ -84,4 +83,3 @@ public class ObjectWriter extends RDFHandlerBase {
         }
     }
 }
-

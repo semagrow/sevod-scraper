@@ -1,4 +1,4 @@
-package org.semagrow.sevod.scraper.rdf.dump;
+package org.semagrow.sevod.scraper.rdf.dump.legacy;
 
 import org.eclipse.rdf4j.model.*;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
@@ -18,7 +18,7 @@ import java.util.*;
 /**
  * Created by antru on 21/4/2015.
  */
-
+@Deprecated
 public class VoidGenerator extends RDFHandlerBase {
 
     final private Logger log = LoggerFactory.getLogger(VoidGenerator.class);

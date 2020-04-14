@@ -1,7 +1,5 @@
 package org.semagrow.sevod.scraper.rdf.dump.extractor;
 
-import org.semagrow.sevod.scraper.rdf.dump.api.PatternExtractor;
-
 import java.util.Set;
 
 /**

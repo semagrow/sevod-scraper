@@ -10,20 +10,22 @@ import java.io.*;
  */
 public class CassandraScraper {
 
-    public static void main(String [] args) throws RDFHandlerException, IOException {
+    private String base = "http://iit.demokritos.gr/cassandra";
 
-        if (args.length != 5) {
-            String className = CassandraScraper.class.getName();
-            throw new IllegalArgumentException("Usage: " + className + " [address] [port] [keyspace] [base] [sevod output file]");
-        }
+    public void setBase(String base) {
+        this.base = base;
+    }
 
-        String address = args[0];
-        int port = Integer.valueOf(args[1]);
-        String keyspace = args[2];
-        String base = args[3];
-        String sevodPath = args[4];
+    public void scrape(String input, String output) throws RDFHandlerException, IOException {
 
-        File sevodFile = new File(sevodPath);
+        int i = input.indexOf(':');
+        int j = input.indexOf('/');
+
+        String address = input.substring(0,i);
+        int port = Integer.valueOf(input.substring(i+1,j));
+        String keyspace = input.substring(j+1);
+
+        File sevodFile = new File(output);
         PrintStream stream = new PrintStream(sevodFile);
 
         if (!sevodFile.exists()) {
@@ -58,10 +60,6 @@ public class CassandraScraper {
         sevodWriter.writeMetadata(stream);
 
         client.close();
-
-
-
-
     }
 
 

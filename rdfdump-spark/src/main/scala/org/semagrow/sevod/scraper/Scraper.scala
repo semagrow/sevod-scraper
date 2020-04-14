@@ -19,22 +19,22 @@ object Scraper {
   val objectTrieParameterDefault = "150"
 
   val usage = "USAGE:" +
-    "\n\t scala " + Scraper.getClass + " [input] [endpoint_url] [-s|p|o|v] [output]" +
-    "\n\t scala " + Scraper.getClass + " [input] [endpoint_url] [-s|p|o|v] [subjectBound] [objectBound] [output]"
+    "\n\t scala " + Scraper.getClass + " [input] [endpoint_url] [output]" +
+    "\n\t scala " + Scraper.getClass + " [input] [endpoint_url] [subjectBound] [objectBound] [output]"
 
   def main(args : Array[String]) {
 
-    if (args.length != 6 && args.length != 4) {
+    if (args.length != 5 && args.length != 3) {
       throw new IllegalArgumentException(usage)
     }
     else {
 
       val path = args(0)
       val endpoint = args(1)
-      val flags = args(2)
+      val flags = "-spov"
 
-      val subjectTrieParameter = if (args.length == 4) subjectTrieParameterDefault else args(3)
-      val objectTrieParameter =  if (args.length == 4) objectTrieParameterDefault  else args(4)
+      val subjectTrieParameter = if (args.length == 3) subjectTrieParameterDefault else args(2)
+      val objectTrieParameter =  if (args.length == 3) objectTrieParameterDefault  else args(3)
 
       val output = args(args.length-1)
 

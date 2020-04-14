@@ -4,8 +4,6 @@ import org.eclipse.rdf4j.rio.RDFHandlerException;
 import org.eclipse.rdf4j.rio.RDFWriter;
 import org.semagrow.sevod.util.CompactBNodeTurtleWriter;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashSet;
@@ -16,34 +14,22 @@ import java.util.Set;
  */
 public class SparqlScraper {
 
-    public static void main(String[] args) throws IOException, RDFHandlerException {
-        String className = SparqlScraper.class.getName();
-        String usage = "USAGE:" +
-                "\n\t java " + className + " [endpoint_url] [base_graph] [known_prefixes] [output_file.n3]";
+    private String baseGraph = null;
+    private Set<String> knownPrefixes = new HashSet<>();
 
-        if (args.length < 2) {
-            throw new IllegalArgumentException(usage);
-        }
+    public void setBaseGraph(String baseGraph) {
+        this.baseGraph = baseGraph;
+    }
 
-        String endpoint = args[0];
-        String baseGraph = args[1].equals("all") ? null : args[1];
-        String prefixesPath = args[2];
-        String metadataPath = args[3];
+    public void setKnownPrefixes(Set<String> knownPrefixes) {
+        this.knownPrefixes = knownPrefixes;
+    }
 
-        BufferedReader bufferreader = new BufferedReader(new FileReader(prefixesPath));
-
-        String line;
-        Set<String> prefixes = new HashSet<>();
-
-        while ((line = bufferreader.readLine()) != null) {
-            prefixes.add(line);
-        }
-
-        bufferreader.close();
+    public void scrape(String endpoint, String metadataPath) throws IOException, RDFHandlerException {
 
         RDFWriter writer = new CompactBNodeTurtleWriter(new FileWriter(metadataPath));
 
-        SparqlMetadataExtractor extractor = new SparqlMetadataExtractor(endpoint, baseGraph, prefixes);
+        SparqlMetadataExtractor extractor = new SparqlMetadataExtractor(endpoint, baseGraph, knownPrefixes);
 
         writer.startRDF();
         extractor.writeMetadata(writer);

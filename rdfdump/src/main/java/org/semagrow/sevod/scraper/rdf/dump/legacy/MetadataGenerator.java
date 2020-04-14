@@ -1,4 +1,4 @@
-package org.semagrow.sevod.scraper.rdf.dump;
+package org.semagrow.sevod.scraper.rdf.dump.legacy;
 
 import org.eclipse.rdf4j.model.BNode;
 import org.eclipse.rdf4j.model.IRI;
@@ -12,10 +12,10 @@ import org.eclipse.rdf4j.rio.helpers.BasicParserSettings;
 import org.eclipse.rdf4j.rio.turtle.TurtleWriter;
 import org.semagrow.sevod.commons.vocabulary.SEVOD;
 import org.semagrow.sevod.commons.vocabulary.VOID;
-import org.semagrow.sevod.scraper.rdf.dump.handler.ObjectHandler;
-import org.semagrow.sevod.scraper.rdf.dump.handler.SubjectHandler;
-import org.semagrow.sevod.scraper.rdf.dump.writer.ObjectWriter;
-import org.semagrow.sevod.scraper.rdf.dump.writer.SubjectWriter;
+import org.semagrow.sevod.scraper.rdf.dump.legacy.handler.ObjectHandler;
+import org.semagrow.sevod.scraper.rdf.dump.legacy.handler.SubjectHandler;
+import org.semagrow.sevod.scraper.rdf.dump.legacy.writer.ObjectWriter;
+import org.semagrow.sevod.scraper.rdf.dump.legacy.writer.SubjectWriter;
 import org.semagrow.sevod.util.CompactBNodeTurtleWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +30,7 @@ import java.util.Map;
 /**
  * Created by antonis on 14/5/2015.
  */
+@Deprecated
 public class MetadataGenerator {
 
     final private Logger log = LoggerFactory.getLogger(MetadataGenerator.class);

@@ -1,4 +1,4 @@
-package org.semagrow.sevod.scraper.rdf.dump;
+package org.semagrow.sevod.scraper.rdf.dump.legacy;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.log4j.Logger;
@@ -25,6 +25,7 @@ import java.util.Map;
 /**
  * Created by antonis on 24/7/2017.
  */
+@Deprecated
 public class SelectivityGenerator {
 
     final private Logger log = Logger.getLogger(SelectivityGenerator.class);

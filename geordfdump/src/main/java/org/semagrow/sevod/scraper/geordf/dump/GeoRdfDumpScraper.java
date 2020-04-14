@@ -17,20 +17,19 @@ import java.util.Set;
 
 public class GeoRdfDumpScraper {
 
-    private String endpoint;
-    private Set<String> knownPrefixes;
+    private String endpoint = "http://endpoint";
+    private Set<String> knownPrefixes = new HashSet<>();
     private Geometry knownBoundingPolygon = null;
 
     public void setEndpoint(String endpoint) {
         this.endpoint = endpoint;
     }
 
-    public void setKnownPrefixes(String knownPrefixes) throws IOException {
-        this.knownPrefixes = fileToSetOfStrings(knownPrefixes);
+    public void setKnownPrefixes(Set<String> knownPrefixes) {
+        this.knownPrefixes = knownPrefixes;
     }
 
-    public void setKnownBoundingPolygon(String knownBoundingPolygonPath) throws IOException, ParseException {
-        String knownBoundingPolygon = fileToSetOfStrings(knownBoundingPolygonPath).iterator().next();
+    public void setKnownBoundingPolygon(String knownBoundingPolygon) throws ParseException {
         Literal l = NTriplesUtil.parseLiteral(knownBoundingPolygon, ValueFactoryImpl.getInstance());
         this.knownBoundingPolygon = WktHelpers.createGeometry(l, WktHelpers.getCRS(l));
     }
@@ -51,42 +50,5 @@ public class GeoRdfDumpScraper {
         parser.parse(new FileInputStream(inputPath), "");
 
         writer.endRDF();
-    }
-
-    private Set<String> fileToSetOfStrings(String path) throws IOException {
-
-        BufferedReader bufferedReader = new BufferedReader(new FileReader(path));
-        String line;
-        Set<String> set = new HashSet<>();
-
-        while ((line = bufferedReader.readLine()) != null) {
-            set.add(line);
-        }
-        bufferedReader.close();
-
-        return set;
-    }
-
-    public static void main(String[] args) throws IOException, RDFParseException, RDFHandlerException, ParseException {
-
-        if (args.length < 4) {
-            throw new IllegalArgumentException();
-        }
-
-        GeoRdfDumpScraper scraper = new GeoRdfDumpScraper();
-
-        if (args.length == 4) {
-            scraper.setEndpoint(args[1]);
-            scraper.setKnownPrefixes(args[2]);
-
-            scraper.scrape(args[0], args[3]);
-        }
-        else {
-            scraper.setEndpoint(args[1]);
-            scraper.setKnownPrefixes(args[2]);
-            scraper.setKnownBoundingPolygon(args[3]);
-
-            scraper.scrape(args[0], args[4]);
-        }
     }
 }
