@@ -76,7 +76,7 @@ a special annotation of the minimum bounding box of all WKT literals of the data
 If wou want to annotate it manually, you can issue the following command:
 
 ```
-./sevod-scraper.sh --rdfdump -i input.nt -P POLYGON_IN_WKT -e http://localhost:8080/sparql -o output.ttl
+./sevod-scraper.sh --geordfdump -i input.nt -P POLYGON_IN_WKT -e http://localhost:8080/sparql -o output.ttl
 ```
 
 The dump file should be in NTRIPLES format. Metadata are exported in TTL format.
