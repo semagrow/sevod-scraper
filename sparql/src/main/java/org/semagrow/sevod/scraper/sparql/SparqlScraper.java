@@ -2,6 +2,7 @@ package org.semagrow.sevod.scraper.sparql;
 
 import org.eclipse.rdf4j.rio.RDFHandlerException;
 import org.eclipse.rdf4j.rio.RDFWriter;
+import org.semagrow.sevod.scraper.api.Scraper;
 import org.semagrow.sevod.util.CompactBNodeTurtleWriter;
 
 import java.io.FileWriter;
@@ -12,7 +13,7 @@ import java.util.Set;
 /**
  * Created by antonis on 29/7/2016.
  */
-public class SparqlScraper {
+public class SparqlScraper implements Scraper {
 
     private String baseGraph = null;
     private Set<String> knownPrefixes = new HashSet<>();

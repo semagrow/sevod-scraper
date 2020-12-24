@@ -2,6 +2,7 @@ package org.semagrow.sevod.scraper.rdf.dump;
 
 import org.eclipse.rdf4j.rio.*;
 import org.eclipse.rdf4j.rio.helpers.BasicParserSettings;
+import org.semagrow.sevod.scraper.api.Scraper;
 import org.semagrow.sevod.util.CompactBNodeTurtleWriter;
 
 import java.io.FileInputStream;
@@ -10,7 +11,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
-public class RdfDumpScraper {
+public class RdfDumpScraper implements Scraper {
 
     private String endpoint = "http://endpoint";
     private Set<String> knownPrefixes = new HashSet<>();

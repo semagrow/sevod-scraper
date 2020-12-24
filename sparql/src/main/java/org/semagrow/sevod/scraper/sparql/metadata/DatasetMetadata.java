@@ -9,8 +9,6 @@ import org.semagrow.sevod.scraper.sparql.Queries;
 import org.semagrow.sevod.scraper.sparql.QueryEvaluator;
 import org.semagrow.sevod.scraper.sparql.QueryTransformer;
 
-import java.util.Set;
-
 public class DatasetMetadata implements Metadata {
 
     private ValueFactory vf = SimpleValueFactory.getInstance();

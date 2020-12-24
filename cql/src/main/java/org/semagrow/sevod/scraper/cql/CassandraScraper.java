@@ -1,6 +1,7 @@
 package org.semagrow.sevod.scraper.cql;
 
 import org.eclipse.rdf4j.rio.RDFHandlerException;
+import org.semagrow.sevod.scraper.api.Scraper;
 import org.semagrow.sevod.scraper.cql.utils.CassandraClient;
 
 import java.io.*;
@@ -8,7 +9,7 @@ import java.io.*;
 /**
  * Created by antonis on 6/4/2016.
  */
-public class CassandraScraper {
+public class CassandraScraper implements Scraper {
 
     private String base = "http://iit.demokritos.gr/cassandra";
 
@@ -61,7 +62,4 @@ public class CassandraScraper {
 
         client.close();
     }
-
-
-
 }

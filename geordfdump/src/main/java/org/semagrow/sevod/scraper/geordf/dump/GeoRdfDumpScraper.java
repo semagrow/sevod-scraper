@@ -7,6 +7,7 @@ import org.eclipse.rdf4j.model.impl.ValueFactoryImpl;
 import org.eclipse.rdf4j.rio.*;
 import org.eclipse.rdf4j.rio.helpers.BasicParserSettings;
 import org.eclipse.rdf4j.rio.ntriples.NTriplesUtil;
+import org.semagrow.sevod.scraper.api.Scraper;
 import org.semagrow.sevod.scraper.geordf.dump.helpers.WktHelpers;
 import org.semagrow.sevod.scraper.rdf.dump.RdfDumpMetadataExtractor;
 import org.semagrow.sevod.util.CompactBNodeTurtleWriter;
@@ -15,7 +16,7 @@ import java.io.*;
 import java.util.HashSet;
 import java.util.Set;
 
-public class GeoRdfDumpScraper {
+public class GeoRdfDumpScraper implements Scraper {
 
     private String endpoint = "http://endpoint";
     private Set<String> knownPrefixes = new HashSet<>();
