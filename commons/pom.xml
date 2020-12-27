@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.semagrow</groupId>
         <artifactId>sevod-scraper</artifactId>
-        <version>2.0-SNAPSHOT</version>
+        <version>3-SNAPSHOT</version>
     </parent>
 
     <artifactId>sevod-scraper-commons</artifactId>
