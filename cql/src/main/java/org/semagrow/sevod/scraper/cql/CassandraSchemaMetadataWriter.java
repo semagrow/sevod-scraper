@@ -3,18 +3,18 @@ package org.semagrow.sevod.scraper.cql;
 import com.datastax.driver.core.ColumnMetadata;
 import com.datastax.driver.core.IndexMetadata;
 import com.datastax.driver.core.TableMetadata;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.eclipse.rdf4j.model.vocabulary.RDF;
+import org.eclipse.rdf4j.rio.RDFHandlerException;
+import org.eclipse.rdf4j.rio.RDFWriter;
+import org.eclipse.rdf4j.rio.turtle.TurtleWriter;
 import org.semagrow.sevod.scraper.cql.utils.CassandraClient;
 import org.semagrow.sevod.scraper.cql.utils.RdfMapper;
 import org.semagrow.sevod.scraper.cql.vocab.CDV;
 import org.semagrow.sevod.commons.vocabulary.VOID;
-import org.openrdf.model.Resource;
-import org.openrdf.model.URI;
-import org.openrdf.model.ValueFactory;
-import org.openrdf.model.impl.ValueFactoryImpl;
-import org.openrdf.model.vocabulary.RDF;
-import org.openrdf.rio.RDFHandlerException;
-import org.openrdf.rio.RDFWriter;
-import org.openrdf.rio.n3.N3Writer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,9 +29,9 @@ public class CassandraSchemaMetadataWriter implements MetadataWriter {
 
     private CassandraClient client;
     private String base;
-    private URI endpoint;
+    private IRI endpoint;
 
-    private ValueFactory vf = ValueFactoryImpl.getInstance();
+    private ValueFactory vf = SimpleValueFactory.getInstance();
 
     @Override
     public void setClient(CassandraClient client) {
@@ -43,7 +43,7 @@ public class CassandraSchemaMetadataWriter implements MetadataWriter {
     }
 
     public void setEndpoint(String endpoint) {
-        this.endpoint = vf.createURI(endpoint);
+        this.endpoint = vf.createIRI(endpoint);
     }
 
     @Override
@@ -52,7 +52,7 @@ public class CassandraSchemaMetadataWriter implements MetadataWriter {
         try {
             Resource root = vf.createBNode();
 
-            RDFWriter writer  = new N3Writer(stream);
+            RDFWriter writer  = new TurtleWriter(stream);
 
             writer.handleNamespace("cdv", CDV.NAMESPACE);
             writer.handleNamespace("void", VOID.NAMESPACE);

@@ -1,8 +1,8 @@
 package org.semagrow.sevod.scraper.rdf.dump.util;
 
-import org.openrdf.model.Resource;
-import org.openrdf.model.URI;
-import org.openrdf.model.Value;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Value;
 
 /**
  * Created by antonis on 14/5/2015.
@@ -10,20 +10,20 @@ import org.openrdf.model.Value;
 public class Statistics {
 
     private long count = 0;
-    private DistinctCounter distSubj = new DistinctCounter(null);
-    private DistinctCounter prop = new DistinctCounter(null);
-    private DistinctCounter distObj = new DistinctCounter(null);
+    private FileDistinctCounter distSubj = new FileDistinctCounter(null);
+    private FileDistinctCounter prop = new FileDistinctCounter(null);
+    private FileDistinctCounter distObj = new FileDistinctCounter(null);
 
     public void addSubject(Resource s) {
-        distSubj.add(s.toString());
+        distSubj.add(s);
     }
 
-    public void addProperty(URI p) {
-        prop.add(p.toString());
+    public void addProperty(IRI p) {
+        prop.add(p);
     }
 
     public void addObject(Value o) {
-        distObj.add(o.toString());
+        distObj.add(o);
     }
 
     public void addCount() {

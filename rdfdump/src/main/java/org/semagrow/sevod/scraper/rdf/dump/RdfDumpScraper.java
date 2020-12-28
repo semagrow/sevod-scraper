@@ -1,87 +1,44 @@
 package org.semagrow.sevod.scraper.rdf.dump;
 
-import org.openrdf.rio.RDFFormat;
-import org.openrdf.rio.Rio;
+import org.eclipse.rdf4j.rio.*;
+import org.eclipse.rdf4j.rio.helpers.BasicParserSettings;
+import org.semagrow.sevod.scraper.api.Scraper;
+import org.semagrow.sevod.util.CompactBNodeTurtleWriter;
 
-import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 
-/**
- * Created by antonis on 14/5/2015.
- */
-public class RdfDumpScraper {
+public class RdfDumpScraper implements Scraper {
 
-    public static void main(String[] args) throws Exception {
+    private String endpoint = "http://endpoint";
+    private Set<String> knownPrefixes = new HashSet<>();
 
-        String className = RdfDumpScraper.class.getName();
-        String usage = "USAGE:" +
-                "\n\t java " + className + " [input_file.nq] [endpoint_url] [-s|p|o|v] [output_file.n3]" +
-                "\n\t java " + className + " [input_file.nq] [endpoint_url] [-s|p|o|v] [subjectBound] [objectBound] [output_file.n3]";
-
-        if (args.length != 6 && args.length != 4) {
-            throw new IllegalArgumentException(usage);
-        }
-        if (!args[2].startsWith("-")) {
-            throw new IllegalArgumentException(usage);
-        }
-
-        File infile = new File(args[0]);
-        if (!infile.exists()) {
-            throw new RuntimeException("file not found: " + infile);
-        }
-        if (!infile.isFile()) {
-            throw new RuntimeException("not a normal file: " + infile);
-        }
-        RDFFormat format = Rio.getParserFormatForFileName(args[0]);
-        if (format == null) {
-            throw new RuntimeException("can not identify RDF format for: " + args[0]);
-        }
-
-        String endpoint = args[1];
-
-        String whatToGenerate = args[2];
-
-        int subjectBound = 0;
-        int objectBound = 0;
-        String fileName = args[3];
-
-        if (args.length == 6) {
-            subjectBound = Integer.valueOf(args[3]);
-            objectBound = Integer.valueOf(args[4]);
-            fileName = args[5];
-        }
-
-        File outfile = new File(fileName);
-        if (outfile.exists() && !outfile.isFile()) {
-            throw new RuntimeException("file not found: " + infile);
-        }
-
-        ///////////////////////////////////////////////////////////////////////
-
-        MetadataGenerator generator = new MetadataGenerator(endpoint);
-
-        generator.setFormat(format);
-
-        if (whatToGenerate.contains("s"))
-            generator.generateSubjects();
-
-        if (whatToGenerate.contains("p"))
-            generator.generateProperties();
-
-        if (whatToGenerate.contains("o"))
-            generator.generateObjects();
-
-        if (whatToGenerate.contains("v"))
-            generator.generateVocabulary();
-
-        if (whatToGenerate.contains("j"))
-            generator.generateSelectivities();
-
-        if (whatToGenerate.contains("E"))
-            generator.useEndpoint();
-
-        generator.setBounds(subjectBound, objectBound);
-
-        generator.writeMetadata(infile,outfile);
+    public void setEndpoint(String endpoint) {
+        this.endpoint = endpoint;
     }
 
+    public void setKnownPrefixes(Set<String> knownPrefixes) {
+        this.knownPrefixes = knownPrefixes;
+    }
+
+    public void scrape(String inputPath, String outputPath) throws IOException, RDFHandlerException, RDFParseException {
+
+        RDFWriter writer = new CompactBNodeTurtleWriter(new FileWriter(outputPath));
+
+        writer.startRDF();
+
+        RdfDumpMetadataExtractor extractor = new RdfDumpMetadataExtractor(endpoint, knownPrefixes, writer);
+
+        RDFFormat format = RDFFormat.NTRIPLES;
+        RDFParser parser = Rio.createParser(format);
+        parser.getParserConfig().set(BasicParserSettings.VERIFY_DATATYPE_VALUES, false);
+        parser.getParserConfig().set(BasicParserSettings.VERIFY_URI_SYNTAX, false);
+        parser.setRDFHandler(extractor);
+        parser.parse(new FileInputStream(inputPath), "");
+
+        writer.endRDF();
+    }
 }

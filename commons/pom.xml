@@ -7,18 +7,9 @@
     <parent>
         <groupId>org.semagrow</groupId>
         <artifactId>sevod-scraper</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>3-SNAPSHOT</version>
     </parent>
 
     <artifactId>sevod-scraper-commons</artifactId>
-
-    <dependencies>
-
-        <dependency>
-            <groupId>org.openrdf.sesame</groupId>
-            <artifactId>sesame-model</artifactId>
-            <version>2.7.10</version>
-        </dependency>
-    </dependencies>
 
 </project>

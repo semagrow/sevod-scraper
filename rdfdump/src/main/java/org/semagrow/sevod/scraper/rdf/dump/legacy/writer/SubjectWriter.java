@@ -1,26 +1,27 @@
-package org.semagrow.sevod.scraper.rdf.dump.writer;
+package org.semagrow.sevod.scraper.rdf.dump.legacy.writer;
 
+import org.eclipse.rdf4j.model.*;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.eclipse.rdf4j.rio.RDFHandlerException;
+import org.eclipse.rdf4j.rio.RDFWriter;
+import org.eclipse.rdf4j.rio.helpers.RDFHandlerBase;
 import org.semagrow.sevod.commons.vocabulary.SEVOD;
 import org.semagrow.sevod.commons.vocabulary.VOID;
 import org.semagrow.sevod.scraper.rdf.dump.util.MyStringUtils;
 import org.semagrow.sevod.scraper.rdf.dump.util.Statistics;
 import org.apache.log4j.Logger;
-import org.openrdf.model.*;
-import org.openrdf.model.impl.ValueFactoryImpl;
-import org.openrdf.rio.RDFHandlerException;
-import org.openrdf.rio.RDFWriter;
-import org.openrdf.rio.helpers.RDFHandlerBase;
 
 import java.util.*;
 
 /**
  * Created by antonis on 14/5/2015.
  */
+@Deprecated
 public class SubjectWriter extends RDFHandlerBase {
 
     final private Logger log = Logger.getLogger(SubjectWriter.class);
 
-    ValueFactory vf = ValueFactoryImpl.getInstance();
+    ValueFactory vf = SimpleValueFactory.getInstance();
 
     Map<String, Statistics> subjectStats = new HashMap<>();
 
@@ -39,8 +40,8 @@ public class SubjectWriter extends RDFHandlerBase {
     @Override
     public void handleStatement(Statement st) throws RDFHandlerException {
         log.debug("Handling statement " + st.toString());
-        if (st.getSubject() instanceof URI) {
-            String str = ((URI) st.getSubject()).toString();
+        if (st.getSubject() instanceof IRI) {
+            String str = ((IRI) st.getSubject()).toString();
             for (String prefix: subjectStats.keySet()) {
                 if (str.startsWith(prefix)) {
                     Statistics stats = subjectStats.get(prefix);

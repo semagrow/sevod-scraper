@@ -1,10 +1,10 @@
 package org.semagrow.sevod.scraper.cql.vocab;
 
-import org.openrdf.model.Namespace;
-import org.openrdf.model.URI;
-import org.openrdf.model.ValueFactory;
-import org.openrdf.model.impl.NamespaceImpl;
-import org.openrdf.model.impl.ValueFactoryImpl;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Namespace;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.impl.NamespaceImpl;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 
 /**
  * Created by antonis on 7/6/2016.
@@ -18,28 +18,28 @@ public class CDT {
     public static final Namespace NS = new NamespaceImpl(PREFIX, NAMESPACE);
 
 
-    public final static URI BLOB;
-    public final static URI UDT;
-    public final static URI LIST;
-    public final static URI SET;
-    public final static URI MAP;
-    public final static URI DATE;
-    public final static URI TIME;
-    public final static URI TIMESTAMP;
-    public final static URI TIMEUUID;
-    public final static URI TUPLE;
+    public final static IRI BLOB;
+    public final static IRI UDT;
+    public final static IRI LIST;
+    public final static IRI SET;
+    public final static IRI MAP;
+    public final static IRI DATE;
+    public final static IRI TIME;
+    public final static IRI TIMESTAMP;
+    public final static IRI TIMEUUID;
+    public final static IRI TUPLE;
 
     static {
-        ValueFactory factory = ValueFactoryImpl.getInstance();
-        BLOB = factory.createURI(CDT.NAMESPACE, "blob");
-        UDT = factory.createURI(CDT.NAMESPACE, "udt");
-        LIST = factory.createURI(CDT.NAMESPACE, "list");
-        SET = factory.createURI(CDT.NAMESPACE, "set");
-        MAP = factory.createURI(CDT.NAMESPACE, "map");
-        DATE = factory.createURI(CDT.NAMESPACE, "date");
-        TIME = factory.createURI(CDT.NAMESPACE, "time");
-        TIMESTAMP = factory.createURI(CDT.NAMESPACE, "timestamp");
-        TIMEUUID = factory.createURI(CDT.NAMESPACE, "timeuuid");
-        TUPLE = factory.createURI(CDT.NAMESPACE, "tuple");
+        ValueFactory factory = SimpleValueFactory.getInstance();
+        BLOB = factory.createIRI(CDT.NAMESPACE, "blob");
+        UDT = factory.createIRI(CDT.NAMESPACE, "udt");
+        LIST = factory.createIRI(CDT.NAMESPACE, "list");
+        SET = factory.createIRI(CDT.NAMESPACE, "set");
+        MAP = factory.createIRI(CDT.NAMESPACE, "map");
+        DATE = factory.createIRI(CDT.NAMESPACE, "date");
+        TIME = factory.createIRI(CDT.NAMESPACE, "time");
+        TIMESTAMP = factory.createIRI(CDT.NAMESPACE, "timestamp");
+        TIMEUUID = factory.createIRI(CDT.NAMESPACE, "timeuuid");
+        TUPLE = factory.createIRI(CDT.NAMESPACE, "tuple");
     }
 }

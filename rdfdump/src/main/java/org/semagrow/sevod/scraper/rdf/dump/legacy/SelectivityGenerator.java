@@ -1,19 +1,19 @@
-package org.semagrow.sevod.scraper.rdf.dump;
+package org.semagrow.sevod.scraper.rdf.dump.legacy;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.log4j.Logger;
-import org.openrdf.model.*;
-import org.openrdf.model.impl.ValueFactoryImpl;
-import org.openrdf.model.vocabulary.RDF;
-import org.openrdf.query.*;
-import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.sail.SailRepository;
-import org.openrdf.repository.sparql.SPARQLRepository;
-import org.openrdf.rio.RDFFormat;
-import org.openrdf.rio.RDFWriter;
-import org.openrdf.sail.nativerdf.NativeStore;
+import org.eclipse.rdf4j.model.*;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.eclipse.rdf4j.model.vocabulary.RDF;
+import org.eclipse.rdf4j.query.*;
+import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.RepositoryException;
+import org.eclipse.rdf4j.repository.sail.SailRepository;
+import org.eclipse.rdf4j.repository.sparql.SPARQLRepository;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.RDFWriter;
+import org.eclipse.rdf4j.sail.nativerdf.NativeStore;
 import org.semagrow.sevod.commons.vocabulary.SEVOD;
 
 import java.io.File;
@@ -25,21 +25,22 @@ import java.util.Map;
 /**
  * Created by antonis on 24/7/2017.
  */
+@Deprecated
 public class SelectivityGenerator {
 
     final private Logger log = Logger.getLogger(SelectivityGenerator.class);
 
-    private Map<URI, Resource> propertyPartitionMap = null;
+    private Map<IRI, Resource> propertyPartitionMap = null;
 
-    private ValueFactory vf = ValueFactoryImpl.getInstance();
+    private ValueFactory vf = SimpleValueFactory.getInstance();
 
-    final private Map<Pair<URI, URI>, Long> starJoins = new HashMap();
-    final private Map<Pair<URI, URI>, Long> pathJoins = new HashMap();
-    final private Map<Pair<URI, URI>, Long> sinkJoins = new HashMap();
+    final private Map<Pair<IRI, IRI>, Long> starJoins = new HashMap();
+    final private Map<Pair<IRI, IRI>, Long> pathJoins = new HashMap();
+    final private Map<Pair<IRI, IRI>, Long> sinkJoins = new HashMap();
 
     int batch_size = 10;
 
-    public SelectivityGenerator(Map<URI, Resource> propertyPartitionMap) {
+    public SelectivityGenerator(Map<IRI, Resource> propertyPartitionMap) {
         this.propertyPartitionMap = propertyPartitionMap;
         log.debug("Found " + propertyPartitionMap.keySet().size() + " properties.");
     }
@@ -73,12 +74,12 @@ public class SelectivityGenerator {
 
     private void calculateSelectivitiesInternalBatch(RepositoryConnection conn) throws Exception {
 
-        List<List<Pair<URI, URI>>> list = new ArrayList<>();
-        List<Pair<URI, URI>> batch = new ArrayList<>();
+        List<List<Pair<IRI, IRI>>> list = new ArrayList<>();
+        List<Pair<IRI, IRI>> batch = new ArrayList<>();
         int count = 0;
 
-        for (URI p1 : propertyPartitionMap.keySet()) {
-            for (URI p2 : propertyPartitionMap.keySet()) {
+        for (IRI p1 : propertyPartitionMap.keySet()) {
+            for (IRI p2 : propertyPartitionMap.keySet()) {
                 if (!(p1.equals(p2))) {
                     batch.add(Pair.of(p1, p2));
                     count++;
@@ -90,12 +91,12 @@ public class SelectivityGenerator {
             }
         }
 
-        for (List<Pair<URI, URI>> ll: list) {
+        for (List<Pair<IRI, IRI>> ll: list) {
 
             String values = "   VALUES (?p1 ?p2) {\n";
-            for (Pair<URI, URI> pp: ll) {
-                URI p1 = pp.getLeft();
-                URI p2 = pp.getRight();
+            for (Pair<IRI, IRI> pp: ll) {
+                IRI p1 = pp.getLeft();
+                IRI p2 = pp.getRight();
                 values += "      ( <" + p1.toString() + "> <" + p2.toString() + "> )\n";
             }
             values += "   }\n";
@@ -122,28 +123,28 @@ public class SelectivityGenerator {
                     "   ?c ?p2 ?o . \n" + values +
                     "}";
 
-            List<Pair<Pair<URI, URI>, Long>> starbach = evaluateQueryBatch(conn, star_query, "p1", "p2", "result");
-            List<Pair<Pair<URI, URI>, Long>> sinkbach = evaluateQueryBatch(conn, sink_query, "p1", "p2", "result");
-            List<Pair<Pair<URI, URI>, Long>> pathbach = evaluateQueryBatch(conn, path_query, "p1", "p2", "result");
+            List<Pair<Pair<IRI, IRI>, Long>> starbach = evaluateQueryBatch(conn, star_query, "p1", "p2", "result");
+            List<Pair<Pair<IRI, IRI>, Long>> sinkbach = evaluateQueryBatch(conn, sink_query, "p1", "p2", "result");
+            List<Pair<Pair<IRI, IRI>, Long>> pathbach = evaluateQueryBatch(conn, path_query, "p1", "p2", "result");
 
-            for (Pair<Pair<URI, URI>, Long> pair: starbach) {
-                Pair<URI, URI> uris = pair.getLeft();
+            for (Pair<Pair<IRI, IRI>, Long> pair: starbach) {
+                Pair<IRI, IRI> uris = pair.getLeft();
                 long result = pair.getRight();
                 if (URIlessEq(uris.getLeft(), uris.getRight())) {
                     starJoins.put(uris, result);
                 }
             }
 
-            for (Pair<Pair<URI, URI>, Long> pair: sinkbach) {
-                Pair<URI, URI> uris = pair.getLeft();
+            for (Pair<Pair<IRI, IRI>, Long> pair: sinkbach) {
+                Pair<IRI, IRI> uris = pair.getLeft();
                 long result = pair.getRight();
                 if (URIlessEq(uris.getLeft(), uris.getRight())) {
                     sinkJoins.put(uris, result);
                 }
             }
 
-            for (Pair<Pair<URI, URI>, Long> pair: pathbach) {
-                Pair<URI, URI> uris = pair.getLeft();
+            for (Pair<Pair<IRI, IRI>, Long> pair: pathbach) {
+                Pair<IRI, IRI> uris = pair.getLeft();
                 long result = pair.getRight();
                 pathJoins.put(uris, result);
             }
@@ -151,11 +152,11 @@ public class SelectivityGenerator {
 
     }
 
-    private List<Pair<Pair<URI, URI>, Long>> evaluateQueryBatch(RepositoryConnection conn,
+    private List<Pair<Pair<IRI, IRI>, Long>> evaluateQueryBatch(RepositoryConnection conn,
                 String query, String leftVar, String rightVar, String resultVar)
             throws MalformedQueryException, QueryEvaluationException, RepositoryException {
 
-        List<Pair<Pair<URI, URI>, Long>> list = new ArrayList<>();
+        List<Pair<Pair<IRI, IRI>, Long>> list = new ArrayList<>();
 
         TupleQuery tupleQuery = conn.prepareTupleQuery(QueryLanguage.SPARQL, query);
         TupleQueryResult results = tupleQuery.evaluate();
@@ -165,9 +166,9 @@ public class SelectivityGenerator {
                 Value left = bs.getValue(leftVar);
                 Value right = bs.getValue(rightVar);
 
-                if (left instanceof URI && right instanceof URI) {
+                if (left instanceof IRI && right instanceof IRI) {
                     long result = Integer.valueOf(bs.getValue(resultVar).stringValue());
-                    list.add(Pair.of(Pair.of((URI) left, (URI) right), result));
+                    list.add(Pair.of(Pair.of((IRI) left, (IRI) right), result));
                 }
             }
         } finally {
@@ -178,8 +179,8 @@ public class SelectivityGenerator {
 
     private void calculateSelectivitiesInternal(RepositoryConnection conn) throws Exception {
 
-        for (URI p1 : propertyPartitionMap.keySet()) {
-            for (URI p2 : propertyPartitionMap.keySet()) {
+        for (IRI p1 : propertyPartitionMap.keySet()) {
+            for (IRI p2 : propertyPartitionMap.keySet()) {
                 if (!(p1.equals(p2))) {
 
                     log.debug("Calculating selectivity between " + p1 + " and " + p2);
@@ -244,12 +245,12 @@ public class SelectivityGenerator {
         return result;
     }
 
-    private boolean URIlessEq(URI u1, URI u2) {
+    private boolean URIlessEq(IRI u1, IRI u2) {
         return (u1.toString().compareTo(u2.toString()) <= 0);
     }
 
-    private void addJoin(Map<Pair<URI, URI>, Integer> join, URI p1, URI p2) {
-        Pair<URI, URI> key = Pair.of(p1,p2);
+    private void addJoin(Map<Pair<IRI, IRI>, Integer> join, IRI p1, IRI p2) {
+        Pair<IRI, IRI> key = Pair.of(p1,p2);
         if (join.containsKey(key)) {
             join.put(key, join.get(key) + 1);
         }
@@ -260,7 +261,7 @@ public class SelectivityGenerator {
 
     public void writeSelectivities(RDFWriter writer) throws Exception {
 
-        for (Pair<URI,URI> pair: starJoins.keySet()) {
+        for (Pair<IRI,IRI> pair: starJoins.keySet()) {
             BNode j = vf.createBNode();
             BNode s = vf.createBNode();
             Resource left = propertyPartitionMap.get(pair.getLeft());
@@ -274,7 +275,7 @@ public class SelectivityGenerator {
             writer.handleStatement(vf.createStatement(s, RDF.VALUE, vf.createLiteral(selectivityValue)));
         }
 
-        for (Pair<URI,URI> pair: pathJoins.keySet()) {
+        for (Pair<IRI,IRI> pair: pathJoins.keySet()) {
             BNode j = vf.createBNode();
             BNode s = vf.createBNode();
             Resource left = propertyPartitionMap.get(pair.getLeft());
@@ -288,7 +289,7 @@ public class SelectivityGenerator {
             writer.handleStatement(vf.createStatement(s, RDF.VALUE, vf.createLiteral(selectivityValue)));
         }
 
-        for (Pair<URI,URI> pair: sinkJoins.keySet()) {
+        for (Pair<IRI,IRI> pair: sinkJoins.keySet()) {
             BNode j = vf.createBNode();
             BNode s = vf.createBNode();
             Resource left = propertyPartitionMap.get(pair.getLeft());
