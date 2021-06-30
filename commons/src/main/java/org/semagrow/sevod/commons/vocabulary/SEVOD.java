@@ -12,7 +12,7 @@ import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
  */
 public final class SEVOD {
 
-    public static final String NAMESPACE = "http://rdf.iit.demokritos.gr/2013/sevod#";
+    public static final String NAMESPACE = "http://www.w3.org/2015/03/sevod#";
 
     public static final String PREFIX = "svd";
 
@@ -35,6 +35,9 @@ public final class SEVOD {
     public final static IRI JOINSUBJECT;
     public final static IRI JOINOBJECT;
 
+    public final static IRI BOUNDINGWKT;
+    public final static IRI BOUNDINGGML;
+
     static {
         ValueFactory factory = SimpleValueFactory.getInstance();
         SUBJECTREGEXPATTERN = factory.createIRI(SEVOD.NAMESPACE, "subjectRegexPattern");
@@ -51,5 +54,7 @@ public final class SEVOD {
         SELECTIVITY = factory.createIRI(SEVOD.NAMESPACE, "selectivity");
         JOINSUBJECT = factory.createIRI(SEVOD.NAMESPACE, "joinSubject");
         JOINOBJECT = factory.createIRI(SEVOD.NAMESPACE, "joinObject");
+        BOUNDINGWKT = factory.createIRI(SEVOD.NAMESPACE, "boundingWKT");
+        BOUNDINGGML = factory.createIRI(SEVOD.NAMESPACE, "boundingGML");
     }
 }

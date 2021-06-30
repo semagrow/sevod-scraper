@@ -6,9 +6,9 @@ import org.eclipse.rdf4j.model.*;
 import org.eclipse.rdf4j.model.impl.ValueFactoryImpl;
 import org.eclipse.rdf4j.rio.RDFHandlerException;
 import org.eclipse.rdf4j.rio.RDFWriter;
+import org.semagrow.sevod.commons.vocabulary.SEVOD;
 import org.semagrow.sevod.scraper.geordf.dump.helpers.WktHelpers;
 import org.semagrow.sevod.scraper.geordf.dump.vocabulary.GEO;
-import org.semagrow.sevod.scraper.geordf.dump.vocabulary.VOCAB;
 import org.semagrow.sevod.scraper.rdf.dump.metadata.Metadata;
 
 public class BoundingBoxMetadata implements Metadata {
@@ -49,7 +49,7 @@ public class BoundingBoxMetadata implements Metadata {
     @Override
     public void serializeMetadata(Resource dataset, RDFWriter writer) throws RDFHandlerException {
         if (mbb != null) {
-            writer.handleStatement(vf.createStatement(dataset, VOCAB.DATASET_BOUNDING_POLYGON, WktHelpers.createWKTLiteral(mbb, crs)));
+            writer.handleStatement(vf.createStatement(dataset, SEVOD.BOUNDINGWKT, WktHelpers.createWKTLiteral(mbb, crs)));
         }
     }
 }
