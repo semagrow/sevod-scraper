@@ -11,7 +11,7 @@ import org.semagrow.sevod.scraper.geordf.dump.helpers.WktHelpers;
 import org.semagrow.sevod.scraper.geordf.dump.vocabulary.GEO;
 import org.semagrow.sevod.scraper.rdf.dump.metadata.Metadata;
 
-public class BoundingBoxMetadata implements Metadata {
+public class BoundingPolygonMetadata implements Metadata {
 
     private ValueFactory vf = ValueFactoryImpl.getInstance();
 

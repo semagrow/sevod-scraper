@@ -13,16 +13,16 @@ import org.semagrow.sevod.scraper.rdf.dump.metadata.Metadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class KnownBoundingPolygonMetadata implements Metadata {
+public class KnownPolygonMetadata implements Metadata {
 
-    final private Logger log = LoggerFactory.getLogger(KnownBoundingPolygonMetadata.class);
+    final private Logger log = LoggerFactory.getLogger(KnownPolygonMetadata.class);
 
     private ValueFactory vf = ValueFactoryImpl.getInstance();
 
     private Geometry mbp;
     private IRI crs = null;
 
-    public KnownBoundingPolygonMetadata(Geometry mbp) {
+    public KnownPolygonMetadata(Geometry mbp) {
         this.mbp = mbp;
     }
 
