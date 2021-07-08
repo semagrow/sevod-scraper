@@ -15,24 +15,11 @@ public class BoundingPolygonMetadata implements Metadata {
 
     private ValueFactory vf = ValueFactoryImpl.getInstance();
 
-    private BoundingPolygon boundingPolygon = new BoundingPolygon();
+    private BoundingPolygon boundingPolygon = new BoundingPolygonEmpty();
     private IRI crs = null;
-    private int approximation_depth;
 
-    public BoundingPolygonMetadata() {
-        approximation_depth = 1;
-    }
-
-    public BoundingPolygonMetadata(String type) {
-        if (type.equals("mbb")) {
-            approximation_depth = 1;
-        }
-        if (type.equals("union")) {
-            approximation_depth = Integer.MAX_VALUE;
-        }
-        if (type.startsWith("qt")) {
-            approximation_depth = Integer.parseInt(type.substring(2));
-        }
+    public void setBoundingPolygon(BoundingPolygon boundingPolygon) {
+        this.boundingPolygon = boundingPolygon;
     }
 
     @Override
@@ -60,18 +47,7 @@ public class BoundingPolygonMetadata implements Metadata {
 
     @Override
     public void serializeMetadata(Resource dataset, RDFWriter writer) throws RDFHandlerException {
-        Geometry b = null;
-
-        if (approximation_depth == Integer.MAX_VALUE) {
-            b = boundingPolygon.getUnion();
-        }
-        else if (approximation_depth == 1) {
-            b = boundingPolygon.getEnvelope();
-        }
-        else {
-            b = boundingPolygon.getQuadTreeApproximation(approximation_depth);
-        }
-
+        Geometry b = boundingPolygon.serialize();
         writer.handleStatement(vf.createStatement(dataset, SEVOD.BOUNDINGWKT, WktHelpers.createWKTLiteral(b, crs)));
     }
 }

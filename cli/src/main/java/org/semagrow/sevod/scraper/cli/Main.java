@@ -107,12 +107,21 @@ public class Main {
 
             if (line.hasOption(extentType.getOpt()) || line.hasOption(extentType.getLongOpt())) {
                 String str = line.getOptionValue(extentType.getOpt());
-                scraper.extentType(str);
+                if (str.equals("mbb")) {
+                    scraper.setGeoExtentMBB();
+                }
+                if (str.equals("union")) {
+                    scraper.setGeoExtentUnion();
+                }
+                if (str.startsWith("qt")) {
+                    int depth = Integer.parseInt(str.substring(2));
+                    scraper.setGeoExtentApproximation(depth);
+                }
             }
 
             if (line.hasOption(polygon.getOpt()) || line.hasOption(polygon.getLongOpt())) {
                 String p = line.getOptionValue(polygon.getOpt());
-                scraper.setKnownBoundingPolygon(p);
+                scraper.setGeoExtentKnown(p);
             }
 
             if ((line.hasOption(input.getOpt()) || line.hasOption(input.getLongOpt()))
