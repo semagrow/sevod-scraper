@@ -9,7 +9,10 @@ import org.eclipse.rdf4j.rio.helpers.BasicParserSettings;
 import org.eclipse.rdf4j.rio.ntriples.NTriplesUtil;
 import org.semagrow.sevod.scraper.api.Scraper;
 import org.semagrow.sevod.scraper.geordf.dump.helpers.WktHelpers;
+import org.semagrow.sevod.scraper.geordf.dump.metadata.BoundingPolygonMetadata;
+import org.semagrow.sevod.scraper.geordf.dump.metadata.KnownPolygonMetadata;
 import org.semagrow.sevod.scraper.rdf.dump.RdfDumpMetadataExtractor;
+import org.semagrow.sevod.scraper.rdf.dump.metadata.Metadata;
 import org.semagrow.sevod.util.CompactBNodeTurtleWriter;
 
 import java.io.*;
@@ -20,7 +23,7 @@ public class GeoRdfDumpScraper implements Scraper {
 
     private String endpoint = "http://endpoint";
     private Set<String> knownPrefixes = new HashSet<>();
-    private Geometry knownBoundingPolygon = null;
+    private Metadata metadata = new BoundingPolygonMetadata();
 
     public void setEndpoint(String endpoint) {
         this.endpoint = endpoint;
@@ -32,7 +35,12 @@ public class GeoRdfDumpScraper implements Scraper {
 
     public void setKnownBoundingPolygon(String knownBoundingPolygon) throws ParseException {
         Literal l = NTriplesUtil.parseLiteral(knownBoundingPolygon, ValueFactoryImpl.getInstance());
-        this.knownBoundingPolygon = WktHelpers.createGeometry(l, WktHelpers.getCRS(l));
+        Geometry knownPolygon = WktHelpers.createGeometry(l, WktHelpers.getCRS(l));
+        metadata = new KnownPolygonMetadata(knownPolygon);
+    }
+
+    public void extentType(String type) {
+        metadata = new BoundingPolygonMetadata(type);
     }
 
     public void scrape(String inputPath, String outputPath) throws IOException, RDFHandlerException, RDFParseException {
@@ -41,7 +49,7 @@ public class GeoRdfDumpScraper implements Scraper {
 
         writer.startRDF();
 
-        RdfDumpMetadataExtractor extractor = new GeoRdfDumpMetadataExtractor(endpoint, knownPrefixes, knownBoundingPolygon, writer);
+        RdfDumpMetadataExtractor extractor = new GeoRdfDumpMetadataExtractor(endpoint, knownPrefixes, metadata, writer);
 
         RDFFormat format = RDFFormat.NTRIPLES;
         RDFParser parser = Rio.createParser(format);

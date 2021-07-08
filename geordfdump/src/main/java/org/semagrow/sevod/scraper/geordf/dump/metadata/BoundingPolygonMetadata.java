@@ -15,8 +15,25 @@ public class BoundingPolygonMetadata implements Metadata {
 
     private ValueFactory vf = ValueFactoryImpl.getInstance();
 
-    private Geometry mbb = null;
+    private BoundingPolygon boundingPolygon = new BoundingPolygon();
     private IRI crs = null;
+    private int approximation_depth;
+
+    public BoundingPolygonMetadata() {
+        approximation_depth = 1;
+    }
+
+    public BoundingPolygonMetadata(String type) {
+        if (type.equals("mbb")) {
+            approximation_depth = 1;
+        }
+        if (type.equals("union")) {
+            approximation_depth = Integer.MAX_VALUE;
+        }
+        if (type.startsWith("qt")) {
+            approximation_depth = Integer.parseInt(type.substring(2));
+        }
+    }
 
     @Override
     public void processStatement(Statement statement) {
@@ -33,13 +50,8 @@ public class BoundingPolygonMetadata implements Metadata {
                 }
 
                 Geometry g = WktHelpers.createGeometry((Literal) o, crs);
+                boundingPolygon.extend(g);
 
-                if (mbb == null) {
-                    mbb = g.getEnvelope();
-                }
-                else {
-                    mbb = g.getEnvelope().union(mbb).getEnvelope();
-                }
             } catch (ParseException e) {
                 e.printStackTrace();
             }
@@ -48,8 +60,18 @@ public class BoundingPolygonMetadata implements Metadata {
 
     @Override
     public void serializeMetadata(Resource dataset, RDFWriter writer) throws RDFHandlerException {
-        if (mbb != null) {
-            writer.handleStatement(vf.createStatement(dataset, SEVOD.BOUNDINGWKT, WktHelpers.createWKTLiteral(mbb, crs)));
+        Geometry b = null;
+
+        if (approximation_depth == Integer.MAX_VALUE) {
+            b = boundingPolygon.getUnion();
         }
+        else if (approximation_depth == 1) {
+            b = boundingPolygon.getEnvelope();
+        }
+        else {
+            b = boundingPolygon.getQuadTreeApproximation(approximation_depth);
+        }
+
+        writer.handleStatement(vf.createStatement(dataset, SEVOD.BOUNDINGWKT, WktHelpers.createWKTLiteral(b, crs)));
     }
 }
