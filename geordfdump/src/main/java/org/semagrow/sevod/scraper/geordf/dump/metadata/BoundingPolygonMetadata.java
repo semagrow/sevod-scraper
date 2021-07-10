@@ -10,20 +10,16 @@ import org.semagrow.sevod.commons.vocabulary.SEVOD;
 import org.semagrow.sevod.scraper.geordf.dump.helpers.WktHelpers;
 import org.semagrow.sevod.scraper.geordf.dump.vocabulary.GEO;
 import org.semagrow.sevod.scraper.rdf.dump.metadata.Metadata;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public class KnownBoundingPolygonMetadata implements Metadata {
-
-    final private Logger log = LoggerFactory.getLogger(KnownBoundingPolygonMetadata.class);
+public class BoundingPolygonMetadata implements Metadata {
 
     private ValueFactory vf = ValueFactoryImpl.getInstance();
 
-    private Geometry mbp;
+    private BoundingPolygon boundingPolygon = new BoundingPolygonEmpty();
     private IRI crs = null;
 
-    public KnownBoundingPolygonMetadata(Geometry mbp) {
-        this.mbp = mbp;
+    public void setBoundingPolygon(BoundingPolygon boundingPolygon) {
+        this.boundingPolygon = boundingPolygon;
     }
 
     @Override
@@ -41,22 +37,17 @@ public class KnownBoundingPolygonMetadata implements Metadata {
                 }
 
                 Geometry g = WktHelpers.createGeometry((Literal) o, crs);
+                boundingPolygon.extend(g);
 
-                if (!mbp.contains(g)) {
-                    log.info(g.toString() + " is not contained in " + mbp.toString());
-                    mbp = null;
-                }
             } catch (ParseException e) {
                 e.printStackTrace();
             }
         }
-
     }
 
     @Override
     public void serializeMetadata(Resource dataset, RDFWriter writer) throws RDFHandlerException {
-        if (mbp != null) {
-            writer.handleStatement(vf.createStatement(dataset, SEVOD.BOUNDINGWKT, WktHelpers.createWKTLiteral(mbp, crs)));
-        }
+        Geometry b = boundingPolygon.serialize();
+        writer.handleStatement(vf.createStatement(dataset, SEVOD.BOUNDINGWKT, WktHelpers.createWKTLiteral(b, crs)));
     }
 }

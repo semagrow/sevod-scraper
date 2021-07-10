@@ -36,8 +36,10 @@ public class Main {
                 "List of known URI prefixes (comma-separated)");
         Option graph = new Option("g", "graph", true,
                 "Graph (only for SPARQL endpoint)");
+        Option extentType = new Option("t", "extentType", true,
+                "Extent type (mbb-union-qtN, for geospatial RDF)");
         Option polygon = new Option("P", "polygon", true,
-                "Known bounding polygon (for geospatial RDF files)");
+                "Known boundingWKT (for geospatial RDF)");
         Option namespace = new Option("n", "namespace", true,
                 "Namespace for URI mappings (only for cassandra)");
 
@@ -53,6 +55,7 @@ public class Main {
         options.addOption(endpoint);
         options.addOption(prefixes);
         options.addOption(graph);
+        options.addOption(extentType);
         options.addOption(polygon);
         options.addOption(namespace);
 
@@ -102,9 +105,23 @@ public class Main {
                 scraper.setKnownPrefixes(p);
             }
 
+            if (line.hasOption(extentType.getOpt()) || line.hasOption(extentType.getLongOpt())) {
+                String str = line.getOptionValue(extentType.getOpt());
+                if (str.equals("mbb")) {
+                    scraper.setGeoExtentMBB();
+                }
+                if (str.equals("union")) {
+                    scraper.setGeoExtentUnion();
+                }
+                if (str.startsWith("qt")) {
+                    int depth = Integer.parseInt(str.substring(2));
+                    scraper.setGeoExtentApproximation(depth);
+                }
+            }
+
             if (line.hasOption(polygon.getOpt()) || line.hasOption(polygon.getLongOpt())) {
                 String p = line.getOptionValue(polygon.getOpt());
-                scraper.setKnownBoundingPolygon(p);
+                scraper.setGeoExtentKnown(p);
             }
 
             if ((line.hasOption(input.getOpt()) || line.hasOption(input.getLongOpt()))

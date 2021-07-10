@@ -9,6 +9,7 @@ import org.eclipse.rdf4j.rio.helpers.BasicParserSettings;
 import org.eclipse.rdf4j.rio.ntriples.NTriplesUtil;
 import org.semagrow.sevod.scraper.api.Scraper;
 import org.semagrow.sevod.scraper.geordf.dump.helpers.WktHelpers;
+import org.semagrow.sevod.scraper.geordf.dump.metadata.*;
 import org.semagrow.sevod.scraper.rdf.dump.RdfDumpMetadataExtractor;
 import org.semagrow.sevod.util.CompactBNodeTurtleWriter;
 
@@ -20,7 +21,7 @@ public class GeoRdfDumpScraper implements Scraper {
 
     private String endpoint = "http://endpoint";
     private Set<String> knownPrefixes = new HashSet<>();
-    private Geometry knownBoundingPolygon = null;
+    private BoundingPolygonMetadata metadata = new BoundingPolygonMetadata();;
 
     public void setEndpoint(String endpoint) {
         this.endpoint = endpoint;
@@ -30,10 +31,30 @@ public class GeoRdfDumpScraper implements Scraper {
         this.knownPrefixes = knownPrefixes;
     }
 
-    public void setKnownBoundingPolygon(String knownBoundingPolygon) throws ParseException {
-        Literal l = NTriplesUtil.parseLiteral(knownBoundingPolygon, ValueFactoryImpl.getInstance());
-        this.knownBoundingPolygon = WktHelpers.createGeometry(l, WktHelpers.getCRS(l));
+
+    public void setGeoExtentMBB() {
+        metadata.setBoundingPolygon(new BoundingPolygonMBB());
     }
+
+    public void setGeoExtentUnion() {
+        metadata.setBoundingPolygon(new BoundingPolygonUnion());
+    }
+
+    public void setGeoExtentApproximation(int depth) {
+        metadata.setBoundingPolygon(new BoundingPolygonApprox(depth));
+    }
+
+    public void setGeoExtentKnown(String known) {
+        try {
+            Literal l = NTriplesUtil.parseLiteral(known, ValueFactoryImpl.getInstance());
+            Geometry knownPolygon = null;
+            knownPolygon = WktHelpers.createGeometry(l, WktHelpers.getCRS(l));
+            metadata.setBoundingPolygon(new BoundingPolygonKnown(knownPolygon));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     public void scrape(String inputPath, String outputPath) throws IOException, RDFHandlerException, RDFParseException {
 
@@ -41,7 +62,7 @@ public class GeoRdfDumpScraper implements Scraper {
 
         writer.startRDF();
 
-        RdfDumpMetadataExtractor extractor = new GeoRdfDumpMetadataExtractor(endpoint, knownPrefixes, knownBoundingPolygon, writer);
+        RdfDumpMetadataExtractor extractor = new GeoRdfDumpMetadataExtractor(endpoint, knownPrefixes, metadata, writer);
 
         RDFFormat format = RDFFormat.NTRIPLES;
         RDFParser parser = Rio.createParser(format);
