@@ -11,7 +11,7 @@ mvn clean package
 Extract the *.tar.gz file that is contained in the assembly/target directory to run sevod scraper.
 ```
 cd assembly/target
-tar xzvf sevod-scraper-2.0-SNAPSHOT-dist.tar.gz
+tar xzvf sevod-scraper-*-dist.tar.gz
 cd bin
 ./sevod-scraper.sh
 ```
@@ -28,14 +28,15 @@ Option                  | Description
  &nbsp;&nbsp;&nbsp;&nbsp; `--geordfdump` |  input is a geospatial RDF file in ntriples format
  &nbsp;&nbsp;&nbsp;&nbsp; `--cassandra`  |  input is a Cassandra keyspace
  &nbsp;&nbsp;&nbsp;&nbsp; `--sparql`     |  input is a SPARQL endpoint
- `-i,--input <arg>    ` |  input
- `-o,--output <arg>   ` |  output metadata file in turtle format
- `-e,--endpoint <arg> ` |  SPARQL endpoint URL (used for annotation only)
- `-p,--prefixes <arg> ` |  List of known URI prefixes (comma-separated)
- `-g,--graph <arg>    ` |  Graph (only for SPARQL endpoint)
- `-P,--polygon <arg>  ` |  Known bounding polygon (for geospatial RDF files)
- `-n,--namespace <arg>` |  Namespace for URI mappings (only for cassandra)
- `-h,--help           ` |  print a help message
+ `-i,--input <arg>    `  |  input
+ `-o,--output <arg>   `  |  output metadata file in turtle format
+ `-e,--endpoint <arg> `  |  SPARQL endpoint URL (used for annotation only)
+ `-p,--prefixes <arg> `  |  List of known URI prefixes (comma-separated)
+ `-g,--graph <arg>    `  |  Graph (only for SPARQL endpoint)
+ `-t,--extentType <arg>` |  Extent type (mbb-union-qtN, for geospatial RDF)
+ `-P,--polygon <arg>  `  |  Known bounding polygon (for geospatial RDF files)
+ `-n,--namespace <arg>`  |  Namespace for URI mappings (only for cassandra)
+ `-h,--help           `  |  print a help message
 
 ## Examples ##
 
@@ -69,11 +70,18 @@ If your RDF dump file is a geospatial dataset (i.e., it contains the geo:asWKT p
 you can issue the following command:
 
  ```
- ./sevod-scraper.sh --geordfdump -i input.nt -e http://localhost:8080/sparql -o output.ttl
+ ./sevod-scraper.sh --geordfdump -i input.nt -t EXTENT_TYPE -e http://localhost:8080/sparql -o output.ttl
  ```
 The functionality is the same as for `rdfdump` option, except that the output file will contain
-a special annotation of the minimum bounding box of all WKT literals of the dataset.
-If wou want to annotate it manually, you can issue the following command:
+an annotation of the bounding polygon that contains of all WKT literals of the dataset.
+
+Extent types can be one of the following:
+* `mbb`, which exports the Minimum Bounding Box of all WKT literals
+* `union`, which expors the spatial union of all WKT literals
+* `qtN`, where `N` is an integer, which calculates an approximation of the union of all WKT literals
+  using a [quadtree](https://en.wikipedia.org/wiki/Quadtree) of height `N`.  
+
+If wou want to provide a manual spatial extent annotation, you can issue the following command:
 
 ```
 ./sevod-scraper.sh --geordfdump -i input.nt -P POLYGON_IN_WKT -e http://localhost:8080/sparql -o output.ttl
