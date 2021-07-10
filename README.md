@@ -73,7 +73,7 @@ you can issue the following command:
  ./sevod-scraper.sh --geordfdump -i input.nt -t EXTENT_TYPE -e http://localhost:8080/sparql -o output.ttl
  ```
 The functionality is the same as for `rdfdump` option, except that the output file will contain
-an annotation of the bounding polygon that contains of all WKT literals of the dataset.
+an annotation of the bounding polygon that contains all WKT literals of the dataset.
 
 Extent types can be one of the following:
 * `mbb`, which exports the Minimum Bounding Box of all WKT literals
@@ -81,7 +81,7 @@ Extent types can be one of the following:
 * `qtN`, where `N` is an integer, which calculates an approximation of the union of all WKT literals
   using a [quadtree](https://en.wikipedia.org/wiki/Quadtree) of height `N`.  
 
-If wou want to provide a manual spatial extent annotation, you can issue the following command:
+If you want to provide a manual spatial extent annotation, you can issue the following command:
 
 ```
 ./sevod-scraper.sh --geordfdump -i input.nt -P POLYGON_IN_WKT -e http://localhost:8080/sparql -o output.ttl
