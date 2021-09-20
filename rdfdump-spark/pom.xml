@@ -17,7 +17,7 @@
         <spark.version>2.4.5</spark.version>
         <scala.version.major>2.12</scala.version.major>
         <scala.version>${scala.version.major}.6</scala.version>
-        <jena.version>3.0.0</jena.version>
+        <jena.version>4.2.0</jena.version>
     </properties>
 
     <dependencies>
